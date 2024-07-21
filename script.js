@@ -4424,7 +4424,16 @@ async function loadDataFromFiles() {
     //if (!user_data) user_data = [];
     if (!user_data || !user_data.length) {
         user_data = [];
-        user_data.push({ username: "mehboob", daily_practise_questions: [] });
+        var obj = {
+            username: "mehboob",
+            daily_practise_questions: [],
+            mocks: [],
+            images: [],
+            videos: [],
+            links: [],
+            starred_questions: [],
+        };
+        user_data.push();
     }
     if (!user_data[0].username) {
         while (!user_data[0].username) {
