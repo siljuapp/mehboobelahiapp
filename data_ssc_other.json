@@ -1,0 +1,52 @@
+[
+    {
+        "type": "tags_index",
+        "data": [
+            
+            {
+                "name": "[[polity]]",
+                "children": [
+                    [
+                        {
+                            "name": "[[constitution]]",
+                            "children": [
+                                [
+                                    {
+                                        "name": "[[amendment]]",
+                                        "children": []
+                                    }
+                                ]
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "[[constitution assembly]]",
+                            "children": []
+                        }
+                    ],
+                    [
+                        {
+                            "name": "[[preamble]]",
+                            "children": []
+                        }
+                    ],
+                    
+                    [
+                        {
+                            "name": "[[citizenship]]",
+                            "children": []
+                        }
+                    ],
+                    [
+                        {
+                            "name": "[[Fundamental Rights]]",
+                            "children": []
+                        }
+                    ]
+                ]
+            }
+        ]
+            
+    }
+]
