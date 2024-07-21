@@ -4,7 +4,6 @@ var new_ques = []; //updateQuestionsData() //getAllQuestions()
 var data = [];
 var parent_b_uid = "bN0UzG0NF";
 
-var git_token = "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";
 var gist_data = {
     data_other_id: "e5b0bc82cc5244ca87bb3cfe6a3aa437",
     data_other_filename: "my_mcq_app_data_other.json",
