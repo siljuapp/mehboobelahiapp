@@ -4433,7 +4433,8 @@ async function loadDataFromFiles() {
             links: [],
             starred_questions: [],
         };
-        user_data.push();
+        user_data.push(obj);
+        saveDataInLocale("user_data", user_data);
     }
     if (!user_data[0].username) {
         while (!user_data[0].username) {
