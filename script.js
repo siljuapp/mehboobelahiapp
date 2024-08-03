@@ -332,7 +332,7 @@ function initialLoading() {
         if (ele) {
             clearInterval(download_app);
             ele.addEventListener("click", () => {
-                const filePath = "/assets/revise.apk";
+                const filePath = "/assets/elahi.apk";
                 const link = document.createElement("a");
                 link.href = filePath;
                 link.download = filePath.split("/").pop(); // Sets the download attribute to the filename
