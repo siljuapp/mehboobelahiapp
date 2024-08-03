@@ -1,5 +1,5 @@
 const CACHE_NAME = "elahi_study_app";
-const urlsToCache = ["/", "/index.html", "/styles.css", "/script.js", "/assets/esa_logo_192.png", "/assets/esa_logo_512.png"];
+const urlsToCache = ["/", "/index.html", "/styles.css", "/script.js", "/assets/esalogo_192.png", "/assets/esalogo_512.png"];
 
 self.addEventListener("install", function (event) {
     event.waitUntil(
