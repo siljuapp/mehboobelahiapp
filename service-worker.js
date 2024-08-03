@@ -1,5 +1,5 @@
-const CACHE_NAME = "revise-cache-v1.2";
-const urlsToCache = ["/", "/index.html", "/styles.css?v1.2", "/script.js?v1.2", "/assets/icon-192x192.png", "/assets/icon-512x512.png"];
+const CACHE_NAME = "elahi_study_app";
+const urlsToCache = ["/", "/index.html", "/styles.css", "/script.js", "/assets/esa_logo_192.png", "/assets/esa_logo_512.png"];
 
 self.addEventListener("install", function (event) {
     event.waitUntil(
