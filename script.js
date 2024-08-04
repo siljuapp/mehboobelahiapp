@@ -2757,7 +2757,10 @@ function startNewMockTest(mock) {
                 if (index === selected_chapters.length - 1) {
                     count += remainingQuestions; // Add remaining questions to the last chapter
                 }
-                chapter_arr[chapter] = que_data.filter((que) => que.tags.includes(chapter)).slice(0, count);
+                let temp_arr = que_data.filter((que) => que.tags.includes(chapter));
+                temp_arr = sortArrayRandomly(temp_arr);
+                //chapter_arr[chapter] = que_data.filter((que) => que.tags.includes(chapter)).slice(0, count);
+                chapter_arr[chapter] = temp_arr.slice(0, count);
             });
 
             for (let chapter in chapter_arr) {
@@ -2909,6 +2912,7 @@ function startNewMockTest(mock) {
 
 function openMCQPage(id) {
     openPage("mcq");
+
     var page_main = document.querySelector(".page.mcq > .main .que-text");
     if (!page_main) {
         page_main = document.querySelector(".page.mcq > .main ");
@@ -4453,6 +4457,7 @@ function loadNewMockTestSection() {
             }
         });
     }
+    div.querySelector(".mock-chapters > .head").click();
 
     ele = div.querySelector(".mock-chapters  input");
     if (ele) {
@@ -4838,7 +4843,11 @@ function setMcqPageMainItemEvents(main) {
                 sortArrayRandomly(fil_ques);
             }
             curr_ques = fil_ques[curr_que_index];
-            displayQuestion(curr_ques);
+
+            document.querySelector(".mcq.page .main .que-div").classList.add("flip");
+            setTimeout(function () {
+                displayQuestion(curr_ques);
+            }, 300);
         });
     }
 }
