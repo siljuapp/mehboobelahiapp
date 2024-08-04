@@ -1433,6 +1433,7 @@ function loadPageText2(item, target, level) {
 
     if (item.heading) {
         div.classList.add("heading");
+        div.classList.add(`level-${level}`);
     }
 
     div.innerHTML = getBlockHTMLTemplate();
@@ -1441,6 +1442,9 @@ function loadPageText2(item, target, level) {
 
     var ele = "";
     let text = item.text;
+    if (item.heading) {
+        div.querySelector(".icon_ .share").classList.remove("hide");
+    }
     if (text) {
         let ele = div.querySelector(".me-block-text .text-inner");
         text = text.trim();
@@ -2131,7 +2135,7 @@ function initializeYouTubePlayer(time, video_id, target) {
     if (url.includes("127.0.0")) {
         url = "http://127.0.0.1:5500";
     } else {
-        url = "https://neetflix.life";
+        url = "https://elahistudyapp.in";
     }
     if (!iframe) {
         target.innerHTML = `
@@ -3849,7 +3853,7 @@ function getBlockHTMLTemplate() {
                     </div>
                     <div class="icon_">
                         <span class="plus">+</span> 
-                        <i class="fa-regular fa-share-nodes share"></i>
+                        <i class="fa-regular fa-share-nodes share hide"></i>
                         <span class="linked-ques"></span>
                         <i class="fa-brands fa-youtube video hide"></i>
                     </div>
