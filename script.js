@@ -325,7 +325,6 @@ function initialLoading() {
     document.querySelector(".me-content").classList.remove("hide");
     let target = document.querySelector(".page.home");
     loadPage(target, "home");
-    debugger;
 
     var download_app = setInterval(() => {
         let ele = document.querySelector(".download-app");
@@ -1165,11 +1164,12 @@ function endMockTestHTMLTemplate() {
                 <span class="result-label">Wrong Questions:  </span>
                 <span class="result-value" id="wrong-questions"></span>
             </div>
-            <div class="result-chart">
-                <div class="chart-bar correct-bar" id="correct-bar"></div>
-                <div class="chart-bar unattempted-bar" id="unattempted-bar"></div>
-                <div class="chart-bar incorrect-bar" id="incorrect-bar"></div>
+
+            <div class="result-item marks">
+                <span class="result-label">Marks:  </span>
+                <span class="result-value" id="marks"></span>
             </div>
+            
             <button class="show-questions hide">Show questions</button>
             <div class="show-que-list"></div>
         </div>`;
@@ -1443,11 +1443,22 @@ function loadPageText2(item, target, level) {
     var ele = "";
     let text = item.text;
     if (item.heading) {
-        div.querySelector(".icon_ .share").classList.remove("hide");
+        //div.querySelector(".icon_ .share").classList.remove("hide");
     }
     if (text) {
         let ele = div.querySelector(".me-block-text .text-inner");
         text = text.trim();
+        ele.innerHTML = getHTMLFormattedText(text);
+
+        let video_elements = ele.querySelectorAll("i.video");
+        video_elements.forEach((v_ele) => {
+            v_ele.addEventListener("click", () => {
+                let video_id = v_ele.getAttribute("id");
+                let time = parseInt(v_ele.getAttribute("time"));
+                playVideoPlayer(time, video_id);
+            });
+        });
+        /*
         const imagePattern = /!\[.*?\]\((https:\/\/[^\)]+)\)/;
         const match = text.match(imagePattern);
 
@@ -1490,6 +1501,7 @@ function loadPageText2(item, target, level) {
             //ele.innerHTML = getHTMLFormattedText(text);
             ele.innerHTML = getHTMLFormattedText(text);
         }
+        */
     }
 
     let children = item.children;
@@ -1853,10 +1865,13 @@ function getHTMLFormattedText(text) {
     text = text.replace(/\^\^(.*?)\^\^/g, '<span class="me-highlight">$1</span>');
 
     // Convert ![text](src_link) to <img>
-    text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+    text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img class="me-image" src="$2" alt="$1">');
 
     // Convert [text](link) to <a>
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+    // Convert {video:ASDASDDE:399} to <i class="fa-brands fa-youtube video" id="video-id" time="399"></i>
+    text = text.replace(/\{video:([^:]+):(\d+)\}/g, '<i class="fa-brands fa-youtube video" id="$1" time="$2"></i>');
 
     // Convert \n to <br>
     text = text.replace(/\n/g, "<br>");
@@ -2085,8 +2100,9 @@ function playVideoPlayer_____(time, video_id, target) {
     }
 }
 
-function playVideoPlayer(time, video_id, target) {
-    const iframe = target.querySelector("iframe");
+function playVideoPlayer(time, video_id) {
+    let target = document.querySelector(".page.notes .me-iframe-div");
+    const iframe = document.querySelector(".page.notes .me-iframe-div  iframe");
     // If the player is already initialized and the video ID matches, just seek and play
     //let block_id = target.closest(".me-block").id;
     //let new_video_block_id = block_id + video_id;
@@ -2130,7 +2146,7 @@ function playVideoPlayer(time, video_id, target) {
 function initializeYouTubePlayer(time, video_id, target) {
     // Initialize the player with the new video ID
     //const iframe = target.querySelector("iframe");
-    let iframe = target.querySelector("iframe");
+    let iframe = target.querySelector(" iframe");
     var url = window.location.href; // Get the current URL
     if (url.includes("127.0.0")) {
         url = "http://127.0.0.1:5500";
@@ -2529,6 +2545,57 @@ function loadPreviousMockResults() {
         div_mock.id = mock.id;
         tar_ele.appendChild(div_mock);
 
+        div_mock.innerHTML = `
+                            <span class="date"></span>                    
+                            <span class="total-questions"></span>
+                            <span class="questions-attempted"></span>
+                            <span class="correct-questions correct"></span>
+                            <span class="wrong-questiions wrong"></span>
+                            <span class="marks"></span>
+
+                            <div class="show-questions link">Show questions</div>
+                            `;
+
+        // Now get the mock test data
+        let que_arr = mock.questions;
+        var total_questions = que_arr.length;
+        var questions_attempted = 0;
+        var correct_questions = 0;
+        var wrong_questions = 0;
+
+        que_arr.forEach((que) => {
+            if (que.selected_option_id != "") {
+                ++questions_attempted;
+                if (que.selected_option_id == que.answer_option_id) ++correct_questions;
+                else ++wrong_questions;
+            }
+        });
+        div_mock.querySelector(".date").textContent = `${getFormattedDate(mock.date)}`;
+        div_mock.querySelector(".total-questions").textContent = `Total questions:  ${total_questions}`;
+        div_mock.querySelector(".questions-attempted").textContent = `Questions attempted:  ${questions_attempted}`;
+        div_mock.querySelector(".correct-questions").textContent = `Correct questions:  ${correct_questions}`;
+        div_mock.querySelector(".wrong-questiions").textContent = `Wrong questions:  ${wrong_questions}`;
+
+        let marks = correct_questions * 2 - wrong_questions * 0.6;
+        marks = marks.toFixed(1);
+        marks = `${marks} / ${total_questions * 2}`;
+        div_mock.querySelector(".marks").textContent = `Marks:  ${marks}`;
+
+        var passingMarks = total_questions * 2 * 0.35;
+
+        if (marks >= passingMarks) {
+            div_mock.classList.add("passed");
+        } else {
+            div_mock.classList.add("failed");
+        }
+
+        let ele = div_mock.querySelector(".show-questions");
+        if (ele) {
+            ele.addEventListener("click", () => {
+                showPreviousMockQuestions(mock);
+            });
+        }
+        /*
         var span0 = document.createElement("span");
         span0.className = "mock-test-num hide";
         span0.textContent = `Mock Test ${index + 1}`;
@@ -2587,6 +2654,7 @@ function loadPreviousMockResults() {
         span2.addEventListener("click", (event) => {
             showPreviousMockQuestions(mock);
         });
+        */
     });
 }
 
@@ -2812,15 +2880,16 @@ function startNewMockTest(mock) {
         let que = getQuestionById(id);
         displayQuestion(que, target_ele, "mock");
     });
+
     let mock_test_div = document.querySelector(".main-content > .mock-test");
-
     mock_test_div.querySelector(".submit-test").addEventListener("click", () => {
-        //Showing the top tabs bar so that to switch to explanations
-        document.querySelector(".main-content > .me-top").classList.remove("hide");
+        let mock_test_div = document.querySelector(".main-content > .mock-test");
 
+        // save the mock end time in the top element in mocks which is the latest mock test
         user_data[0].mocks[0].end_time = getCurrentTime();
-        var que_arr = user_data[0].mocks[0].questions;
 
+        // aNoe save all the question data of the mock
+        var que_arr = user_data[0].mocks[0].questions;
         mock_test_div.querySelectorAll(".que-div").forEach((que_ele, index) => {
             que_arr[index].id = que_ele.id;
             var options = que_ele.querySelectorAll(".option");
@@ -2829,83 +2898,76 @@ function startNewMockTest(mock) {
                 if (option.classList.contains("ans")) que_arr[index].answer_option_id = option.id;
             });
         });
+        // Now save the user data
         saveDataInLocale("user_data", user_data);
 
+        // Now get the mock test data
         var total_questions = que_arr.length;
         var questions_attempted = 0;
-        var questions_unattempted = 0;
         var correct_questions = 0;
         var wrong_questions = 0;
+
         que_arr.forEach((que) => {
             if (que.selected_option_id != "") {
                 ++questions_attempted;
                 if (que.selected_option_id == que.answer_option_id) ++correct_questions;
                 else ++wrong_questions;
-            } else {
-                ++questions_unattempted;
             }
         });
-        var result = user_data[0].mocks[0].result;
-        result.total_questions = total_questions;
-        result.attempted_questions = questions_attempted;
-        result.correct_questions = correct_questions;
-        result.incorrect_questions = wrong_questions;
 
-        saveDataInLocale("user_data", user_data);
+        mock_test_div = document.querySelector(".main-content > .mock-test");
+        mock_test_div.innerHTML = `<div class="mock-result">
+                                        <div class="header">
+                                            <span>Result</span>
+                                            <span class="cross">X</span>
+                                        </div>
+                                        <span class="total-questions"></span>
+                                        <span class="questions-attempted"></span>
+                                        <span class="correct-questions correct"></span>
+                                        <span class="wrong-questiions wrong"></span>
+                                        <span class="marks"></span>
 
-        mock_test_div.innerHTML = endMockTestHTMLTemplate();
-
-        document.getElementById("total-questions").textContent = total_questions;
-        document.getElementById("questions-attempted").textContent = questions_attempted;
-        document.getElementById("questions-unattempted").textContent = questions_unattempted;
-        document.getElementById("correct-questions").textContent = correct_questions;
-        document.getElementById("wrong-questions").textContent = wrong_questions;
-
-        function animateBar(element, percentage) {
-            element.style.width = "0";
-            setTimeout(() => {
-                element.style.width = percentage + "%";
-            }, 100);
+                                        <div class="result-que-list"></div>
+                                    </div>`;
+        let ele = mock_test_div.querySelector(".header .cross");
+        if (ele) {
+            ele.addEventListener("click", () => {
+                let eee = document.querySelectorAll(".main-content > div");
+                eee.forEach((ee) => {
+                    if (ee.classList.contains("mock-test")) ee.classList.add("hide");
+                    else ee.classList.remove("hide");
+                });
+            });
         }
+        debugger;
 
-        // Calculate percentages
-        var correct_percentage = (correct_questions / total_questions) * 100;
-        var unattempted_percentage = (questions_unattempted / total_questions) * 100;
-        var incorrect_percentage = (wrong_questions / total_questions) * 100;
+        mock_test_div.querySelector(".total-questions").textContent = `Total questions:  ${total_questions}`;
+        mock_test_div.querySelector(".questions-attempted").textContent = `Questions attempted:  ${questions_attempted}`;
+        mock_test_div.querySelector(".correct-questions").textContent = `Correct questions:  ${correct_questions}`;
+        mock_test_div.querySelector(".wrong-questiions").textContent = `Wrong questions:  ${wrong_questions}`;
 
-        // Animate bars
-        var correctBar = document.getElementById("correct-bar");
-        if (correct_questions == 0) {
-            correctBar.style.display = "none";
-        } else {
-            correctBar.textContent = correct_percentage.toFixed(1) + "%";
-            animateBar(correctBar, correct_percentage);
-        }
+        let marks = correct_questions * 2 - wrong_questions * 0.6;
+        marks = marks.toFixed(1);
+        marks = `${marks} / ${total_questions * 2}`;
+        mock_test_div.querySelector(".marks").textContent = `Marks:  ${marks}`;
 
-        var unattemptedBar = document.getElementById("unattempted-bar");
-        if (questions_unattempted == 0) {
-            unattemptedBar.style.display = "none";
-        } else {
-            unattemptedBar.textContent = unattempted_percentage.toFixed(1) + "%";
-            animateBar(unattemptedBar, unattempted_percentage);
-        }
+        let tar = mock_test_div.querySelector(".result-que-list");
+        que_arr.forEach((item) => {
+            var que = getQuestionById(item.id);
+            var que_div = displayQuestion(que, tar, "mock-result");
+            var id = item.selected_option_id;
 
-        var incorrectBar = document.getElementById("incorrect-bar");
-        if (wrong_questions == 0) {
-            incorrectBar.style.display = "none";
-        } else {
-            incorrectBar.textContent = incorrect_percentage.toFixed(1) + "%";
-            animateBar(incorrectBar, incorrect_percentage);
-        }
-
-        mock_test_div.querySelector(".cross").addEventListener("click", () => {
-            document.querySelector(".main-content > .me-top").classList.remove("hide");
-            document.querySelector(".main-content > .pages").classList.remove("hide");
-            document.querySelector(".main-content > .mock-test").classList.add("hide");
-        });
-        mock_test_div.querySelector(".show-questions").addEventListener("click", (event) => {
-            let mock = user_data[0].mocks[0];
-            showPreviousMockQuestions(mock);
+            var options = que_div.querySelectorAll(".option");
+            options.forEach((opt) => {
+                if (opt.id == id) {
+                    opt.click();
+                }
+            });
+            if (item.selected_option_id == "") {
+                options.forEach((opt) => {
+                    opt.classList.add("disabled");
+                });
+            }
         });
     });
 }
@@ -3074,7 +3136,7 @@ function displayQuestion(que, tar_ele, type) {
         }
 
         // No action on options for mock-result, daily-practise-questions;
-        if (type == "mock-result") return;
+        //if (type == "mock-result") return;
         if (type == "daily-ques") return;
 
         // div = option div
@@ -3116,6 +3178,8 @@ function displayQuestion(que, tar_ele, type) {
             que_div_ele.querySelectorAll(".option").forEach((optionSpan) => {
                 optionSpan.classList.add("disabled");
             });
+
+            if (type == "mock-result") return;
 
             if (!type || type == "random") {
                 var que_div = que_div_ele;
@@ -3530,56 +3594,55 @@ function addTagIndexItem2(tag, tar_ele, level) {
 
 function loadTasksPage() {
     openPage("tasks");
-    var tar = document.querySelector(".page.tasks");
-    var input = tar.querySelector("input");
-    if (!input) {
-        input = document.createElement("input");
-        input.type = "text";
-        input.className = "tasks";
-        input.placeholder = "Add new task";
-        tar.appendChild(input);
+
+    var input = document.querySelector(".page.tasks .daily-tasks input");
+    if (input) {
         input.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
                 var item = input.value.trim();
-                if (!user_data[0].tasks) user_data[0].tasks = [];
-                var tasks = user_data[0].tasks;
-                tasks.unshift(item);
-                saveDataInLocale("user_data", user_data);
+                if (!user_data[0].tasks) {
+                    user_data[0].tasks = {};
+                    user_data[0].tasks.daily_tasks = [];
+                    user_data[0].tasks.read_later = [];
+                }
+                let daily_tasks = user_data[0].tasks.daily_tasks;
+                //daily_tasks.unshift(item);
+                daily_tasks.push(item);
+                saveUserData();
                 addTaskItem(item);
                 input.value = ""; // Clear the input after adding the task
             }
         });
-
-        let div = document.createElement("div");
-        div.className = "tasks-list";
-        tar.appendChild(div);
-
-        var tasks = user_data[0].tasks;
-        if (!tasks) return;
-        tasks.forEach((item) => {
-            addTaskItem(item);
+    }
+    let daily_tasks = user_data[0].tasks.daily_tasks;
+    let task = document.querySelector(".page.tasks .daily-task-list .task");
+    if (daily_tasks.length && !task) {
+        daily_tasks.forEach((task) => {
+            addTaskItem(task);
         });
     }
 }
 function addTaskItem(item) {
-    let tar = document.querySelector(".tasks-list");
+    let daily_task_list_div = document.querySelector(".page.tasks .daily-tasks .daily-task-list");
 
-    let div = document.createElement("div");
-    div.className = "task";
-    tar.appendChild(div);
+    let task_div = document.createElement("div");
+    task_div.className = "task";
+    daily_task_list_div.appendChild(task_div);
 
     let span = document.createElement("span");
     span.className = "check-span";
-    div.appendChild(span);
+    task_div.appendChild(span);
     span.addEventListener("click", () => {
-        removeElementFromArray(user_data[0].tasks, item);
-        div.remove();
+        let item = task_div.children[1].textContent;
+        removeElementFromArray(user_data[0].tasks.daily_tasks, item);
+        saveUserData();
+        task_div.remove();
     });
 
     let span2 = document.createElement("span");
     span2.className = "name";
     span2.textContent = item;
-    div.appendChild(span2);
+    task_div.appendChild(span2);
 }
 
 function addImageItem(obj, image_div) {
