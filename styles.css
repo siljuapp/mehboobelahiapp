@@ -136,7 +136,11 @@ span.me-bold {
     color: #4f4f4f
 }
 
-.que-div .explanations .page-link {
+.question-section .explanations {
+    margin: 30px 19px;
+}
+
+.question-section .explanations .page-link {
     color: black;
     border-left: 3px solid #7171e0;
     padding: 10px;

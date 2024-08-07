@@ -3240,8 +3240,12 @@ function displayQuestion(que, tar_ele, type) {
 
                 var div = document.createElement("div");
                 div.className = "explanations me-dis-flex-co";
-                que_div.appendChild(div);
-                var exp_div = div;
+                let exp_div_target = document.querySelector(".page.mcq .main .question-section");
+                var exp_div = exp_div_target.querySelector(".explanations");
+                if (exp_div) exp_div.remove();
+                exp_div_target.appendChild(div);
+                //que_div.appendChild(div);
+                exp_div = div;
 
                 var span = document.createElement("span");
                 span.className = "label";
@@ -3250,7 +3254,7 @@ function displayQuestion(que, tar_ele, type) {
 
                 if (que.page_uid && que.page_uid != "") {
                     let span = document.createElement("span");
-                    span.className = "page-link link";
+                    span.className = "page-link";
                     let page = "";
 
                     //popupAlert("Page Data is Not Yet Added");
@@ -3820,6 +3824,11 @@ async function getDataFromJSONFiles() {
         while (!user_data[0].username) {
             user_data.shift();
         }
+    }
+    if (!user_data[0].tasks) {
+        user_data[0].tasks.daily_tasks = [];
+        user_data[0].tasks.read_later = [];
+        saveUserData();
     }
     let dpq = user_data[0].daily_practise_questions;
     let today_date = getTodayDate();
@@ -4970,10 +4979,12 @@ function setMcqPageMainItemEvents(main) {
             }
             curr_ques = fil_ques[curr_que_index];
 
-            document.querySelector(".mcq.page .main .que-div").classList.add("flip");
-            setTimeout(function () {
-                displayQuestion(curr_ques);
-            }, 300);
+            //document.querySelector(".mcq.page .main .que-div").classList.add("flip");
+            let exp_div_target = document.querySelector(".page.mcq .main .question-section");
+            var exp_div = exp_div_target.querySelector(".explanations");
+            if (exp_div) exp_div.remove();
+
+            displayQuestion(curr_ques);
         });
     }
 }
