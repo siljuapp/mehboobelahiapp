@@ -781,6 +781,9 @@ function filterQuestionsOnTagBased(tag, filter_tags, span) {
     if (que_count_ele) {
         que_count_ele.textContent = `${fil_ques.length} questions found`;
         que_count_ele.classList.remove("hide");
+        if (!fil_ques.length) {
+            document.querySelector(".page.mcq .main .que-div").classList.add("hide");
+        }
     }
     let ele = document.querySelector(".filtered-tags .tag");
     if (!ele) que_count_ele.classList.add("hide");
