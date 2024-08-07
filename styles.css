@@ -149,6 +149,15 @@ span.me-bold {
     line-height: 25px;
 }
 
+.question-section .explanations .que-explanation {
+    color: black;
+    border-left: 0px solid #7171e0;
+    padding: 10px;
+    background-color: #f0f0f0;
+    margin: 0px;
+    line-height: 25px;
+}
+
 span.me-highlight {
     background-color: #ffff0085;
     padding: 0px 3px !important;
@@ -1791,12 +1800,10 @@ span.block.heading {
 
 .mobile .me-iframe-div iframe {
     width: min(450px, 98vw);
-    height: 280px;
+    height: 250px;
 }
 
-.mobile .me-iframe-div iframe {
-    height: 170px;
-}
+
 
 
 .me-iframe-div .me-iframe {

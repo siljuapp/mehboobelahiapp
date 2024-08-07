@@ -215,6 +215,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function loadAllUnlinkedQuestions() {}
+
     ele = document.querySelector(".tab.import");
     if (ele) {
         ele.addEventListener("click", () => {
@@ -1496,10 +1498,10 @@ function loadPageText2(item, target, level) {
 
         let video_elements = ele.querySelectorAll("i.video");
         video_elements.forEach((v_ele) => {
-            v_ele.addEventListener("click", () => {
+            v_ele.addEventListener("click", (event) => {
                 let video_id = v_ele.getAttribute("id");
                 let time = parseInt(v_ele.getAttribute("time"));
-                playVideoPlayer(time, video_id);
+                playVideoPlayer(video_id, time, event);
             });
         });
         /*
@@ -2144,8 +2146,8 @@ function playVideoPlayer_____(time, video_id, target) {
     }
 }
 
-function playVideoPlayer(time, video_id) {
-    let target = document.querySelector(".page.notes .me-iframe-div");
+function playVideoPlayer(video_id, time, event) {
+    let target = event.target.closest(".page").querySelector(".me-iframe-div");
     const iframe = document.querySelector(".page.notes .me-iframe-div  iframe");
     // If the player is already initialized and the video ID matches, just seek and play
     //let block_id = target.closest(".me-block").id;
@@ -2188,6 +2190,7 @@ function playVideoPlayer(time, video_id) {
     */
 }
 function initializeYouTubePlayer(time, video_id, target) {
+    debugger;
     // Initialize the player with the new video ID
     //const iframe = target.querySelector("iframe");
     let iframe = target.querySelector(" iframe");
@@ -3251,7 +3254,29 @@ function displayQuestion(que, tar_ele, type) {
                 var span = document.createElement("span");
                 span.className = "label";
                 span.textContent = "Explanation:";
-                div.appendChild(span);
+                exp_div.appendChild(span);
+
+                let me_iframe_div = document.createElement("div");
+                me_iframe_div.className = "me-iframe-div";
+                exp_div.appendChild(me_iframe_div);
+
+                debugger;
+                if (que.explanation && que.explanation != "") {
+                    let span = document.createElement("span");
+                    span.className = "que-explanation";
+                    span.innerHTML = getHTMLFormattedText(que.explanation);
+                    exp_div.appendChild(span);
+
+                    let video_elements = span.querySelectorAll("i.video");
+                    video_elements.forEach((v_ele) => {
+                        v_ele.addEventListener("click", (event) => {
+                            let video_id = v_ele.getAttribute("id");
+                            let time = parseInt(v_ele.getAttribute("time"));
+                            playVideoPlayer(video_id, time, event);
+                            scrollToView(me_iframe_div);
+                        });
+                    });
+                }
 
                 if (que.page_uid && que.page_uid != "") {
                     let span = document.createElement("span");
