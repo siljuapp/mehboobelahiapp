@@ -1425,22 +1425,65 @@ function addNotesDataElement2(item, target_ele, level) {
 }
 
 function loadPageText2(item, target, level) {
+    var ele = "";
     var div = document.createElement("div");
     div.className = "me-block";
     div.id = item.id;
     div.setAttribute("page-id", item.page_id);
     target.appendChild(div);
 
+    div.innerHTML = getBlockHTMLTemplate();
+
     if (item.heading) {
         div.classList.add("heading");
         div.classList.add(`level-${level}`);
+
+        ele = div.querySelector(".icon_ .todo");
+        ele.classList.remove("hide");
+        let read_later_array = user_data[0].tasks.read_later;
+        for (let i = 0; i < read_later_array.length; i++) {
+            if (read_later_array[i].block_id === item.id) {
+                ele.className = "fa-regular todo fa-circle-check";
+                break;
+            }
+        }
+
+        ele.addEventListener("click", (event) => {
+            debugger;
+            ele = event.target;
+            let read_later_array = user_data[0].tasks.read_later;
+            if (ele.classList.contains("fa-circle")) type = "circle";
+            else if (ele.classList.contains("fa-circle-check")) type = "check";
+
+            if (type == "circle") {
+                debugger;
+                ele.className = "fa-regular todo fa-circle-check";
+
+                //const exists = read_later_array.some((obj) => obj.block_id === item.id);
+
+                let obj = {
+                    id: generateUniqueId(),
+                    page_id: item.page_id,
+                    block_id: item.id,
+                    text: item.text.replace(/{[^}]*}/g, ""),
+                };
+                user_data[0].tasks.read_later.push(obj);
+                console.log("me: new heading added to read later");
+                saveUserData();
+            } else if (type == "check") {
+                debugger;
+                ele.className = "fa-regular todo fa-circle";
+                let arr = user_data[0].tasks.read_later.filter((obj) => obj.block_id != item.id);
+                user_data[0].tasks.read_later = arr;
+                console.log("me: heading removed from read later");
+                saveUserData();
+            }
+        });
     }
 
-    div.innerHTML = getBlockHTMLTemplate();
     setBlockIconsEvents(div, item);
     addBlockLinkedItems(div, item);
 
-    var ele = "";
     let text = item.text;
     if (item.heading) {
         //div.querySelector(".icon_ .share").classList.remove("hide");
@@ -3594,7 +3637,6 @@ function addTagIndexItem2(tag, tar_ele, level) {
 
 function loadTasksPage() {
     openPage("tasks");
-
     var input = document.querySelector(".page.tasks .daily-tasks input");
     if (input) {
         input.addEventListener("keydown", (event) => {
@@ -3621,6 +3663,26 @@ function loadTasksPage() {
             addTaskItem(task);
         });
     }
+
+    let eee = document.querySelector(".page.tasks .read-later-list");
+    eee.innerHTML = "";
+    let read_later_arr = user_data[0].tasks.read_later;
+    read_later_arr.forEach((obj) => {
+        let div = document.createElement("div");
+        div.className = "heading";
+        div.innerHTML = `   <i class="fa-regular fa-circle"></i>
+                            <span id="${obj.id}" class="link" page-id="${obj.page_id}" block-id="${obj.block_id}">${obj.text}</span>`;
+        eee.appendChild(div);
+
+        let ele = div.querySelector("span");
+        if (ele) {
+            ele.addEventListener("click", () => {
+                let page_id = ele.getAttribute("page-id");
+                let block_id = ele.getAttribute("block-id");
+                openNotesPage2(page_id, block_id);
+            });
+        }
+    });
 }
 function addTaskItem(item) {
     let daily_task_list_div = document.querySelector(".page.tasks .daily-tasks .daily-task-list");
@@ -3920,6 +3982,7 @@ function getBlockHTMLTemplate() {
                     </div>
                     <div class="icon_">
                         <span class="plus">+</span> 
+                        <i class="fa-regular todo fa-circle hide "></i>
                         <i class="fa-regular fa-share-nodes share hide"></i>
                         <span class="linked-ques"></span>
                         <i class="fa-brands fa-youtube video hide"></i>

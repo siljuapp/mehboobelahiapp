@@ -3458,3 +3458,18 @@ i.fa-chevron-right:before {
     max-height: 70vh;
     overflow-y: scroll;
 }
+
+.read-later-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.read-later-list .heading span {
+    font-size: 1.1em;
+}
+
+.heading .icon_ .fa-circle,
+.heading .icon_ .fa-circle-check {
+    font-size: 0.8em;
+}
