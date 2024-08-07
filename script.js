@@ -3646,11 +3646,7 @@ function loadTasksPage() {
         input.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
                 var item = input.value.trim();
-                if (!user_data[0].tasks) {
-                    user_data[0].tasks = {};
-                    user_data[0].tasks.daily_tasks = [];
-                    user_data[0].tasks.read_later = [];
-                }
+
                 let daily_tasks = user_data[0].tasks.daily_tasks;
                 //daily_tasks.unshift(item);
                 daily_tasks.push(item);
@@ -3826,9 +3822,9 @@ async function getDataFromJSONFiles() {
         }
     }
     if (!user_data[0].tasks) {
+        user_data[0].tasks = {};
         user_data[0].tasks.daily_tasks = [];
         user_data[0].tasks.read_later = [];
-        saveUserData();
     }
     let dpq = user_data[0].daily_practise_questions;
     let today_date = getTodayDate();
