@@ -1451,6 +1451,7 @@ function loadPageText2(item, target, level) {
         ele.addEventListener("click", (event) => {
             debugger;
             ele = event.target;
+            let type = "";
             let read_later_array = user_data[0].tasks.read_later;
             if (ele.classList.contains("fa-circle")) type = "circle";
             else if (ele.classList.contains("fa-circle-check")) type = "check";
