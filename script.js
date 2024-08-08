@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ele = document.querySelector(".tab.tasks");
     if (ele) {
         ele.addEventListener("click", () => {
-            loadTasksPage();
+            openTasksPage();
         });
     }
 
@@ -1089,6 +1089,8 @@ function openPage(tab) {
         setNotesURL();
     } else if (tab == "more") {
         setMoreURL();
+    } else if (tab == "tasks") {
+        setTasksURL();
     }
     document.querySelectorAll(".main.tabs > .tab").forEach((tab) => {
         tab.classList.remove("active");
@@ -1476,6 +1478,7 @@ function loadPageText2(item, target, level) {
                 user_data[0].tasks.read_later.push(obj);
                 console.log("me: new heading added to read later");
                 saveUserData();
+                popupAlert("Added to Tasks: Read Later");
             } else if (type == "check") {
                 debugger;
                 ele.className = "fa-regular todo fa-circle";
@@ -1483,6 +1486,7 @@ function loadPageText2(item, target, level) {
                 user_data[0].tasks.read_later = arr;
                 console.log("me: heading removed from read later");
                 saveUserData();
+                popupAlert("Removed from Tasks: Read Later");
             }
         });
     }
@@ -3371,6 +3375,15 @@ function setNotesURL(page_id) {
     if (page_id) window.location.href = url + `/#/${exam}/notes/${page_id}`;
     else window.location.href = url + `/#/${exam}/notes`;
 }
+
+function setTasksURL() {
+    let url = window.location.href;
+    let ind = url.indexOf("#");
+    if (ind != -1) {
+        url = url.substring(0, ind - 1);
+    }
+    window.location.href = url + `/#/${exam}/tasks`;
+}
 function setMoreURL() {
     let url = window.location.href;
     let ind = url.indexOf("#");
@@ -3668,19 +3681,24 @@ function addTagIndexItem2(tag, tar_ele, level) {
     }
 }
 
-function loadTasksPage() {
+function openTasksPage() {
     openPage("tasks");
     var input = document.querySelector(".page.tasks .daily-tasks input");
     if (input) {
         input.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
-                var item = input.value.trim();
+                var text = input.value.trim();
+                if (text == "") return;
 
                 let daily_tasks = user_data[0].tasks.daily_tasks;
+                let obj = {
+                    type: "todo",
+                    text: text,
+                };
                 //daily_tasks.unshift(item);
-                daily_tasks.push(item);
+                daily_tasks.push(obj);
                 saveUserData();
-                addTaskItem(item);
+                addTaskItem(obj);
                 input.value = ""; // Clear the input after adding the task
             }
         });
@@ -3688,8 +3706,8 @@ function loadTasksPage() {
     let daily_tasks = user_data[0].tasks.daily_tasks;
     let task = document.querySelector(".page.tasks .daily-task-list .task");
     if (daily_tasks.length && !task) {
-        daily_tasks.forEach((task) => {
-            addTaskItem(task);
+        daily_tasks.forEach((obj) => {
+            addTaskItem(obj);
         });
     }
 
@@ -3699,7 +3717,7 @@ function loadTasksPage() {
     read_later_arr.forEach((obj) => {
         let div = document.createElement("div");
         div.className = "heading";
-        div.innerHTML = `   <i class="fa-regular fa-circle"></i>
+        div.innerHTML = `  <i class="fa-solid fa-circle-small"></i>
                             <span id="${obj.id}" class="link" page-id="${obj.page_id}" block-id="${obj.block_id}">${obj.text}</span>`;
         eee.appendChild(div);
 
@@ -3713,27 +3731,48 @@ function loadTasksPage() {
         }
     });
 }
-function addTaskItem(item) {
-    let daily_task_list_div = document.querySelector(".page.tasks .daily-tasks .daily-task-list");
-
+function addTaskItem(obj) {
+    if (!obj.text) return;
+    let checked = "";
     let task_div = document.createElement("div");
     task_div.className = "task";
-    daily_task_list_div.appendChild(task_div);
 
-    let span = document.createElement("span");
-    span.className = "check-span";
-    task_div.appendChild(span);
-    span.addEventListener("click", () => {
-        let item = task_div.children[1].textContent;
-        removeElementFromArray(user_data[0].tasks.daily_tasks, item);
-        saveUserData();
-        task_div.remove();
-    });
+    let daily_task_list_div = document.querySelector(".page.tasks .daily-tasks .daily-task-list");
+    if (obj.type == "done") {
+        checked = "-check";
+        daily_task_list_div.appendChild(task_div);
+    }
 
-    let span2 = document.createElement("span");
-    span2.className = "name";
-    span2.textContent = item;
-    task_div.appendChild(span2);
+    let ele = daily_task_list_div.querySelector(".task:has(.fa-circle-check)");
+    if (ele) {
+        daily_task_list_div.insertBefore(task_div, ele);
+    } else {
+        daily_task_list_div.appendChild(task_div);
+    }
+
+    task_div.innerHTML = `<i class="fa-regular fa-circle${checked}"></i>
+                          <span>${obj.text}</span>
+                          <i class="fa-regular fa-xmark cross"></i>`;
+
+    ele = task_div.querySelector(".fa-circle");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            task_div.children[0].className = "fa-regular fa-circle-check";
+            obj.type = "done";
+            saveUserData();
+            task_div.remove();
+            addTaskItem(obj);
+        });
+    }
+
+    ele = task_div.querySelector(".cross");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            removeElementFromArray(user_data[0].tasks.daily_tasks, obj);
+            saveUserData();
+            task_div.remove();
+        });
+    }
 }
 
 function addImageItem(obj, image_div) {
@@ -4106,6 +4145,7 @@ function setBlockIconsEvents(div, item) {
         });
     }
     if (item && item.video_id != "") {
+        return;
         /*let icon = document.createElement("i");
         icon.className = "fa-brands fa-youtube video hhh";
         div.querySelector("span.text-inner").appendChild(icon);
@@ -4903,6 +4943,8 @@ function openItemBasedOnURL() {
             openMockPage();
         } else if (type == "more") {
             openSettingPage();
+        } else if (type == "tasks") {
+            openTasksPage();
         } else {
             openPage("home");
         }

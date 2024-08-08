@@ -3313,10 +3313,18 @@ i.fa-chevron-right:before {
 
 .mobile .download-app {
     display: flex;
-
-
     margin: 30px 0px;
+    align-items: center;
+    gap: 18px;
+    max-width: 100px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 3px;
+    cursor: pointer;
+}
 
+.mobile .download-app img {
+    width: 34px;
 }
 
 .me-block.heading.level-0>.me-block-main {
@@ -3399,6 +3407,34 @@ i.fa-chevron-right:before {
     color: #454545;
 }
 
+.task {
+    display: flex;
+    width: 100%;
+}
+
+.task i {
+    width: 20px;
+}
+
+.task span {
+    flex: 1;
+}
+
+.task * {
+    font-size: 1.1em;
+}
+
+.task .cross {
+    font-size: 0.8em;
+    color: red;
+}
+
+.task:has(.fa-circle-check) span {
+    text-decoration: line-through;
+    color: #6e6e6e;
+}
+
+
 .daily-tasks input {
     margin: 10px;
     width: 370px;
@@ -3474,6 +3510,10 @@ i.fa-chevron-right:before {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 100%;
+    justify-content: start;
+    align-items: flex-start;
+    padding: 0px 15px;
 }
 
 .read-later-list .heading span {
@@ -3483,4 +3523,26 @@ i.fa-chevron-right:before {
 .heading .icon_ .fa-circle,
 .heading .icon_ .fa-circle-check {
     font-size: 0.8em;
+}
+
+.page.tasks>* {
+    margin: 0px 10px;
+}
+
+
+.daily-tasks>.header {
+    margin-left: 10px !important;
+}
+
+.read-later-list .heading {
+    display: flex;
+}
+
+.read-later-list .heading i {
+    width: 20px;
+    color: #676767;
+}
+
+.read-later-list .heading span {
+    flex: 1;
 }
