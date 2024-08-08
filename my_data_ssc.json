@@ -2757,7 +2757,7 @@
             {
                 "id": "Vd3GfvMs9",
                 "create_date": "2024-08-08",
-                "question": "Which ruler of Mughal empire was a follower of Jainism?",
+                "question": "Which ruler of Mauryan empire was a follower of Jainism?",
                 "options": [
                     {
                         "id": "Vd3GfvMs9_1",
@@ -3424,7 +3424,7 @@
                     },
                     {
                         "id": "7h_HX8gpn_4",
-                        "text": "Pratishtha #ans"
+                        "text": "Prashansa #ans"
                     },
                     {
                         "id": "7h_HX8gpn_5",
@@ -3720,7 +3720,7 @@
                     },
                     {
                         "id": "-u7FiLkyM_3",
-                        "text": "They follow moderate asceticism"
+                        "text": "They follow moderate asceticism #ans"
                     },
                     {
                         "id": "-u7FiLkyM_4",
@@ -3728,10 +3728,6 @@
                     },
                     {
                         "id": "-u7FiLkyM_5",
-                        "text": "Only 3 #ans"
-                    },
-                    {
-                        "id": "-u7FiLkyM_6",
                         "text": "None of these"
                     }
                 ],
@@ -3755,7 +3751,7 @@
                 "options": [
                     {
                         "id": "LK4KUEWI4_1",
-                        "text": "They are also called as White clad."
+                        "text": "They are also called as White clad #ans"
                     },
                     {
                         "id": "LK4KUEWI4_2",
@@ -3767,14 +3763,10 @@
                     },
                     {
                         "id": "LK4KUEWI4_4",
-                        "text": "Only 1 and 2 #ans"
+                        "text": "Only 1 and 2"
                     },
                     {
                         "id": "LK4KUEWI4_5",
-                        "text": "Only 3"
-                    },
-                    {
-                        "id": "LK4KUEWI4_6",
                         "text": "None of these"
                     }
                 ],

@@ -1456,7 +1456,6 @@ function loadPageText2(item, target, level) {
         }
 
         ele.addEventListener("click", (event) => {
-            debugger;
             ele = event.target;
             let type = "";
             let read_later_array = user_data[0].tasks.read_later;
@@ -1464,7 +1463,6 @@ function loadPageText2(item, target, level) {
             else if (ele.classList.contains("fa-circle-check")) type = "check";
 
             if (type == "circle") {
-                debugger;
                 ele.className = "fa-regular todo fa-circle-check";
 
                 //const exists = read_later_array.some((obj) => obj.block_id === item.id);
@@ -1480,7 +1478,6 @@ function loadPageText2(item, target, level) {
                 saveUserData();
                 popupAlert("Added to Tasks: Read Later");
             } else if (type == "check") {
-                debugger;
                 ele.className = "fa-regular todo fa-circle";
                 let arr = user_data[0].tasks.read_later.filter((obj) => obj.block_id != item.id);
                 user_data[0].tasks.read_later = arr;
@@ -2197,7 +2194,6 @@ function playVideoPlayer(video_id, time, event) {
     */
 }
 function initializeYouTubePlayer(time, video_id, target) {
-    debugger;
     // Initialize the player with the new video ID
     //const iframe = target.querySelector("iframe");
     let iframe = target.querySelector(" iframe");
@@ -2632,8 +2628,7 @@ function loadPreviousMockResults() {
 
         let marks = correct_questions * 2 - wrong_questions * 0.6;
         marks = marks.toFixed(1);
-        marks = `${marks} / ${total_questions * 2}`;
-        div_mock.querySelector(".marks").textContent = `Marks:  ${marks}`;
+        div_mock.querySelector(".marks").textContent = `Marks:  ${marks} / ${total_questions * 2}`;
 
         var passingMarks = total_questions * 2 * 0.35;
 
@@ -2993,7 +2988,6 @@ function startNewMockTest(mock) {
                 });
             });
         }
-        debugger;
 
         mock_test_div.querySelector(".total-questions").textContent = `Total questions:  ${total_questions}`;
         mock_test_div.querySelector(".questions-attempted").textContent = `Questions attempted:  ${questions_attempted}`;
@@ -3267,7 +3261,6 @@ function displayQuestion(que, tar_ele, type) {
                 me_iframe_div.className = "me-iframe-div";
                 exp_div.appendChild(me_iframe_div);
 
-                debugger;
                 if (que.explanation && que.explanation != "") {
                     let span = document.createElement("span");
                     span.className = "que-explanation";
