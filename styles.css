@@ -1533,8 +1533,7 @@ div.que-dot.selected {
 
 .mock-test .result .wrong span,
 .wrong,
-.incorrect,
-.fail {
+.incorrect {
     color: red;
 }
 
@@ -3584,4 +3583,82 @@ i.fa-chevron-right:before {
 
 .page.home .social-media {
     margin-bottom: 50px;
+}
+
+
+.question-section .top-sec {
+    display: flex;
+    margin: 0px 12px;
+}
+
+.today-questions {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-left: 10px;
+}
+
+.today-questions .date {
+    font-size: 1.1em;
+    color: #4d4d4d;
+}
+
+.today-questions .day {
+    font-size: 0.8em;
+    background-color: #f7d9b7;
+    padding: 3px 5px;
+    border-radius: 4px;
+}
+
+.today-questions .question-count {
+    display: flex;
+    gap: 10px;
+}
+
+.today-questions .question-count * {
+    padding: 3px;
+    border-radius: 50%;
+    font-size: 0.7em;
+    color: rgb(78, 78, 78);
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.today-questions .question-count .total {
+    background-color: #dddddd;
+}
+
+.today-questions .question-count .correct {
+    background-color: #a5ffa6;
+}
+
+.today-questions .question-count .incorrect {
+    background-color: #ffcccc;
+}
+
+.today-questions .marks {
+    font-size: 0.8em;
+    font-size: 0.8em;
+
+    width: fit-content;
+    padding: 3px 4px;
+    border-radius: 3px;
+}
+
+.today-questions .marks.pass {
+    background-color: #ddffdd;
+}
+
+.today-questions .marks.fail {
+    background-color: #fce4ff;
+}
+
+.que-div .me-note {
+    font-size: 0.7em;
+    color: #eab758;
 }

@@ -349,6 +349,10 @@ function initialLoading() {
     let target = document.querySelector(".page.home");
     loadPage(target, "home");
 
+    let div = document.createElement("div");
+    div.className = "me-overlay";
+    document.body.appendChild(div);
+
     var download_app = setInterval(() => {
         let ele = document.querySelector(".home .share.link");
         if (ele) {
@@ -2797,20 +2801,6 @@ function getFormattedDate(dateStr) {
     return `${monthName} ${day}${daySuffix}, ${year}`;
 }
 
-function getDaySuffix(day) {
-    if (day > 3 && day < 21) return "th";
-    switch (day % 10) {
-        case 1:
-            return "st";
-        case 2:
-            return "nd";
-        case 3:
-            return "rd";
-        default:
-            return "th";
-    }
-}
-
 function getFormattedTime(timeStr) {
     return "ss:ss";
     const timeParts = timeStr.split("_");
@@ -3059,7 +3049,7 @@ function openMCQPage(id) {
         page_main = document.querySelector(".page.mcq > .main ");
         page_main.innerHTML = getRandomPageHTMLTemplate();
         setMcqPageMainItemEvents(page_main);
-
+        updateTodayQuestionsCount();
         var page_sidebar = document.querySelector(".page.mcq > .sidebar ");
         page_sidebar.innerHTML = `<div class="header">
                             <span class="title">Title</span>
@@ -3124,12 +3114,75 @@ function createGlobalVariable(name, value) {
     global[name] = value;
 }
 
+function updateTodayQuestionsCount() {
+    let total_ele = document.querySelector(".page.mcq .main .today-questions .total");
+    let correct_ele = document.querySelector(".page.mcq .main .today-questions .correct");
+    let incorrect_ele = document.querySelector(".page.mcq .main .today-questions .incorrect");
+    let marks_ele = document.querySelector(".page.mcq .main .today-questions .marks");
+
+    let today_questions = user_data[0].daily_questions[0].questions;
+    let total_questions = today_questions.length;
+    total_ele.textContent = total_questions;
+
+    let correct_questions_count = 0;
+    let incorrect_questions_count = 0;
+    today_questions.forEach((que) => {
+        if (que.selected_option_id == que.answer_option_id) ++correct_questions_count;
+        else ++incorrect_questions_count;
+    });
+    correct_ele.textContent = correct_questions_count;
+    incorrect_ele.textContent = incorrect_questions_count;
+    debugger;
+    let marks = 2 * correct_questions_count - 0.6 * incorrect_questions_count;
+    marks = marks.toFixed(1);
+    let total_marks = 2 * total_questions;
+    marks_ele.textContent = `Marks: ${marks} / ${total_marks}`;
+
+    var passingMarks = total_questions * 2 * 0.35;
+    if (marks >= passingMarks) {
+        marks_ele.classList.remove("fail");
+        marks_ele.classList.add("pass");
+    } else {
+        marks_ele.classList.remove("pass");
+        marks_ele.classList.add("fail");
+    }
+}
+
 function getRandomPageHTMLTemplate() {
+    let todat_date = getTodayDateMMddyyyy();
+    let today_day = getTodayDay();
     return `<div class="middle question-section main-questions">
+    
+        <div class="top-sec">
+            <div class="today-questions">
+                <div class="today">
+                    <span class="date">${todat_date}</span>
+                    <span class="day">${today_day}</span>
+                </div>
+                <div class="question-count">
+                    <span class="num total">20</span>
+                    <span class="num correct">15</span>
+                    <span class="num incorrect">10</span>
+                </div>
+                <span class="marks"></span>
+            </div>
+
+            <i class="fa-light fa-sidebar-flip me-mla"></i>
+        </div>
+                <div class="top-sec hide">
+                    <div class="today-ques">
+                        <span class="title header">Today Practise Questions</span>
+                        <span class="num total-ques">Total attempted: 20</span>
+                        <span class="num correct">Correct: 15</span>
+                        <span class="num incorrect">Incorrect: 10</span>
+                        <span class="num marks">Score: 33 / 40</span>
+                        <span class="view-ques link">View questions</span>
+                    </div>
+                    <i class="fa-light fa-sidebar-flip me-mla"></i>
+                </div>
                 <div class="filter-section">
                     <div class="head">
-                    
-                        <i class="fa-light fa-sidebar-flip me-mla"></i>
+                        <i class="fa-light fa-sidebar-flip me-mla hide"></i>
                         <div class="filter hide">
                             <i class="fa-regular fa-filter"></i>
                             <span>Filter</span>
@@ -3263,15 +3316,26 @@ function displayQuestion(que, tar_ele, type) {
             if (!type || type == "random") {
                 var que_div = que_div_ele;
 
-                let ques = user_data[0].daily_practise_questions[0].questions;
-                //let ques = arr[0].questions;
-                let oobj = {
+                // Save daily practise questions;
+                let dpq = user_data[0].daily_questions;
+                let today_date = getTodayDate();
+                if (!dpq.length || dpq[0].date != today_date) {
+                    let obj = {
+                        date: getTodayDate(),
+                        questions: [],
+                    };
+                    dpq.unshift(obj);
+                }
+                let today_questions = user_data[0].daily_questions[0].questions;
+                let obj = {
                     que_id: curr_ques.id,
                     selected_option_id: que_div.querySelector(".option.selected").id,
                     answer_option_id: que_div.querySelector(".option.correct").id,
                 };
-                ques.unshift(oobj);
+                today_questions.unshift(obj);
                 saveUserData();
+                console.log(`me: question saved to daily_practise_questions[]`);
+                updateTodayQuestionsCount();
                 //updateDailyQuestionsCircles();
 
                 var div = document.createElement("div");
@@ -3362,6 +3426,11 @@ function displayQuestion(que, tar_ele, type) {
         copyToClipboard(url);
         popupAlert("Question link copied");
     });
+
+    let note_span = document.createElement("span");
+    note_span.className = "me-note que-marks-note";
+    note_span.textContent = "Note: correct answer (+2) marks, wrong answer (-0.6) marks";
+    que_div.appendChild(note_span);
     return que_div;
 }
 
@@ -3912,6 +3981,9 @@ async function getDataFromJSONFiles() {
         while (!user_data[0].username) {
             user_data.shift();
         }
+    }
+    if (!user_data[0].daily_questions) {
+        user_data[0].daily_questions = [];
     }
     if (!user_data[0].tasks) {
         user_data[0].tasks = {};
@@ -5063,6 +5135,7 @@ function setMcqPageMainItemEvents(main) {
     if (ele) {
         ele.addEventListener("click", () => {
             //unselectSelectQuestionDot();
+
             ++curr_que_index;
             if (curr_que_index == fil_ques.length) {
                 curr_que_index = 0;
@@ -5343,4 +5416,42 @@ function loadPage(target, page_name) {
 
     // Send the request
     xhr.send();
+}
+
+function getTodayDateMMddyyyy() {
+    const today = new Date();
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    const dateString = today.toLocaleDateString("en-US", options);
+
+    // Format the day with ordinal suffix
+    const day = today.getDate();
+    const dayWithSuffix = day + getDaySuffix(day);
+
+    // Format the month and year
+    const month = today.toLocaleString("en-US", { month: "short" });
+    const year = today.getFullYear();
+
+    // Format: "Aug 15th, 1947"
+    return `${month} ${dayWithSuffix}, ${year}`;
+}
+
+function getDaySuffix(day) {
+    const j = day % 10;
+    const k = day % 100;
+    if (j === 1 && k !== 11) {
+        return "st";
+    }
+    if (j === 2 && k !== 12) {
+        return "nd";
+    }
+    if (j === 3 && k !== 13) {
+        return "rd";
+    }
+    return "th";
+}
+
+function getTodayDay() {
+    const today = new Date();
+    const options = { weekday: "long" };
+    return today.toLocaleDateString("en-US", options);
 }
