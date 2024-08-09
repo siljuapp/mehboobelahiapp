@@ -3119,6 +3119,7 @@ function updateTodayQuestionsCount() {
     let correct_ele = document.querySelector(".page.mcq .main .today-questions .correct");
     let incorrect_ele = document.querySelector(".page.mcq .main .today-questions .incorrect");
     let marks_ele = document.querySelector(".page.mcq .main .today-questions .marks");
+    if (!user_data[0].daily_questions.length || user_data[0].daily_questions[0].date != getTodayDate()) return;
 
     let today_questions = user_data[0].daily_questions[0].questions;
     let total_questions = today_questions.length;
@@ -3160,9 +3161,9 @@ function getRandomPageHTMLTemplate() {
                     <span class="day">${today_day}</span>
                 </div>
                 <div class="question-count">
-                    <span class="num total">20</span>
-                    <span class="num correct">15</span>
-                    <span class="num incorrect">10</span>
+                    <span class="num total">0</span>
+                    <span class="num correct">0</span>
+                    <span class="num incorrect">0</span>
                 </div>
                 <span class="marks"></span>
             </div>
@@ -3326,6 +3327,7 @@ function displayQuestion(que, tar_ele, type) {
                     };
                     dpq.unshift(obj);
                 }
+
                 let today_questions = user_data[0].daily_questions[0].questions;
                 let obj = {
                     que_id: curr_ques.id,
