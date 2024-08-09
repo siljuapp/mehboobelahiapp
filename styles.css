@@ -370,7 +370,7 @@ span.option.correct-ans {
 }
 
 .passed {
-    background-color: #e4ffe1;
+    background-color: #cfebcc;
 }
 
 .failed {
@@ -471,18 +471,18 @@ span.option.wrong-ans {
     gap: 10px;
 }
 
-.about-me .me-pic-name img {
+.about-me___ .me-pic-name img {
     width: 200px;
     height: 200px;
     border-radius: 127px;
 }
 
-.about-me .me-pic-name span {
+.about-me___ .me-pic-name span {
     font-size: 2em;
     font-weight: 700;
 }
 
-.about-me .social-media {
+.about-me___ .social-media {
     display: flex;
     gap: 10px;
     justify-content: start;
@@ -490,17 +490,17 @@ span.option.wrong-ans {
     margin: 20px;
 }
 
-.about-me-text {
+.home .about-me___ {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.about-me-text span {
+.home .about-me___ span {
     line-height: 23px;
 }
 
-.about-me-text span:nth-child(2) {
+.about-me___-text span:nth-child(2) {
     margin-top: 30px;
     font-size: 1.5em;
     font-weight: 600;
@@ -515,7 +515,7 @@ span.option.wrong-ans {
 
 }
 
-.about-me-text span:nth-child(n+3)::before {
+.about-me___-text span:nth-child(n+3)::before {
     content: "• ";
     /* Bullet point with a space after */
 }
@@ -957,12 +957,12 @@ div.tab.separator {
 }
 
 /* About me page css*/
-.about-me {
+.about-me___ {
     margin-bottom: 30px;
 }
 
 
-.about-me div.image {
+.about-me___ div.image {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -972,7 +972,7 @@ div.tab.separator {
     border-radius: 85px;
 }
 
-.about-me div.image img {
+.about-me___ div.image img {
     /* Optional: set a max-width to prevent the image from overflowing */
     max-width: 100%;
     max-height: 100%;
@@ -986,28 +986,28 @@ div.tab.separator {
 
 
 
-.about-me div.text {
+.about-me___ div.text {
     display: block;
 }
 
-.about-me .row {
+.about-me___ .row {
     display: flex;
     width: 100%;
     justify-content: center;
     align-items: center;
 }
 
-.about-me .row.social-media img {
+.about-me___ .row.social-media img {
     width: 30px;
     margin: 7px;
 }
 
-.about-me div.text {
+.about-me___ div.text {
     display: flex;
     flex-direction: column;
 }
 
-.about-me .head {
+.about-me___ .head {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1015,16 +1015,16 @@ div.tab.separator {
     margin: 41px 0px;
 }
 
-.about-me .head * {
+.about-me___ .head * {
     color: white;
 }
 
-.about-me .head h1 {
+.about-me___ .head h1 {
     font-size: 1.5em;
     padding: 0px 16px;
 }
 
-.about-me .head span {
+.about-me___ .head span {
     margin-left: auto;
     margin-right: 15px;
     border: 2px solid white;
@@ -1033,7 +1033,7 @@ div.tab.separator {
     cursor: pointer;
 }
 
-.about-me span.text {
+.about-me___ span.text {
 
     padding: 7px 15px;
     line-height: 1.5em;
@@ -2983,21 +2983,9 @@ i.fa-chevron-right:before {
     cursor: pointer;
 }
 
-.home .social-media {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
-.home .social-media h1 {
-    font-size: 2.5em;
-    color: #444444;
-}
 
-.mobile .home .social-media h1 {
-    font-size: 1.5em;
-    color: #444444;
-}
+
 
 .hide-image-element {
     display: flex;
@@ -3205,14 +3193,15 @@ i.fa-chevron-right:before {
 
 .page.home {
     display: flex;
-    justify-content: center;
     width: min(800px, 90%);
     align-items: center;
     text-align: center;
     margin-top: 0px;
+    max-height: calc(100vh - 45px);
+    overflow-y: scroll;
 }
 
-.home .app-name h1 {
+.home .app-name___ h1 {
     font-size: 44px;
     line-height: 1.2em;
     font-weight: bold;
@@ -3221,18 +3210,18 @@ i.fa-chevron-right:before {
 
 }
 
-.mobile .app-name h1 {
+.mobile .app-name___ h1 {
     font-size: 35px;
 
 }
 
-.app-name span {
+.app-name___ span {
     font-size: 1.4em;
     line-height: 33px;
     text-align: center;
 }
 
-.app-name .about-me-head {
+.app-name___ .about-me___-head {
     font-size: 2.5em !important;
     font-weight: 800;
     padding: 10px;
@@ -3241,7 +3230,7 @@ i.fa-chevron-right:before {
     text-align: center;
 }
 
-.mobile .app-name .about-me-text {
+.mobile .app-name___ .about-me___-text {
     font-size: 1.3em;
     line-height: 25px;
 }
@@ -3545,4 +3534,54 @@ i.fa-chevron-right:before {
 
 .read-later-list .heading span {
     flex: 1;
+}
+
+.app-name {
+    margin-top: 30px;
+}
+
+.app-name img {
+    width: 60px;
+    border-radius: 50%;
+}
+
+.home h1 {
+    font-size: 2em;
+    margin: 20px 0px;
+}
+
+.home .app-name span {
+    font-size: 1.7em;
+    line-height: 35px;
+}
+
+.home .about-me span {
+    font-size: 1.5em;
+    line-height: 35px;
+    text-align: justify;
+}
+
+.home .social-media .links {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.home .share {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 5px;
+    background-color: #3A88FF;
+    color: white !important;
+    padding: 15px 7px;
+    margin: 20px 0px;
+}
+
+.home .share * {
+    color: white !important;
+}
+
+.page.home .social-media {
+    margin-bottom: 50px;
 }

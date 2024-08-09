@@ -1,22 +1,43 @@
 // Initialise firebase
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js"; // Import Firebase Storage
+let is_online = navigator.onLine; // This is just an example. You might have your own way to determine online status.
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCv2koOkHrqG_ioHoOU1vuDfI2KPwLNTZM",
-    authDomain: "revise-480317.firebaseapp.com",
-    projectId: "revise-480317",
-    storageBucket: "revise-480317.appspot.com",
-    messagingSenderId: "264373202075",
-    appId: "1:264373202075:web:faca853c3021e78db36a3e",
-    measurementId: "G-2VNZKXQP1Q",
-};
+// Function to initialize Firebase
+async function initializeFirebase() {
+    try {
+        // Dynamically import Firebase modules
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js");
+        const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js");
+        const { getStorage } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js");
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const storage = getStorage(app);
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCv2koOkHrqG_ioHoOU1vuDfI2KPwLNTZM",
+            authDomain: "revise-480317.firebaseapp.com",
+            projectId: "revise-480317",
+            storageBucket: "revise-480317.appspot.com",
+            messagingSenderId: "264373202075",
+            appId: "1:264373202075:web:faca853c3021e78db36a3e",
+            measurementId: "G-2VNZKXQP1Q",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const storage = getStorage(app);
+
+        console.log("Firebase initialized successfully");
+    } catch (error) {
+        console.error("Error initializing Firebase:", error);
+    }
+}
+
+// Check if the user is online before initializing Firebase
+if (is_online) {
+    initializeFirebase();
+} else {
+    console.log("User is offline. Firebase initialization skipped.");
+}
 
 var exam = "ssc";
 // gist data
@@ -329,7 +350,16 @@ function initialLoading() {
     loadPage(target, "home");
 
     var download_app = setInterval(() => {
-        let ele = document.querySelector(".download-app");
+        let ele = document.querySelector(".home .share.link");
+        if (ele) {
+            ele.addEventListener("click", () => {
+                let link = `https://elahistudyapp.in//#/${exam}/home`;
+                copyToClipboard(link);
+                popupAlert("App link copied, Now share with your friends");
+            });
+        }
+
+        ele = document.querySelector(".download-app");
         if (ele) {
             clearInterval(download_app);
             ele.addEventListener("click", () => {
@@ -783,6 +813,7 @@ function filterQuestionsOnTagBased(tag, filter_tags, span) {
         que_count_ele.classList.remove("hide");
         if (!fil_ques.length) {
             document.querySelector(".page.mcq .main .que-div").classList.add("hide");
+            return;
         }
     }
     let ele = document.querySelector(".filtered-tags .tag");
