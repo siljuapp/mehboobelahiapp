@@ -1946,7 +1946,7 @@ function getHTMLFormattedText(text) {
     text = text.replace(/\^\^(.*?)\^\^/g, '<span class="me-highlight">$1</span>');
 
     // Convert ![text](src_link) to <img>
-    text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img class="me-image" src="$2" alt="$1">');
+    text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<span class="show-image hide">Show images</span> <img class="me-image" src="$2" alt="$1">');
 
     // Convert [text](link) to <a>
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
