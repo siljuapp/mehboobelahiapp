@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    /*document.addEventListener("touchstart", handleTouchStart, { passive: true });
     document.addEventListener("touchend", handleTouchEnd, { passive: false });
 
     ele = document.querySelector(".tab.more");
@@ -233,7 +233,8 @@ document.addEventListener("DOMContentLoaded", function () {
         ele.addEventListener("click", () => {
             uploadDataInFirebase(user_data);
         });
-    }
+    }*/
+
     ele = document.querySelector(".link.all-tags");
     if (ele) {
         ele.addEventListener("click", (event) => {
