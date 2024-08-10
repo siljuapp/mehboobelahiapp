@@ -46,9 +46,9 @@ var notes_data = [];
 var other_data = [];
 var tags_list = [];
 var user_data = [];
+var static_mocks = [];
 var mocks_data = [];
 // ghghghg
-var mocks = [];
 var me_video_player = null;
 var is_mobile = false;
 var video_links_data = [];
@@ -2874,22 +2874,20 @@ function startNewMockTest(mock) {
     ele.innerHTML = getMockTestHTMLTemplate();
 
     ele.querySelector(".cross").addEventListener("click", () => {
-        debugger;
-
         let ele = document.querySelector(".me-overlay .content");
         ele.innerHTML = `<div class="finish-mock">
-    <div class="close">
-        <span>Are you sure, you want to close this mock test</span>
-        <div class="buttons">
-            <button class="no">No</button>
-            <button class="yes">Yes, Cancel this Mock</button>
-        </div>
-    </div>
-    <div class="submit_">
-        <span>If you want to submit your test?</span>
-        <button class="submit">Submit Test</button>
-    </div>
-</div>`;
+                            <div class="close">
+                                <span>Are you sure, you want to close this mock test</span>
+                                <div class="buttons">
+                                    <button class="no">No</button>
+                                    <button class="yes">Yes, Cancel this Mock</button>
+                                </div>
+                            </div>
+                            <div class="submit_">
+                                <span>If you want to submit your test?</span>
+                                <button class="submit">Submit Test</button>
+                            </div>
+                        </div>`;
 
         openOverlay();
         let eee = ele.querySelector(".yes");
@@ -2933,6 +2931,7 @@ function startNewMockTest(mock) {
     user_data[0].mocks.unshift(mock_obj);
     var que_arr = [];
     que_arr = user_data[0].mocks[0].questions;
+
     let arr = [];
     if (!mock) {
         if (selected_chapters.length) {
@@ -2978,6 +2977,7 @@ function startNewMockTest(mock) {
 
     var number_of_questions_for_mock = arr.length;
     var dot_target_ele = document.querySelector(".que-list-dots");
+
     for (var i = 0; i < number_of_questions_for_mock; i++) {
         var div = document.createElement("div");
         div.className = "que-dot me-dis-flex unselected";
@@ -3002,6 +3002,7 @@ function startNewMockTest(mock) {
         que_arr.push(obj);
         var target_ele = document.querySelector(".mock-test .que-text");
         //var que_div = getMCQQuestionElement(que, target_ele, "mock");
+
         let que = getQuestionById(id);
         displayQuestion(que, target_ele, "mock");
     });
@@ -3188,7 +3189,7 @@ function updateTodayQuestionsCount() {
     });
     correct_ele.textContent = correct_questions_count;
     incorrect_ele.textContent = incorrect_questions_count;
-    debugger;
+
     let marks = 2 * correct_questions_count - 0.6 * incorrect_questions_count;
     marks = marks.toFixed(1);
     let total_marks = 2 * total_questions;
@@ -4014,6 +4015,7 @@ async function getDataFromJSONFiles() {
     my_data = await fetchDataFromFile(`my_data_${exam}`);
     que_data = my_data[0].ques;
     notes_data = my_data[0].notes;
+    static_mocks = my_data[0].mocks;
     tags_list = my_data[0].tags_list;
 
     mocks_data = await fetchDataFromFile(`mocks_${exam}`);
@@ -4865,21 +4867,25 @@ function loadPredefinedMocks() {
         });
     }
     let list_ele = div.querySelector(".mock-test-list");
-    mocks_data.forEach((mock, index) => {
+    debugger;
+    static_mocks.forEach((mock, index) => {
         var div_mock = document.createElement("div");
         div_mock.className = "pd-mock";
+        div_mock.id = mock.id;
         list_ele.appendChild(div_mock);
 
+        let mock_name = mock.name;
+
         div_mock.innerHTML = `
-                            <span class="start link">Mock Test ${index + 1}</span>
-                            <div class="history">
-                                <div class="head me-header-inner hide">
-                                    <i class="fa-solid arrow fa-chevron-right"></i>
-                                    <span class="label">History</span>
-                                </div>
-                                <div class="history-list  me-header-list list hide">
-                                </div>
-                            </div>`;
+                            <span class="name">${mock_name}</span>
+                            <div class="sections">
+                                <span class="sub gs">GS</span>
+                                <span class="sub english">English</span>
+                                <span class="sub aptitude">Aptitude</span>
+                                <span class="sub reasoning">Reasoning</span>
+                            </div>
+                            <span class="all">Full Test</span>
+                            `;
 
         ele = div_mock.querySelector(".me-header-inner");
         let div = div_mock;
@@ -4898,8 +4904,66 @@ function loadPredefinedMocks() {
                 }
             });
         }
+        let mock_ques = {
+            gs: [],
+            english: [],
+            aptitude: [],
+            reasoning: [],
+        };
+        mock.que_ids.forEach((id) => {
+            let que = getQuestionById(id);
+            if (que.tags.includes("general studies")) mock_ques.gs.push(id);
+            if (que.tags.includes("english")) mock_ques.english.push(id);
+            if (que.tags.includes("aptitude")) mock_ques.aptitude.push(id);
+            if (que.tags.includes("reasoning")) mock_ques.reasoning.push(id);
+        });
 
-        ele = div_mock.querySelector(".start.link");
+        ele = div_mock.querySelector(".gs");
+        if (!mock_ques.gs.length) ele.classList.add("disabled");
+        else {
+            ele.addEventListener("click", () => {
+                let obj = {
+                    id: `${mock.id}__1`,
+                    que_ids: mock_ques.gs,
+                };
+                startNewMockTest(obj);
+            });
+        }
+        ele = div_mock.querySelector(".english");
+        if (!mock_ques.english.length) ele.classList.add("disabled");
+        else {
+            ele.addEventListener("click", () => {
+                let obj = {
+                    id: `${mock.id}__2`,
+                    que_ids: mock_ques.english,
+                };
+                startNewMockTest(obj);
+            });
+        }
+        ele = div_mock.querySelector(".aptitude");
+        if (!mock_ques.aptitude.length) ele.classList.add("disabled");
+        else {
+            ele.addEventListener("click", () => {
+                let obj = {
+                    id: `${mock.id}__3`,
+                    que_ids: mock_ques.aptitude,
+                };
+                startNewMockTest(obj);
+            });
+        }
+
+        ele = div_mock.querySelector(".reasoning");
+        if (!mock_ques.reasoning.length) ele.classList.add("disabled");
+        else {
+            ele.addEventListener("click", () => {
+                let obj = {
+                    id: `${mock.id}__4`,
+                    que_ids: mock_ques.reasoning,
+                };
+                startNewMockTest(obj);
+            });
+        }
+        ele = div_mock.querySelector(".all");
         if (ele) {
             ele.addEventListener("click", () => {
                 startNewMockTest(mock);
@@ -5514,7 +5578,6 @@ function getTodayDay() {
 }
 
 function confirmCloseMockTest() {
-    debugger;
     let ele = document.querySelector(".me-overlay .content");
     ele.innerHTML = `<span>Do you really want to close this mock test</span>
                     <div class="buttons">

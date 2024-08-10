@@ -574,9 +574,14 @@ button.new-question:hover_ {
     cursor: pointer;
 }
 
-.option.disabled {
+.option.disabled,
+sub.disabled {
     pointer-events: none;
     cursor: default;
+}
+
+.pd-mock .sections .sub.disabled {
+    opacity: 0.3;
 }
 
 .setting {
@@ -1419,22 +1424,17 @@ div.mock-test .que-list-dots {
 
 div.que-dot {
     cursor: pointer;
-    width: 27px;
-    /* Adjust the size as needed */
-    height: 27px;
-    /* Make sure width and height are equal to make a perfect circle */
+    width: 20px;
+    height: 20px;
     border: 1px solid gray;
     border-radius: 50%;
-    /* This makes the element a circle */
     color: gray;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 12px;
-    /* Adjust font size as needed */
+    font-size: 10px;
     text-align: center;
     line-height: 30px;
-    /* This should be equal to the height for proper vertical alignment */
 }
 
 
@@ -2174,9 +2174,9 @@ div.head * {
     border: 1px solid #cbcddf;
     padding: 15px;
     border-radius: 5px;
-    width: 120px;
+    width: fit-content;
+    gap: 10px;
     box-shadow: 0px 4px 8px rgb(187 190 230 / 50%);
-
 }
 
 .mobile .mock-test-list .pd-mock {
@@ -2187,7 +2187,52 @@ div.head * {
     border: 1px solid #cbcddf;
     padding: 10px;
     border-radius: 3px;
-    width: 100px;
+    width: fit-content;
+}
+
+
+.pd-mock .name {
+    font-size: 1.2em;
+    margin: 10px 0px;
+    font-weight: 550;
+}
+
+.pd-mock .sections {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.pd-mock .sections * {
+    padding: 3px 5px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.pd-mock .sections .gs {
+    background-color: #ffbfdd;
+}
+
+.pd-mock .sections .english {
+    background-color: #d2effe;
+}
+
+.pd-mock .sections .aptitude {
+    background-color: #b0fed7;
+}
+
+.pd-mock .sections .reasoning {
+    background-color: #fff2b1;
+}
+
+.pd-mock .all {
+    background-color: #e2e2e2;
+    background-color: #e2e2e2;
+    display: flex;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .mock-history-list {
@@ -3661,6 +3706,10 @@ i.fa-chevron-right:before {
 .que-div .me-note {
     font-size: 0.7em;
     color: #eab758;
+}
+
+.mock-test .que-div .me-note {
+    display: none;
 }
 
 .me-overlay {
