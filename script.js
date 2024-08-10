@@ -202,15 +202,24 @@ document.addEventListener("DOMContentLoaded", function () {
             openNotesPage2();
         });
     }
-    document.addEventListener(
-        "touchmove",
-        function (e) {
-            // Check if the touch event is in the vertical direction
-            if (e.touches.length > 1 || (e.scale && e.scale !== 1)) return;
-            e.preventDefault(); // Prevent the default touchmove action
-        },
-        { passive: false }
-    );
+
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    function handleTouchStart(event) {
+        touchStartY = event.changedTouches[0].clientY;
+    }
+
+    function handleTouchEnd(event) {
+        touchEndY = event.changedTouches[0].clientY;
+        if (touchEndY > touchStartY + 50) {
+            // Swipe down threshold
+            event.preventDefault(); // Prevent default action on swipe-down
+        }
+    }
+
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchend", handleTouchEnd, { passive: false });
 
     ele = document.querySelector(".tab.more");
     if (ele) {
