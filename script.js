@@ -202,6 +202,15 @@ document.addEventListener("DOMContentLoaded", function () {
             openNotesPage2();
         });
     }
+    document.addEventListener(
+        "touchmove",
+        function (e) {
+            // Check if the touch event is in the vertical direction
+            if (e.touches.length > 1 || (e.scale && e.scale !== 1)) return;
+            e.preventDefault(); // Prevent the default touchmove action
+        },
+        { passive: false }
+    );
 
     ele = document.querySelector(".tab.more");
     if (ele) {
@@ -350,8 +359,9 @@ function initialLoading() {
     loadPage(target, "home");
 
     let div = document.createElement("div");
-    div.className = "me-overlay";
+    div.className = "me-overlay hide";
     document.body.appendChild(div);
+    div.innerHTML = `<div class="content"></div>`;
 
     var download_app = setInterval(() => {
         let ele = document.querySelector(".home .share.link");
@@ -2854,9 +2864,44 @@ function startNewMockTest(mock) {
     ele.innerHTML = getMockTestHTMLTemplate();
 
     ele.querySelector(".cross").addEventListener("click", () => {
-        document.querySelector(".main-content > .me-top").classList.remove("hide");
-        document.querySelector(".main-content > .pages").classList.remove("hide");
-        document.querySelector(".main-content > .mock-test").classList.add("hide");
+        debugger;
+
+        let ele = document.querySelector(".me-overlay .content");
+        ele.innerHTML = `<div class="finish-mock">
+    <div class="close">
+        <span>Are you sure, you want to close this mock test</span>
+        <div class="buttons">
+            <button class="no">No</button>
+            <button class="yes">Yes, Cancel this Mock</button>
+        </div>
+    </div>
+    <div class="submit_">
+        <span>If you want to submit your test?</span>
+        <button class="submit">Submit Test</button>
+    </div>
+</div>`;
+
+        openOverlay();
+        let eee = ele.querySelector(".yes");
+        eee.addEventListener("click", () => {
+            closeOverlay();
+            document.querySelector(".main-content > .me-top").classList.remove("hide");
+            document.querySelector(".main-content > .pages").classList.remove("hide");
+            document.querySelector(".main-content > .mock-test").classList.add("hide");
+            return;
+        });
+        eee = ele.querySelector(".no");
+        eee.addEventListener("click", () => {
+            closeOverlay();
+            return;
+        });
+        eee = ele.querySelector(".submit");
+        eee.addEventListener("click", () => {
+            closeOverlay();
+            let aaa = document.querySelector(".mock-test .submit-test");
+            if (aaa) aaa.click();
+            return;
+        });
     });
 
     fil_ques = que_data.slice(0, 20);
@@ -5456,4 +5501,33 @@ function getTodayDay() {
     const today = new Date();
     const options = { weekday: "long" };
     return today.toLocaleDateString("en-US", options);
+}
+
+function confirmCloseMockTest() {
+    debugger;
+    let ele = document.querySelector(".me-overlay .content");
+    ele.innerHTML = `<span>Do you really want to close this mock test</span>
+                    <div class="buttons">
+                        <button class="no">No</button>
+                        <button class="yes">Yes</button>
+                    </div>`;
+
+    openOverlay();
+    let eee = ele.querySelector(".no");
+    eee.addEventListener("click", () => {
+        closeOverlay();
+        return false;
+    });
+    eee = ele.querySelector(".yes");
+    eee.addEventListener("click", () => {
+        closeOverlay();
+        return true;
+    });
+}
+
+function closeOverlay() {
+    document.querySelector(".me-overlay").classList.add("hide");
+}
+function openOverlay() {
+    document.querySelector(".me-overlay").classList.remove("hide");
 }

@@ -3662,3 +3662,61 @@ i.fa-chevron-right:before {
     font-size: 0.7em;
     color: #eab758;
 }
+
+.me-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 8px;
+    backdrop-filter: blur(2px);
+}
+
+.me-overlay .content {
+    width: auto;
+    height: auto;
+    background-color: #1a1a1a;
+    padding: 15px;
+    border-radius: 4px;
+    color: white;
+}
+
+.me-overlay .buttons {
+    display: flex;
+    justify-content: end;
+    gap: 15px;
+    padding: 10px 0px;
+    color: white;
+}
+
+.me-overlay .buttons * {
+    background-color: white;
+    border: none;
+    padding: 5px 20px;
+}
+
+.me-overlay .finish-mock .yes {
+    background-color: red;
+    color: white;
+}
+
+.me-overlay .finish-mock .submit_ {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
+
+.me-overlay .finish-mock .submit {
+    margin: 10px;
+    background-color: green;
+    border: none;
+    color: white;
+}
