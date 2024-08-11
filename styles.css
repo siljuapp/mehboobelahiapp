@@ -3773,7 +3773,8 @@ i.fa-chevron-right:before {
     color: #eab758;
 }
 
-.mock-test .que-div .me-note {
+.mock-test .que-div .me-note,
+.mock .sidebar .que-div .me-note {
     display: none;
 }
 

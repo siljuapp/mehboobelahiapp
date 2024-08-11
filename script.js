@@ -1198,7 +1198,13 @@ function openMockPage() {
         loadNewMockTestSection();
         loadPredefinedMocks();
         loadMockTestHistory();
-        return;
+        ele = document.querySelector(".page.mock .main .page-tabs .mock-history");
+        if (ele) {
+            ele.addEventListener("click", () => {
+                loadMockTestHistory();
+            });
+        }
+
         ele = document.querySelector(".page.mock .sidebar");
         ele.innerHTML = `
                         <div class="header">
@@ -2696,7 +2702,7 @@ function loadPreviousMockResults() {
     <div class="marks">
         <span>Marks: 20 / 40</span>
     </div>
-    <span class="link">Show questions</span>
+    <span class="link show-questions">Show questions</span>
 </div>
                             `;
 
@@ -2730,7 +2736,7 @@ function loadPreviousMockResults() {
         var passingMarks = total_questions * 2 * 0.35;
 
         if (marks >= passingMarks) {
-            div_modiv_mock.querySelector(".marks").classList.add("pass");
+            div_mock.querySelector(".marks").classList.add("pass");
         } else {
             div_mock.querySelector(".marks").classList.add("fail");
         }
@@ -2745,6 +2751,7 @@ function loadPreviousMockResults() {
 }
 
 function showPreviousMockQuestions(mock) {
+    debugger;
     let div = document.querySelector(".page.mock .sidebar .content .prev-mock-questions ");
     div.innerHTML = "";
     openSidebar(div);
