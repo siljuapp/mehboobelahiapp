@@ -170,7 +170,7 @@ span.me-highlight {
 }
 
 body {
-    background-color: #1A1F26;
+    /*background-color: #1A1F26;*/
 }
 
 i,
@@ -191,9 +191,11 @@ body>.content {
     height: 100%;
     background-color: white;
     width: 100%;
-    max-width: 1200px;
+    max-width: 100%;
+    /*1200px;*/
     height: 100%;
     overflow-y: scroll;
+
     margin: 0 auto;
     position: absolute;
     top: 50%;
@@ -310,7 +312,8 @@ span.logo::before {
     border-bottom: 0px solid #cbcbcb;
     padding-bottom: 21px;
     /*max-height: 70vh;
-    overflow-y: scroll;*/
+    overflow-y: scroll;
+*/
 }
 
 .sd-container {
@@ -512,6 +515,7 @@ span.option.wrong-ans {
     margin: 10px 0px;
     max-height: 50vh;
     overflow-y: scroll;
+
 
 }
 
@@ -881,6 +885,7 @@ div.today-que-info div.all-que-text {
     margin: 10px 22px;
     max-height: 300px;
     overflow-y: scroll;
+
 }
 
 div.today-que-info div.all-que-text .que-div {
@@ -1121,6 +1126,7 @@ div.tab.separator {
     gap: 5px;
     max-height: 200px;
     overflow-y: scroll;
+
     margin: 10px 0px;
     margin-left: 20px;
 }
@@ -1246,10 +1252,12 @@ div.tab.separator {
 
 .main.tabs {
     display: flex;
-    flex-wrap: nowrap;
+    justify-content: center;
+    flex-wrap: wrap;
     max-width: 100%;
     overflow-x: auto;
     height: 45px;
+    background-color: black;
     /* Use auto to show scroll only when needed */
     -webkit-overflow-scrolling: touch;
     /* Smooth scrolling on touch devices */
@@ -1282,14 +1290,15 @@ div.tab.separator {
 }
 
 .main.tabs .tab.active {
-    color: var(--link-color);
-    border-bottom: 3px solid var(--link-color);
+    color: white;
+    border-bottom: 0px solid var(--link-color);
 }
 
 
 .mock-test {
     max-height: 100vh;
     overflow-y: scroll;
+
 }
 
 div.mock-test div.top {
@@ -1459,6 +1468,7 @@ div.que-dot.selected {
 .mock-test div.que-list {
     max-height: 75vh;
     overflow-y: scroll;
+
     margin: 10px;
     margin-top: 0px;
     display: flex;
@@ -1550,6 +1560,7 @@ div.que-dot.selected {
 .mock-test .show-que-list {
     max-height: 70vh;
     overflow-y: scroll;
+
 }
 
 .fa-clock {
@@ -1891,8 +1902,9 @@ span.block.heading {
 
 .children-blocks {
     height: 75vh;
-    overflow: hidden;
+
     overflow-y: scroll;
+
 
 }
 
@@ -2128,6 +2140,7 @@ div.video-exp-blocks span.video {
     margin: 10px 0px;
     max-height: 60vh;
     overflow-y: scroll;
+
 }
 
 .head,
@@ -2188,6 +2201,7 @@ div.head * {
     padding: 10px;
     border-radius: 3px;
     width: fit-content;
+    border: 1px solid #bbbbbb;
 }
 
 
@@ -2236,24 +2250,40 @@ div.head * {
 }
 
 .mock-history-list {
+    display: flex;
     flex-direction: row;
     max-width: 700px;
     justify-content: start;
     align-items: center;
     flex-wrap: wrap;
+    max-height: calc(100vh - 125px);
+    overflow-y: scroll;
+}
+
+.mobile .mock-history-list {
+
+    justify-content: center;
+
 }
 
 .mock-history-list .mock-data {
-    border: 1px solid gray;
-    border-radius: 3px;
-    box-shadow: 5px 4px 8px rgb(187 190 230 / 50%);
+    border: 1px solid rgb(179, 179, 179);
+    border-radius: 5px;
+    box-shadow:
+        5px 4px 8px rgb(187 190 230 / 50%);
     margin: 10px;
-    padding: 15px;
-    width: 285px;
+    padding: 10px 20px;
+    width: 200px;
+    gap: 5px;
 }
 
-.mock-data>.date {
-    margin: 0px 5px;
+.mobile .mock-data * {
+    font-size: 0.8em;
+}
+
+.mock-data .date {
+    font-size: 1.3em;
+    color: #373737;
 }
 
 .mock-history .result {
@@ -2265,10 +2295,7 @@ div.head * {
     margin-left: auto;
 }
 
-.mock-data .date {
-    font-size: 1.5em;
-    margin: 10px 0px;
-}
+
 
 .reattempt-mock.link {
     display: flex;
@@ -2576,6 +2603,7 @@ div.support-me_ {
 .index-tags .questions {
     max-height: 60vh;
     overflow-y: scroll;
+
 }
 
 .image-head {
@@ -2705,7 +2733,7 @@ i.fa-chevron-right:before {
     box-sizing: content-box;
     display: flex;
     align-items: center;
-    overflow: hidden;
+
     border-radius: 50%;
     width: 5px;
     height: 5px;
@@ -2768,6 +2796,7 @@ i.fa-chevron-right:before {
 .me-page-title>.children {
     max-height: 75vh;
     overflow-y: scroll;
+
 }
 
 .me-block-main .me-block-icons .add {
@@ -2983,6 +3012,7 @@ i.fa-chevron-right:before {
 .daily-practise-questions .content .list {
     max-height: 70vh;
     overflow-y: scroll;
+
 }
 
 .filter-section .head .filter,
@@ -3006,6 +3036,7 @@ i.fa-chevron-right:before {
 .me-header-list {
     max-height: 50vh;
     overflow-y: scroll;
+
 }
 
 
@@ -3102,13 +3133,15 @@ i.fa-chevron-right:before {
 .pages,
 .pages>.page {
     max-height: calc(100vh - 45px);
-    /*overflow-y: scroll;*/
+    /*overflow-y: scroll;
+*/
 }
 
 .pages .page .main,
 .pages .page .sidebar {
     max-height: 100%;
     overflow-y: scroll;
+
 }
 
 .main-content:not(.mock-test.hide) {
@@ -3124,6 +3157,7 @@ i.fa-chevron-right:before {
 .page .sidebar .content>div {
     max-height: 80vh;
     overflow-y: scroll;
+
 }
 
 .page.notes .sidebar .search .top {
@@ -3155,6 +3189,7 @@ i.fa-chevron-right:before {
 .page>.sidebar>.content .search-results {
     max-height: 100%;
     overflow-y: scroll;
+
 }
 
 .page-title .me-iframe-div {
@@ -3243,6 +3278,7 @@ i.fa-chevron-right:before {
     margin-top: 0px;
     max-height: calc(100vh - 45px);
     overflow-y: scroll;
+
 }
 
 .home .app-name___ h1 {
@@ -3323,8 +3359,14 @@ i.fa-chevron-right:before {
 }
 
 .mock-chapters .mock-chapters-list {
-    max-height: 50vh;
+    max-height: 60vh;
     overflow-y: scroll;
+
+}
+
+.mobile .sidebar {
+    margin-top: 10px;
+    margin-bottom: 30px;
 }
 
 .mock-chapters .me-mock-chapter input {
@@ -3414,6 +3456,7 @@ i.fa-chevron-right:before {
 .page.tasks {
     max-height: calc(100vh - 75px);
     overflow-y: scroll;
+
 }
 
 .page.tasks {
@@ -3537,6 +3580,7 @@ i.fa-chevron-right:before {
 .mock-result .result-que-list {
     max-height: 70vh;
     overflow-y: scroll;
+
 }
 
 .read-later-list {
@@ -3661,7 +3705,8 @@ i.fa-chevron-right:before {
     gap: 10px;
 }
 
-.today-questions .question-count * {
+.today-questions .question-count *,
+.mock-data .questions * {
     padding: 3px;
     border-radius: 50%;
     font-size: 0.7em;
@@ -3674,19 +3719,28 @@ i.fa-chevron-right:before {
     align-items: center;
 }
 
-.today-questions .question-count .total {
+.today-questions .question-count .total,
+.mock-data .questions .total {
     background-color: #dddddd;
 }
 
-.today-questions .question-count .correct {
+.mock-data .questions .attempted {
+    background-color: #cad2ff;
+}
+
+
+.today-questions .question-count .correct,
+.mock-data .questions .correct {
     background-color: #a5ffa6;
 }
 
-.today-questions .question-count .incorrect {
+.today-questions .question-count .incorrect,
+.mock-data .questions .incorrect {
     background-color: #ffcccc;
 }
 
-.today-questions .marks {
+.today-questions .marks,
+.mock-data .marks {
     font-size: 0.8em;
     font-size: 0.8em;
 
@@ -3695,12 +3749,23 @@ i.fa-chevron-right:before {
     border-radius: 3px;
 }
 
-.today-questions .marks.pass {
+.today-questions .marks.pass,
+.mock-data .marks.pass {
     background-color: #ddffdd;
 }
 
-.today-questions .marks.fail {
+.today-questions .marks.fail,
+.mock-data .marks.fail {
     background-color: #fce4ff;
+}
+
+.mock-data div.me-dis-flex {
+    margin: 10px 0px;
+}
+
+.mock-data .link {
+    margin-left: auto;
+    font-size: 0.8em;
 }
 
 .que-div .me-note {
@@ -3768,4 +3833,123 @@ i.fa-chevron-right:before {
     background-color: green;
     border: none;
     color: white;
+}
+
+
+
+.page.mock .main {
+    display: flex;
+    flex-direction: column;
+}
+
+.page.mock .page-content>div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 30px 0px;
+}
+
+.page.mock .main .page-tabs {
+    display: flex;
+    padding: 10px;
+}
+
+.page.mock .main .page-tabs * {
+    display: flex;
+    justify-content: center;
+    padding: 4px 0px;
+    flex: 1;
+    opacity: 0.3;
+    cursor: pointer;
+}
+
+.page.mock .main .page-tabs .active {
+    opacity: 1;
+    color: #3737ed;
+    border-bottom: 2px solid #3737ed;
+    margin: 0px 10px;
+}
+
+.page.mock .main .static-mock .pre-defined-mocks {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.page.mock .main .static-mock .pre-defined-mocks>input,
+.page.mock .main .new-mock .mock-chapters>input {
+    text-align: center;
+    padding: 7px;
+    border-radius: 25px;
+    width: min(600px, 80%);
+    border: 1px solid gray;
+    margin: 15px 0px;
+}
+
+.new-mock .start-new-mock {
+    border: none;
+    background-color: #0A6AFF;
+    color: white;
+    padding: 7px 15px;
+    border-radius: 5px;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.new-mock .mock-chapters {
+    margin-top: 30px;
+}
+
+.new-mock .mock-chapters .top {
+    display: flex;
+}
+
+.new-mock .mock-chapters .top .label {
+    font-size: 1.4em;
+    color: black;
+    font-weight: 550;
+}
+
+.new-mock .mock-chapters .top .clear-all {
+    margin-left: auto;
+}
+
+/* Hide scrollbars for all browsers */
+.hide-scrollbars {
+
+    /* Hide scrollbars but still allow scrolling */
+}
+
+/* For webkit browsers (Chrome, Safari) */
+.hide-scrollbars::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars */
+}
+
+/* For Firefox */
+.hide-scrollbars {
+    -ms-overflow-style: none;
+    /* Hide scrollbars in Firefox */
+}
+
+/* For Internet Explorer and Edge */
+.hide-scrollbars {
+    scrollbar-width: none;
+    /* Hide scrollbars in Firefox */
+}
+
+/* For mobile */
+.hide-scrollbars {
+    overflow: -moz-scrollbars-none;
+    /* Hide scrollbars in older versions of Firefox */
+}
+
+.scroll-y-list {
+    -webkit-overflow-scrolling: touch;
+}
+
+.scroll-y-list::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
 }

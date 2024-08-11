@@ -220,6 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /*document.addEventListener("touchstart", handleTouchStart, { passive: true });
     document.addEventListener("touchend", handleTouchEnd, { passive: false });
+    */
 
     ele = document.querySelector(".tab.more");
     if (ele) {
@@ -233,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ele.addEventListener("click", () => {
             uploadDataInFirebase(user_data);
         });
-    }*/
+    }
 
     ele = document.querySelector(".link.all-tags");
     if (ele) {
@@ -1160,10 +1161,44 @@ function openMockPage() {
     openPage("mock");
     let ele = document.querySelector(".page.mock .new-mock");
     if (!ele) {
+        ele = document.querySelector(".page.mock .main");
+        ele.innerHTML = `
+                        <div class="page-tabs">
+                            <div class="new-mock active">New Mock</div>
+                            <div class="static-mock">Static Mocks</div>
+                            <div class="mock-history">Mock History</div>
+                        </div>
+                        <div class="page-content">
+                            <div class="new-mock"> NEW MOCK </div>
+                            <div class="static-mock hide"> STATIC MOCK </div>
+                            <div class="mock-history hide"> MOCK HISTORY </div>
+                        </div>`;
+
+        let tabs = document.querySelectorAll(".page.mock .main .page-tabs > div");
+        tabs.forEach((tab) => {
+            tab.addEventListener("click", (event) => {
+                let tab_ele = event.target;
+                let tab_classes = ["new-mock", "static-mock", "mock-history"];
+                let tab_class = tab_classes.find((cls) => tab_ele.classList.contains(cls));
+
+                let tabs2 = document.querySelectorAll(".page.mock .main .page-tabs > div");
+                tabs2.forEach((tab2) => {
+                    if (!tab2.classList.contains(tab_class)) tab2.classList.remove("active");
+                    else tab2.classList.add("active");
+                });
+
+                let pages = document.querySelectorAll(".page.mock .main  .page-content > div");
+                pages.forEach((page) => {
+                    if (!page.classList.contains(tab_class)) page.classList.add("hide");
+                    else page.classList.remove("hide");
+                });
+            });
+        });
+
         loadNewMockTestSection();
         loadPredefinedMocks();
         loadMockTestHistory();
-
+        return;
         ele = document.querySelector(".page.mock .sidebar");
         ele.innerHTML = `
                         <div class="header">
@@ -2649,19 +2684,22 @@ function loadPreviousMockResults() {
         div_mock.className = "mock-data me-dis-flex-co";
         div_mock.id = mock.id;
         tar_ele.appendChild(div_mock);
-
         div_mock.innerHTML = `
-                            <span class="date"></span>                    
-                            <span class="total-questions"></span>
-                            <span class="questions-attempted"></span>
-                            <span class="correct-questions correct"></span>
-                            <span class="wrong-questiions wrong"></span>
-                            <span class="marks"></span>
-
-                            <div class="show-questions link">Show questions</div>
+                                                        <span class="date">Aug 10th, 2024</span>
+                            <div class="questions">
+                                <span class="total">20</span>
+                                <span class="attempted">10</span>
+                                <span class="correct">5</span>
+                                <span class="incorrect">5</span>
+                            </div>
+                            <div class="me-dis-flex">
+    <div class="marks">
+        <span>Marks: 20 / 40</span>
+    </div>
+    <span class="link">Show questions</span>
+</div>
                             `;
 
-        // Now get the mock test data
         let que_arr = mock.questions;
         var total_questions = que_arr.length;
         var questions_attempted = 0;
@@ -2675,22 +2713,26 @@ function loadPreviousMockResults() {
                 else ++wrong_questions;
             }
         });
-        div_mock.querySelector(".date").textContent = `${getFormattedDate(mock.date)}`;
-        div_mock.querySelector(".total-questions").textContent = `Total questions:  ${total_questions}`;
-        div_mock.querySelector(".questions-attempted").textContent = `Questions attempted:  ${questions_attempted}`;
-        div_mock.querySelector(".correct-questions").textContent = `Correct questions:  ${correct_questions}`;
-        div_mock.querySelector(".wrong-questiions").textContent = `Wrong questions:  ${wrong_questions}`;
+        debugger;
+        //let date = getFormattedDate(mock.date);
+        let date = getFormattedDateMMddYYYY(mock.date);
+
+        div_mock.querySelector(".date").textContent = `${date}`;
+        div_mock.querySelector(".total").textContent = `${total_questions}`;
+        div_mock.querySelector(".attempted").textContent = `${questions_attempted}`;
+        div_mock.querySelector(".correct").textContent = `${correct_questions}`;
+        div_mock.querySelector(".incorrect").textContent = `${wrong_questions}`;
 
         let marks = correct_questions * 2 - wrong_questions * 0.6;
         marks = marks.toFixed(1);
-        div_mock.querySelector(".marks").textContent = `Marks:  ${marks} / ${total_questions * 2}`;
+        div_mock.querySelector(".marks span").textContent = `Marks:  ${marks} / ${total_questions * 2}`;
 
         var passingMarks = total_questions * 2 * 0.35;
 
         if (marks >= passingMarks) {
-            div_mock.classList.add("passed");
+            div_modiv_mock.querySelector(".marks").classList.add("pass");
         } else {
-            div_mock.classList.add("failed");
+            div_mock.querySelector(".marks").classList.add("fail");
         }
 
         let ele = div_mock.querySelector(".show-questions");
@@ -2699,66 +2741,6 @@ function loadPreviousMockResults() {
                 showPreviousMockQuestions(mock);
             });
         }
-        /*
-        var span0 = document.createElement("span");
-        span0.className = "mock-test-num hide";
-        span0.textContent = `Mock Test ${index + 1}`;
-        div_mock.appendChild(span0);
-
-        var span = document.createElement("span");
-        span.className = "date label";
-        span.textContent = "Attempted Date: " + getFormattedDate(mock.date); //+ "  (" + getFormattedTime(mock.start_time) + "  -  " + getFormattedTime(mock.end_time) + ")";
-        div_mock.appendChild(span);
-
-        var result = mock.result;
-        var marks = result.correct_questions * 2 - result.incorrect_questions * 0.6;
-        marks = marks.toFixed(1);
-        var passingMarks = result.total_questions * 2 * 0.35;
-        passingMarks = parseFloat(passingMarks.toFixed(1));
-        var marks_display = marks + "/" + result.total_questions * 2;
-
-        var div_result = document.createElement("div");
-        div_result.className = "result";
-        div_mock.appendChild(div_result);
-        div_result.innerHTML = `
-                                
-                                <div class="me-dis-flex">    
-                                    <span>Total questions: </span>
-                                    <span>${result.total_questions}</span>
-                                </div>
-                                <div class="me-dis-flex">
-                                    <span>Questions attempted:  </span>
-                                    <span>${result.attempted_questions}</span>
-                                </div>
-                                <div class="me-dis-flex correct">
-                                    <span>Correct questions:  </span>
-                                    <span>${result.correct_questions}</span>
-                                </div>
-                                <div class="me-dis-flex incorrect">
-                                    <span>Incorrect questions: </span>
-                                    <span>${result.incorrect_questions}</span>
-                                </div>
-                                <div class="me-dis-flex marks">
-                                    <span>Total Marks: </span>
-                                    <span>${marks_display}</span>
-                                </div>
-                                `;
-        if (marks < passingMarks) {
-            div_result.querySelector(".marks").classList.add("failed");
-            div_result.querySelectorAll(".marks span")[1].textContent = marks + "/" + result.total_questions * 2 + "  Failed";
-        } else {
-            div_result.querySelector(".marks").classList.add("passed");
-            div_result.querySelectorAll(".marks span")[1].textContent = marks + "/" + result.total_questions * 2 + "  Passed";
-        }
-
-        var span2 = document.createElement("span");
-        span2.className = "show-que show-prev-mock-ques link";
-        span2.textContent = "Show questions";
-        div_mock.appendChild(span2);
-        span2.addEventListener("click", (event) => {
-            showPreviousMockQuestions(mock);
-        });
-        */
     });
 }
 
@@ -4066,7 +4048,7 @@ async function getDataFromJSONFiles() {
         saveUserData();
     }
 
-    generateSomeMocks();
+    //generateSomeMocks();
     console.log("me: user_data[] loaded");
 }
 
@@ -4707,8 +4689,10 @@ function showDailyQuestions(div) {
 }
 
 function loadMockTestHistory() {
-    let ele = document.querySelector(".page.mock> .main");
-
+    let ele = document.querySelector(".page.mock > .main  .page-content > .mock-history");
+    ele.innerHTML = `<div class="mock-history-list"> `;
+    loadPreviousMockResults();
+    return;
     var div = document.createElement("div");
     div.className = "mock-history";
     ele.appendChild(div);
@@ -4717,7 +4701,7 @@ function loadMockTestHistory() {
                         <i class="fa-solid arrow fa-chevron-right"></i>
                         <span>Mock Test History</span>
                     </div>
-                    <div class="mock-history-list hide me-header-list me-dis-flex-co">
+                    <div class="mock-history-list">
                     </div>
                     `;
     ele = div.querySelector(".me-header");
@@ -4740,79 +4724,62 @@ function loadMockTestHistory() {
 }
 
 function loadNewMockTestSection() {
-    let main = document.querySelector(".page.mock .main");
-    main.innerHTML = `
-                    <div class="new-mock me-flex-co">
-                        <div class="head me-header">
-                            <i class="fa-solid arrow fa-chevron-down"></i>
-                            <span class="label">New Mock Test</span>
+    let ele = document.querySelector(".page.mock .main .page-content .new-mock");
+    ele.innerHTML = `<span class="start-new-mock"> Start New Mock Test</span>
+                    <div class="mock-chapters">
+                        <div class="top">
+                            <span class="label">Select Chapters</span>
+                            <span class="link clear-all">Clear all</span>
                         </div>
-                        <div class="content me-flex-co">
-                            <span class="link start-new-mock">Start a new mock test</span>
-                            <div class="mock-chapters">
-                                <div class="head me-header-inner">
-                                    <i class="fa-solid arrow fa-chevron-right"></i>
-                                    <span class="label">Select Chapters</span>
-                                </div>
-                                <div class="list me-header-inner-list hide">
-                                    <input type="search" class="filter" placeholder="filter chapters">
-                                    <div class="mock-chapters-list"></div>
-                                </div>
+                        <input type="search" class="filter" placeholder="Type to filter chapters" />
+                        <div class="mock-chapters-list">
+                            <div class="me-mock-chapter me-dis-flex">
+                                <input type="checkbox" name="" id="" />
+                                <span class="name">Harappan Civilization</span>
                             </div>
-                            <div></div>
                         </div>
-                    </div>`;
+                    </div>
+                        `;
 
-    let div = main.querySelector(".new-mock");
+    let div = ele;
 
-    let ele = div.querySelector(".me-header");
-    if (ele) {
-        ele.addEventListener("click", (event) => {
-            let head = event.target.closest(".head");
-            let eee = div.querySelector(".content");
-            eee.classList.toggle("hide");
-            if (eee.classList.contains("hide")) {
-                head.querySelector("i").className = "fa-solid arrow fa-chevron-right";
-            } else {
-                head.querySelector("i").className = "fa-solid arrow fa-chevron-down";
-            }
-        });
-    }
-
-    ele = div.querySelector(".link.start-new-mock");
+    ele = div.querySelector(".start-new-mock");
     if (ele) {
         ele.addEventListener("click", () => {
             startNewMockTest();
         });
     }
 
-    ele = div.querySelector(".mock-chapters .me-header-inner");
-    if (ele) {
-        ele.addEventListener("click", (event) => {
-            let head = event.target.closest(".head");
-            let eee = div.querySelector(".mock-chapters .me-header-inner-list");
-            eee.classList.toggle("hide");
-            if (eee.classList.contains("hide")) {
-                head.querySelector("i").className = "fa-solid arrow fa-chevron-right";
-            } else {
-                head.querySelector("i").className = "fa-solid arrow fa-chevron-down";
-                let tar = div.querySelector(".mock-chapters-list");
+    // Load all chapters
 
-                tar.innerHTML = "";
-                let chapters = document.querySelectorAll(".page.notes .sidebar .me-chapter .name.link");
+    ele = div.querySelector(".clear-all");
+    ele.addEventListener("click", () => {
+        ele = div.querySelector(".mock-chapters-list");
+        ele.innerHTML = "";
+        let chapters = document.querySelectorAll(".page.notes .sidebar .me-chapter .name.link");
 
-                chapters.forEach((chapter) => {
-                    let ddd = document.createElement("div");
-                    ddd.classList = "me-mock-chapter me-dis-flex";
-                    tar.appendChild(ddd);
+        chapters.forEach((chapter) => {
+            let ddd = document.createElement("div");
+            ddd.classList = "me-mock-chapter me-dis-flex";
+            ele.appendChild(ddd);
 
-                    ddd.innerHTML = ` <input type="checkbox" name="" id="">
+            ddd.innerHTML = ` <input type="checkbox" name="" id="">
                           <span class="name">${chapter.textContent}</span>`;
-                });
-            }
         });
-    }
-    div.querySelector(".mock-chapters > .head").click();
+    });
+
+    ele = div.querySelector(".mock-chapters-list");
+    ele.innerHTML = "";
+    let chapters = document.querySelectorAll(".page.notes .sidebar .me-chapter .name.link");
+
+    chapters.forEach((chapter) => {
+        let ddd = document.createElement("div");
+        ddd.classList = "me-mock-chapter me-dis-flex";
+        ele.appendChild(ddd);
+
+        ddd.innerHTML = ` <input type="checkbox" name="" id="">
+                          <span class="name">${chapter.textContent}</span>`;
+    });
 
     ele = div.querySelector(".mock-chapters  input");
     if (ele) {
@@ -4835,39 +4802,42 @@ function loadNewMockTestSection() {
         });
     }
 }
+
 function loadPredefinedMocks() {
-    let ele = document.querySelector(".page.mock > .main ");
+    let ele = document.querySelector(".page.mock > .main  .page-content > .static-mock");
+    closeSidebar(ele);
+    ele.innerHTML = "";
 
     var div = document.createElement("div");
     div.className = "pre-defined-mocks";
     ele.appendChild(div);
-
-    div.innerHTML = `<div class="head me-header">
-                        <i class="fa-solid arrow fa-chevron-right"></i>
-                        <span>Static Mock Tests</span>
-                    </div>
-                    <div class="mock-test-list list hide me-header-list">
-                        
-                    </div>
+    div.innerHTML = `
+                    <input type="search" class="filter hide" placeholder="Search mock test" />    
+                    <div class="mock-test-list"></div>
                     `;
-    ele = div.querySelector(".me-header");
+    ele = div.querySelector("input");
     if (ele) {
-        addDividerBefore(ele);
-        ele.addEventListener("click", (event) => {
-            let ele = event.target.closest(".head");
-            let eee = div.querySelector(".mock-test-list");
-            eee.classList.toggle("hide");
-            if (eee.classList.contains("hide")) {
-                ele.querySelector("i").className = "fa-solid fa-chevron-right";
-                //head.querySelector("span").textContent = "Mock History";
-            } else {
-                ele.querySelector("i").className = "fa-solid fa-chevron-down";
-                //head.querySelector("span").textContent = "Mock History";
-            }
+        ele.addEventListener("input", (event) => {
+            const filter = event.target.value.trim().toLowerCase();
+            const pd_mocks = div.querySelectorAll(".pd-mock");
+
+            // Loop through each tag
+            pd_mocks.forEach((pd_mock) => {
+                // Get the text content of the tag and convert it to lowercase
+                const tagName = pd_mock.querySelector(".name").textContent.toLowerCase();
+
+                // Check if the tag matches the filter
+                if (tagName.includes(filter)) {
+                    pd_mock.parentElement.style.display = ""; // Show the tag
+                } else {
+                    pd_mock.parentElement.style.display = "none"; // Hide the tag
+                }
+            });
         });
     }
+
     let list_ele = div.querySelector(".mock-test-list");
-    debugger;
+
     static_mocks.forEach((mock, index) => {
         var div_mock = document.createElement("div");
         div_mock.className = "pd-mock";
@@ -5215,8 +5185,8 @@ function openSidebar(event) {
 
     let page = ele.closest(".page");
     if (is_mobile) {
-        page.children[0].style.flex = "0 0 30%";
-        page.children[1].style.flex = "0 0 70%";
+        page.children[0].style.flex = "0 0 20%";
+        page.children[1].style.flex = "0 0 80%";
     } else {
         page.children[0].style.flex = "0 0 60%";
         page.children[1].style.flex = "0 0 40%";
@@ -5603,4 +5573,31 @@ function closeOverlay() {
 }
 function openOverlay() {
     document.querySelector(".me-overlay").classList.remove("hide");
+}
+
+function getFormattedDateMMddYYYY(date) {
+    // Create a new Date object from the input date string
+    const dateObj = new Date(date);
+
+    // Define options for date formatting
+    const options = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    };
+
+    // Format the date
+    const formattedDate = dateObj.toLocaleDateString("en-US", options);
+
+    // Extract day part of the formatted date
+    const day = dateObj.getDate();
+
+    // Add ordinal suffix to the day
+    const suffix = day % 10 === 1 && day !== 11 ? "st" : day % 10 === 2 && day !== 12 ? "nd" : day % 10 === 3 && day !== 13 ? "rd" : "th";
+
+    // Replace day with the day plus the suffix
+    const formattedDateWithSuffix = formattedDate.replace(day, day + suffix);
+
+    // Return the formatted date with ordinal suffix
+    return formattedDateWithSuffix;
 }
