@@ -3954,3 +3954,8 @@ i.fa-chevron-right:before {
     display: none;
     /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
 }
+
+*::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
+}
