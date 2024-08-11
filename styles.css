@@ -1257,7 +1257,7 @@ div.tab.separator {
     max-width: 100%;
     overflow-x: auto;
     height: 45px;
-    background-color: black;
+
     /* Use auto to show scroll only when needed */
     -webkit-overflow-scrolling: touch;
     /* Smooth scrolling on touch devices */
@@ -1290,8 +1290,8 @@ div.tab.separator {
 }
 
 .main.tabs .tab.active {
-    color: white;
-    border-bottom: 0px solid var(--link-color);
+    color: var(--link-color);
+    border-bottom: 3px solid var(--link-color);
 }
 
 
