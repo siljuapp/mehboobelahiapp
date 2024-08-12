@@ -34,7 +34,7 @@ async function initializeFirebase() {
 
 // Check if the user is online before initializing Firebase
 if (is_online) {
-    //initializeFirebase();
+    initializeFirebase();
 } else {
     console.log("User is offline. Firebase initialization skipped.");
 }
