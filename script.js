@@ -4976,6 +4976,7 @@ function loadPredefinedMocks() {
         list_ele.appendChild(div_mock);
 
         let mock_name = mock.name;
+        let pdf_link = mock.pdf ? mock.pdf : "";
 
         div_mock.innerHTML = `
                             <span class="name">${mock_name}</span>
@@ -4986,10 +4987,20 @@ function loadPredefinedMocks() {
                                 <span class="sub reasoning">Reasoning</span>
                             </div>
                             <span class="all">Full Test</span>
+                            <a href="${pdf_link}" class="download-pdf" target="_blank">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <span>Download pdf </span>
+                                <i class="fa-solid fa-arrow-down-to-bracket"></i>
+                            </a>
                             `;
 
         ele = div_mock.querySelector(".me-header-inner");
         let div = div_mock;
+
+        if (pdf_link == "") {
+            div.querySelector(".download-pdf").classList.add("hide");
+        }
+
         if (ele) {
             //addDividerBefore(ele);
             ele.addEventListener("click", (event) => {

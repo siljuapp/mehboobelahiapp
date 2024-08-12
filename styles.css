@@ -4028,3 +4028,19 @@ i.fa-chevron-right:before {
 .page.mcq .main {
     padding: 30px 0px;
 }
+
+.pd-mock a.download-pdf {
+    color: var(--link-color);
+    display: flex;
+    gap: 5px;
+    justify-content: end;
+    border: 1px solid var(--link-color);
+    width: fit-content;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.pd-mock a.download-pdf * {
+    font-size: 0.8em;
+}
