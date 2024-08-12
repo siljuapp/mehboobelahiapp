@@ -136,6 +136,7 @@ span.me-bold {
     color: #4f4f4f
 }
 
+
 .question-section .explanations {
     margin: 30px 19px;
 }
@@ -170,7 +171,7 @@ span.me-highlight {
 }
 
 body {
-    /*background-color: #1A1F26;*/
+    background-color: inherit;
 }
 
 i,
@@ -201,6 +202,11 @@ body>.content {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+body>.content::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
 }
 
 .link,
@@ -517,6 +523,11 @@ span.option.wrong-ans {
     overflow-y: scroll;
 
 
+}
+
+.prev-mock-ques.list::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
 }
 
 .about-me___-text span:nth-child(n+3)::before {
@@ -885,7 +896,11 @@ div.today-que-info div.all-que-text {
     margin: 10px 22px;
     max-height: 300px;
     overflow-y: scroll;
+}
 
+div.today-que-info div.all-que-text::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
 }
 
 div.today-que-info div.all-que-text .que-div {
@@ -1129,6 +1144,11 @@ div.tab.separator {
 
     margin: 10px 0px;
     margin-left: 20px;
+}
+
+.filter-tags-list:has(.link)::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
 }
 
 .filter-tags-list .filter-tag.level-0 {
@@ -1542,10 +1562,14 @@ div.que-dot.selected {
 }
 
 .mock-test .result .wrong span,
+.error,
+.home .error,
 .wrong,
 .incorrect {
     color: red;
 }
+
+
 
 
 .mock-test .result .correct span,
@@ -3281,6 +3305,12 @@ i.fa-chevron-right:before {
 
 }
 
+.page>.main::-webkit-scrollbar,
+.page::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
+}
+
 .home .app-name___ h1 {
     font-size: 44px;
     line-height: 1.2em;
@@ -3918,7 +3948,7 @@ i.fa-chevron-right:before {
 
 /* Hide scrollbars for all browsers */
 .hide-scrollbars {
-
+    color: gray;
     /* Hide scrollbars but still allow scrolling */
 }
 
@@ -3950,12 +3980,51 @@ i.fa-chevron-right:before {
     -webkit-overflow-scrolling: touch;
 }
 
-.scroll-y-list::-webkit-scrollbar {
+*::-webkit-scrollbar {
     display: none;
     /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
 }
 
-*::-webkit-scrollbar {
-    display: none;
-    /* Hide scrollbars in WebKit browsers (Chrome, Safari) */
+
+
+.login .sign-in,
+.login .sign-up {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.login .title {
+    font-size: 25px;
+    font-weight: 550;
+}
+
+.login input {
+    padding: 7px;
+    width: min(300px, 80%);
+    text-align: center;
+    border: 1px solid gray;
+    border-radius: 4px;
+}
+
+.login .new-user {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.login .submit {
+    width: 300px;
+    padding: 7px;
+    background-color: #357def;
+    color: white;
+}
+
+
+.page.mcq .main {
+    padding: 30px 0px;
 }

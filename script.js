@@ -34,7 +34,7 @@ async function initializeFirebase() {
 
 // Check if the user is online before initializing Firebase
 if (is_online) {
-    initializeFirebase();
+    //initializeFirebase();
 } else {
     console.log("User is offline. Firebase initialization skipped.");
 }
@@ -69,10 +69,21 @@ var image_url = null;
 var new_ques = [];
 var new_que_tags = ["apple", "banana", "cat"];
 var me_admin = false;
+let user = {
+    id: "",
+    username: "",
+};
 // is
 
 var data_other = [];
 var autocompleteList = "";
+
+let gist_ids = {
+    usernames: "46125033e188871ffa4ea94580d78995",
+    user_data: "73963e176edf6bfa16363d810838622a",
+};
+
+let git_token = "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";
 
 //hardReloadCode();
 //clearCache();
@@ -685,7 +696,7 @@ async function getDataFromGit(id, filename, type) {
 function generateUniqueId() {
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var id = "";
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 15; i++) {
         id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return id;
@@ -740,16 +751,16 @@ async function updateMyMcqAppGistFile(filename) {
 
         const data = await response.json();
         console.log("Gist updated successfully:", data);
-        popupAlert("Gist updated successfully");
+        //popupAlert("Gist updated successfully");
         new_ques = [];
         saveDataInLocale("new_ques", new_ques);
     } catch (error) {
         console.error("Failed to update gist:", error);
-        popupAlert("Failed to Update Gist");
+        //popupAlert("Failed to Update Gist");
     }
 }
 
-async function updateGistFile(filename, id, data_in_array) {
+async function updateGistFile(id, filename, data_in_array) {
     const data_in_json = JSON.stringify(data_in_array, null, 2);
     const url = `https://api.github.com/gists/${id}`;
     const headers = {
@@ -1358,7 +1369,7 @@ function addChapterIndexItem(item, tar, level) {
         div.appendChild(div2);
 
         let i = document.createElement("i");
-        i.className = "arrow-icon fa-solid fa-chevron-down";
+        i.className = "arrow-icon fa-solid fa-chevron-right";
         div2.appendChild(i);
 
         div2.addEventListener("click", (event) => {
@@ -1393,7 +1404,7 @@ function addChapterIndexItem(item, tar, level) {
         div2.appendChild(span);
 
         let div3 = document.createElement("div");
-        div3.className = "children";
+        div3.className = "children hide";
         div.appendChild(div3);
 
         children.forEach((child) => {
@@ -2719,7 +2730,7 @@ function loadPreviousMockResults() {
                 else ++wrong_questions;
             }
         });
-        debugger;
+
         //let date = getFormattedDate(mock.date);
         let date = getFormattedDateMMddYYYY(mock.date);
 
@@ -2751,7 +2762,6 @@ function loadPreviousMockResults() {
 }
 
 function showPreviousMockQuestions(mock) {
-    debugger;
     let div = document.querySelector(".page.mock .sidebar .content .prev-mock-questions ");
     div.innerHTML = "";
     openSidebar(div);
@@ -3227,13 +3237,6 @@ function getRandomPageHTMLTemplate() {
                     <i class="fa-light fa-sidebar-flip me-mla"></i>
                 </div>
                 <div class="filter-section">
-                    <div class="head">
-                        <i class="fa-light fa-sidebar-flip me-mla hide"></i>
-                        <div class="filter hide">
-                            <i class="fa-regular fa-filter"></i>
-                            <span>Filter</span>
-                        </div>
-                    </div>
                     <div class="filtered-tags hide"></div>
                     <span class="filter-ques-count hide label"></span>
                 </div>
@@ -4008,7 +4011,45 @@ async function getDataFromJSONFiles() {
     tags_list = my_data[0].tags_list;
 
     mocks_data = await fetchDataFromFile(`mocks_${exam}`);
+    debugger;
+    user = getDataFromLocale("esa_user");
+    if (false) {
+        document.querySelector(".loading").classList.add("hide");
+        document.querySelector(".me-content").classList.remove("hide");
+        let target = document.querySelector(".page.home");
+        loadPage(target, "login");
 
+        let login_interval = setInterval(() => {
+            let ele = document.querySelector(".login .sign-in .submit");
+            if (ele) {
+                clearInterval(login_interval);
+                ele = document.querySelector(".login .sign-in .submit");
+                if (ele) {
+                    ele.addEventListener("click", () => {
+                        signin();
+                    });
+                }
+                ele = document.querySelector(".login .sign-up .submit");
+                if (ele) {
+                    ele.addEventListener("click", () => {
+                        signup();
+                    });
+                }
+
+                ele = document.querySelector(".login  .new-user .link");
+                if (ele) {
+                    ele.addEventListener("click", () => {
+                        let signin_ele = document.querySelector(".login > .sign-in");
+                        signin_ele.classList.add("hide");
+                        let signup_ele = document.querySelector(".login > .sign-up");
+                        signup_ele.classList.remove("hide");
+                    });
+                }
+            }
+        }, 1000);
+
+        return;
+    }
     user_data = getUserData();
 
     if (!user_data || !user_data.length) {
@@ -4611,6 +4652,7 @@ async function clearCache() {
 
 function saveUserData() {
     saveDataInLocale(`user_data_${exam}`, user_data);
+    if (is_online) saveUserDataOnline();
 }
 function getUserData() {
     return getDataFromLocale(`user_data_${exam}`);
@@ -4789,6 +4831,88 @@ function loadNewMockTestSection() {
     });
 
     ele = div.querySelector(".mock-chapters  input");
+    if (ele) {
+        ele.addEventListener("input", (event) => {
+            const filter = event.target.value.trim().toLowerCase();
+            const chapters = div.querySelectorAll(".me-mock-chapter .name");
+
+            // Loop through each tag
+            chapters.forEach((chapter) => {
+                // Get the text content of the tag and convert it to lowercase
+                const tagName = chapter.textContent.toLowerCase();
+
+                // Check if the tag matches the filter
+                if (tagName.includes(filter)) {
+                    chapter.parentElement.style.display = ""; // Show the tag
+                } else {
+                    chapter.parentElement.style.display = "none"; // Hide the tag
+                }
+            });
+        });
+    }
+}
+
+function loadNewMockTestSection2() {
+    let ele = document.querySelector(".page.mock .main .page-content .new-mock");
+    ele.innerHTML = `<span class="start-new-mock"> Start New Mock Test</span>
+                    <div class="mock-chapters">
+                        <div class="top">
+                            <span class="label">Select Chapters</span>
+                            <span class="link clear-all">Clear all</span>
+                        </div>
+                        <input type="search" class="filter" placeholder="Type to filter chapters" />
+                        <div class="mock-chapters-list">
+                            <div class="me-mock-chapter me-dis-flex">
+                                <input type="checkbox" name="" id="" />
+                                <span class="name">Harappan Civilization</span>
+                            </div>
+                        </div>
+                    </div>
+                        `;
+
+    let div = ele;
+
+    ele = div.querySelector(".start-new-mock");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            startNewMockTest();
+        });
+    }
+
+    // Load all chapters
+
+    ele = div.querySelector(".clear-all");
+    ele.addEventListener("click", () => {
+        ele = div.querySelector(".mock-chapters-list");
+        ele.innerHTML = "";
+        let chapters = document.querySelector(".page.mcq .sidebar .content .chapter-tag");
+        let links = chapters.querySelectorAll(".link.name");
+        links.forEach((link) => {
+            let div = document.createElement("div");
+            div.className = "name link";
+            div.innerHTML = `<input type="checkbox">
+            <span>${link.textContent}</span>`;
+            link.parentNode.replaceChild(div, link);
+        });
+    });
+
+    ele = div.querySelector(".mock-chapters-list");
+    ele.innerHTML = "";
+    //let chapters = document.querySelectorAll(".page.notes .sidebar .me-chapter .name.link");
+
+    let chapters = document.querySelector(".page.mcq .sidebar .content .chapter-tag");
+    ele.appendChild(chapters);
+
+    let links = chapters.querySelectorAll(".link.name");
+    links.forEach((link) => {
+        let div = document.createElement("div");
+        div.className = "name link";
+        div.innerHTML = `<input type="checkbox">
+            <span>${link.textContent}</span>`;
+        link.parentNode.replaceChild(div, link);
+    });
+
+    ele = div.querySelector(".mock-chapters  input_");
     if (ele) {
         ele.addEventListener("input", (event) => {
             const filter = event.target.value.trim().toLowerCase();
@@ -5607,4 +5731,102 @@ function getFormattedDateMMddYYYY(date) {
 
     // Return the formatted date with ordinal suffix
     return formattedDateWithSuffix;
+}
+
+async function signin() {
+    let username = document.querySelector(".login .sign-in #username").value;
+    let password = document.querySelector(".login .sign-in #password").value;
+    let error_span = document.querySelector(".login .sign-in .error");
+    if (username == "" || password == "") {
+        error_span.textContent = "Username and Password cannot be empty";
+        return;
+    }
+    let id = gist_ids.usernames;
+    let filename = "usernames.json";
+    data = await getDataFromGit(id, filename);
+    if (!data) {
+        error_span.textContent = "Username and Password cannot be empty";
+    }
+    data.forEach((obj) => {
+        if (obj.username == username) {
+            user = {
+                id: obj.id,
+                username: obj.username,
+            };
+            saveDataInLocale("esa_user", user);
+        }
+    });
+
+    if (user.id == "") {
+        error_span.textContent = "Username not found";
+        return;
+    } else {
+        saveDataInLocale("esa_user", user);
+    }
+    id = gist_ids.user_data;
+    filename = "user_data.json";
+    data = await getDataFromGit(id, filename);
+    data.forEach((obj) => {
+        if (obj.id == user.id) {
+            user_data = obj.data;
+            saveUserData();
+        }
+    });
+    document.querySelector(".loading").classList.remove("hide");
+    document.querySelector(".me-content").classList.add("hide");
+    setTimeout(function () {
+        initialLoadind();
+    }, 2000);
+}
+async function signup() {
+    let username = document.querySelector(".login .sign-up #username").value;
+    let password = document.querySelector(".login .sign-up #password").value;
+    let error_span = document.querySelector(".login .sign-up .error");
+    if (username == "" || password == "") {
+        error_span.textContent = "Username and Password cannot be empty";
+    }
+    let id = gist_ids.usernames;
+    let filename = "usernames.json";
+    usernames_data = await getDataFromGit(id, filename);
+    if (usernames_data.length) {
+        usernames_data.forEach((obj) => {
+            if (obj.username == username) {
+                error_span.textContent = "Username already exists.";
+                return;
+            }
+        });
+    }
+    let obj = {
+        username: username,
+        passowrd: password,
+        id: generateUniqueId(),
+    };
+    user.id = obj.id;
+    user.username = obj.username;
+
+    usernames_data.push(obj);
+    await updateGistFile(id, filename, usernames_data);
+}
+
+async function saveUserDataOnline() {
+    let id = gist_ids.user_data;
+    let filename = "user_data.json";
+    let data = await getDataFromGit(id, filename);
+    if (data && data.length) {
+        let is_data = false;
+        data.forEach((obj) => {
+            if (obj.id == user.id) {
+                is_data = true;
+                obj.data = user_data;
+            }
+        });
+    } else {
+        data = [];
+        let obj = {
+            id: user.id,
+            data: user_data,
+        };
+        data.push(obj);
+    }
+    updateGistFile(id, filename, data);
 }
