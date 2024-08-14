@@ -1369,7 +1369,7 @@ function addChapterIndexItem(item, tar, level) {
         div.appendChild(div2);
 
         let i = document.createElement("i");
-        i.className = "arrow-icon fa-solid fa-chevron-right";
+        i.className = "arrow-icon fa-solid fa-chevron-down";
         div2.appendChild(i);
 
         div2.addEventListener("click", (event) => {
@@ -1412,7 +1412,7 @@ function addChapterIndexItem(item, tar, level) {
         div2.appendChild(span);
 
         let div3 = document.createElement("div");
-        div3.className = "children hide";
+        div3.className = "children";
         div.appendChild(div3);
 
         children.forEach((child) => {
@@ -2716,7 +2716,7 @@ function loadPreviousMockResults() {
         tar_ele.appendChild(div_mock);
         div_mock.innerHTML = `
                                                         <span class="date">Aug 10th, 2024</span>
-                            <div class="questions">
+                            <div class="questions_">
                                 <span class="total">20</span>
                                 <span class="attempted">10</span>
                                 <span class="correct">5</span>
@@ -2744,14 +2744,18 @@ function loadPreviousMockResults() {
             }
         });
 
+        if (!questions_attempted) {
+            div_mock.remove();
+            return;
+        }
         //let date = getFormattedDate(mock.date);
         let date = getFormattedDateMMddYYYY(mock.date);
 
         div_mock.querySelector(".date").textContent = `${date}`;
-        div_mock.querySelector(".total").textContent = `${total_questions}`;
-        div_mock.querySelector(".attempted").textContent = `${questions_attempted}`;
-        div_mock.querySelector(".correct").textContent = `${correct_questions}`;
-        div_mock.querySelector(".incorrect").textContent = `${wrong_questions}`;
+        div_mock.querySelector(".total").textContent = `Total: ${total_questions}`;
+        div_mock.querySelector(".attempted").textContent = `Attempted: ${questions_attempted}`;
+        div_mock.querySelector(".correct").textContent = `Correct: ${correct_questions}`;
+        div_mock.querySelector(".incorrect").textContent = `Incorrect: ${wrong_questions}`;
 
         let marks = correct_questions * 2 - wrong_questions * 0.6;
         marks = marks.toFixed(1);
@@ -2865,10 +2869,10 @@ function addDividerBefore(element) {
 
 function startNewMockTest(mock) {
     // Load chapters if selected for mock test
+
     var selected_chapters = [];
-    let eee = document.querySelector(".page.mock .me-mock-chapter");
-    if (eee) {
-        let chapters = document.querySelectorAll(".new-mock .me-mock-chapter");
+    let chapters = document.querySelectorAll(".new-mock .mock-chapters-list .tag-item");
+    if (chapters) {
         chapters.forEach((ele) => {
             if (ele.children[0].checked) {
                 selected_chapters.push(ele.children[1].textContent.toLowerCase());
@@ -2945,8 +2949,27 @@ function startNewMockTest(mock) {
     que_arr = user_data[0].mocks[0].questions;
 
     let arr = [];
+    debugger;
+
+    let mock_questions_length = parseInt(document.querySelector(".total-mock-questions input").value);
+    mock_questions_length = mock_questions_length ? mock_questions_length : 20;
+    if (mock_questions_length < 20) mock_questions_length = 20;
+    if (mock_questions_length > 50) mock_questions_length = 50;
     if (!mock) {
         if (selected_chapters.length) {
+            let all_ques = que_data;
+            all_ques = sortArrayRandomly(all_ques);
+            let i = 0;
+            let y = 0;
+            while (y < mock_questions_length && i < all_ques.length) {
+                if (selected_chapters.some((tag) => all_ques[i].tags.includes(tag))) {
+                    arr.push(all_ques[i].id);
+                    ++y;
+                }
+                ++i;
+            }
+            mock_questions_length = y;
+            /*
             let chapter_arr = {};
             selected_chapters.forEach((chapter) => {
                 chapter_arr[chapter] = [];
@@ -2976,9 +2999,10 @@ function startNewMockTest(mock) {
             //selected_chapters.forEach((chapter) => {});
 
             ///let filtered_ques = que_data.filter((que) => que.tags.some((tag) => selected_chapters.includes(tag)));
+            */
         } else {
             let tq = que_data.length;
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < mock_questions_length; i++) {
                 let randomIndex = Math.floor(Math.random() * tq);
                 arr.push(que_data[randomIndex].id); // Remove the element from the copy and push it to result
             }
@@ -3037,7 +3061,7 @@ function startNewMockTest(mock) {
             });
         });
         // Now save the user data
-        //saveDataInLocale("user_data", user_data);
+        saveUserData();
 
         // Now get the mock test data
         var total_questions = que_arr.length;
@@ -3110,7 +3134,7 @@ function startNewMockTest(mock) {
 }
 
 function openMCQPage(id) {
-    openPage("mcq");
+    if (id != "load") openPage("mcq");
 
     var page_main = document.querySelector(".page.mcq > .main .que-text");
     if (!page_main) {
@@ -3497,6 +3521,39 @@ function displayQuestion(que, tar_ele, type) {
         popupAlert("Question link copied");
     });
 
+    if (!type || type == "random") {
+        let div = document.createElement("div");
+        div.className = "tags";
+        que_div.appendChild(div);
+
+        div.innerHTML = `<span>Category: </span>
+                        <div class="tag-list"></div>`;
+
+        let ignore_list = ["ssc", "general studies", "mock"];
+        que.tags.forEach((tag) => {
+            let span = document.createElement("span");
+            span.className = "tag";
+            span.textContent = tag;
+            let ele = div.querySelector(".tag-list");
+            if (!ignore_list.includes(tag.toLowerCase())) ele.appendChild(span);
+
+            span.addEventListener("click", () => {
+                let tag = span.textContent.trim().toLowerCase();
+                let tags = [tag];
+                let eee = document.querySelectorAll(".sidebar .tag-item .name");
+                let is_found = false;
+                eee.forEach((ee) => {
+                    if (ee.textContent.trim().toLowerCase() == tag) {
+                        ee.click();
+                        is_found = true;
+                    }
+                });
+
+                if (!is_found) filterQuestionsOnTagBased(tag, tags);
+            });
+        });
+    }
+
     let note_span = document.createElement("span");
     note_span.className = "me-note que-marks-note";
     note_span.textContent = "Note: correct answer (+2) marks, wrong answer (-0.6) marks";
@@ -3761,7 +3818,7 @@ function addTagIndexItem_old(item, tar_ele, level) {
     if (span.classList.contains("link")) {
         span.addEventListener("click", () => {
             var tags = [];
-            let tag = span.textContent;
+            let tag = span.textContent.trim();
             let link_spans = span.closest(".me-tag").querySelectorAll(".name");
             link_spans.forEach((ss) => {
                 tags.push(ss.textContent);
@@ -3811,15 +3868,15 @@ function addTagIndexItem(item, tar_ele, level) {
                             <span class="link name">${tag_name}</span>
                         </div>`;
     }
-    debugger;
+
     ele = div.querySelector("span.link");
     if (ele) {
         ele.addEventListener("click", () => {
             var tags = [];
-            let tag = ele.textContent.toLowerCase();
+            let tag = ele.textContent.trim().toLowerCase();
             let link_spans = ele.closest(".me-tag").querySelectorAll(".name");
             link_spans.forEach((ss) => {
-                tags.push(ss.textContent.toLowerCase());
+                tags.push(ss.textContent.trim().toLowerCase());
             });
 
             filterQuestionsOnTagBased(tag, tags, ele);
@@ -4850,6 +4907,10 @@ function loadMockTestHistory() {
 function loadNewMockTestSection() {
     let ele = document.querySelector(".page.mock .main .page-content .new-mock");
     ele.innerHTML = `<span class="start-new-mock"> Start New Mock Test</span>
+                    <div class="total-mock-questions">
+                        <span>Set total questions (20-50): </span>
+                        <input type="number" value="20" />
+                    </div>
                     <div class="mock-chapters">
                         <div class="top">
                             <span class="label">Select Chapters</span>
@@ -4878,22 +4939,44 @@ function loadNewMockTestSection() {
 
     ele = div.querySelector(".clear-all");
     ele.addEventListener("click", () => {
-        ele = div.querySelector(".mock-chapters-list");
-        ele.innerHTML = "";
-        let chapters = document.querySelectorAll(".page.notes .sidebar .me-chapter .name.link");
+        ele = div.querySelectorAll(".mock-chapters-list .tag-item input");
 
-        chapters.forEach((chapter) => {
-            let ddd = document.createElement("div");
-            ddd.classList = "me-mock-chapter me-dis-flex";
-            ele.appendChild(ddd);
-
-            ddd.innerHTML = ` <input type="checkbox" name="" id="">
-                          <span class="name">${chapter.textContent}</span>`;
+        ele.forEach((ee) => {
+            ee.checked = false;
         });
     });
 
     ele = div.querySelector(".mock-chapters-list");
-    ele.innerHTML = "";
+
+    let chapter_tags_element = document.querySelector(".page.mcq .sidebar .content .chapter-tag");
+    if (!chapter_tags_element) {
+        openMCQPage("load");
+        chapter_tags_element = document.querySelector(".page.mcq .sidebar .content .chapter-tag");
+    }
+    chapter_tags_element = chapter_tags_element.innerHTML;
+    ele.innerHTML = chapter_tags_element;
+
+    ele = ele.querySelectorAll(".tag-item");
+
+    ele.forEach((ee) => {
+        // ee.children[0].innerHTML = "fa-regular fa-circle";
+        let name = ee.children[1].textContent;
+        ee.innerHTML = `<input type="checkbox">
+                        <span class="link name">${name}</span>`;
+        ee.children[0].addEventListener("click", (event) => {
+            let inp = event.target;
+            let ele = inp.closest(".me-tag");
+            ele = ele.querySelector(".children");
+            ele = ele.querySelectorAll(".tag-item");
+            if (ele) {
+                ele.forEach((item) => {
+                    item.children[0].checked = inp.checked;
+                });
+            }
+        });
+    });
+
+    /* ele.innerHTML = "";
     let chapters = document.querySelectorAll(".page.notes .sidebar .me-chapter .name.link");
 
     chapters.forEach((chapter) => {
@@ -4904,12 +4987,13 @@ function loadNewMockTestSection() {
         ddd.innerHTML = ` <input type="checkbox" name="" id="">
                           <span class="name">${chapter.textContent}</span>`;
     });
+    */
 
     ele = div.querySelector(".mock-chapters  input");
     if (ele) {
         ele.addEventListener("input", (event) => {
             const filter = event.target.value.trim().toLowerCase();
-            const chapters = div.querySelectorAll(".me-mock-chapter .name");
+            const chapters = div.querySelectorAll(".tag-item .name");
 
             // Loop through each tag
             chapters.forEach((chapter) => {
