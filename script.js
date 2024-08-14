@@ -1325,8 +1325,8 @@ function openNotesPage2(id1, id2) {
                             <span class="cross me-mla">X</span>
                         </div>
                         <div class="tabs">
-                            <div class="tab chapter-index active">Chapters</div>
-                            <div class="tab search">Search</div>
+                            <div class="tab chapter-index active">Chapter List</div>
+                            <div class="tab search">Search in Notes</div>
                         </div>
                         <div class="content">
                             <div class="chapter-index"></div>
@@ -1397,6 +1397,14 @@ function addChapterIndexItem(item, tar, level) {
             }
         });*/
 
+        /*
+        div2.innerHTML = `<i class="fa-regular fa-circle"></i>
+        <span class="name link">${item.text}</span>`;
+
+        let i2 = document.createElement("i");
+        i2.className = "fa-regular fa-circle";
+        div2.appendChild(i2);
+        */
         var span = document.createElement("span");
         span.className = "name";
 
@@ -1692,7 +1700,8 @@ function loadPageText(item, target, level) {
 
         if (item.video_id) {
             var i = document.createElement("i");
-            i.className = "fa-brands fa-youtube video";
+            //i.className = "fa-brands fa-youtube video";
+            i.className = "fa-duotone fa-solid fa-play video";
             i.id = item.video_id;
             i.setAttribute("time", item.time);
             //div.appendChild(i);
@@ -2027,8 +2036,9 @@ function getHTMLFormattedText(text) {
     // Convert [text](link) to <a>
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
-    // Convert {video:ASDASDDE:399} to <i class="fa-brands fa-youtube video" id="video-id" time="399"></i>
-    text = text.replace(/\{video:([^:]+):(\d+)\}/g, '<i class="fa-brands fa-youtube video" id="$1" time="$2"></i>');
+    // Convert {video:ASDASDDE:399} to <i class="fa-brands fa-youtube video" id="video-id" time="399"></i> fa-duotone fa-solid fa-play
+    //text = text.replace(/\{video:([^:]+):(\d+)\}/g, '<i class="fa-brands fa-youtube video" id="$1" time="$2"></i>');
+    text = text.replace(/\{video:([^:]+):(\d+)\}/g, '<i class="fa-duotone fa-solid fa-play video" id="$1" time="$2"></i>');
 
     // Convert \n to <br>
     text = text.replace(/\n/g, "<br>");
@@ -2103,6 +2113,9 @@ function openChapterById(page_id, block_id) {
     div.innerHTML = getBlockHTMLTemplate();
     setBlockIconsEvents(div);
     addBlockLinkedItems(div);
+
+    ele = div.querySelector(".icon_");
+    if (ele) ele.classList.remove("hide");
 
     let div_iframe = document.createElement("div");
     div_iframe.className = "me-iframe-div";
@@ -3024,7 +3037,7 @@ function startNewMockTest(mock) {
             });
         });
         // Now save the user data
-        saveDataInLocale("user_data", user_data);
+        //saveDataInLocale("user_data", user_data);
 
         // Now get the mock test data
         var total_questions = que_arr.length;
@@ -3107,11 +3120,13 @@ function openMCQPage(id) {
         updateTodayQuestionsCount();
         var page_sidebar = document.querySelector(".page.mcq > .sidebar ");
         page_sidebar.innerHTML = `<div class="header">
-                            <span class="title">Title</span>
+                            <span class="title">Select tags to filter questions</span>
                             <span class="cross me-mla">X</span>
                         </div>
+                        <span class="info hide"></span>
+
                         <div class="tabs">
-                            <div class="tab chapter-tag active">Chapters</div>
+                            <div class="tab chapter-tag active">Tag Hierarchy</div>
                             <div class="tab all-tags">All Tags</div>
                         </div>
                         <div class="content">
@@ -3277,7 +3292,9 @@ function displayQuestion(que, tar_ele, type) {
             result += `<span>${line}</span>`;
         }
     });
-    var tt = result;
+    //var tt =  result;
+
+    var tt = getHTMLFormattedText(result);
     //tt.appendChild(result);
 
     var nn = 1;
@@ -3441,7 +3458,10 @@ function displayQuestion(que, tar_ele, type) {
                     span.textContent = `Open Notes: "${page_title}"`;
                     if (parent_block_uid) {
                         let text = getBlockText(que.page_uid, parent_block_uid);
-                        if (text) span.innerHTML = getHTMLFormattedText(text);
+
+                        if (text == "" || text.includes("soon...")) {
+                            exp_div.classList.add("hide");
+                        } else span.innerHTML = getHTMLFormattedText(text);
                     }
 
                     exp_div.appendChild(span);
@@ -3678,7 +3698,7 @@ function addAllTagsItems(tag, tar_ele) {
     });
 }
 
-function addTagIndexItem(item, tar_ele, level) {
+function addTagIndexItem_old(item, tar_ele, level) {
     item = item.name ? item : item[0];
     try {
         var children = item.children;
@@ -3748,6 +3768,61 @@ function addTagIndexItem(item, tar_ele, level) {
             });
 
             filterQuestionsOnTagBased(tag, tags, span);
+        });
+    }
+}
+
+function addTagIndexItem(item, tar_ele, level) {
+    item = item.name ? item : item[0];
+    try {
+        var children = item.children;
+    } catch {}
+
+    let div = "";
+    let ele = "";
+    if (children.length) {
+        div = document.createElement("div");
+        div.className = `me-tag level-${level}`;
+        tar_ele.appendChild(div);
+
+        //let tag_name = item.name.replace("[[", "").replace("]]", "").toLowerCase();
+        let tag_name = item.name.replace("[[", "").replace("]]", "");
+        div.innerHTML = `<div class="tag-item">
+                            <i class="fa-solid fa-circle"></i>
+                            <span class="link name">${tag_name}</span>
+                        </div>
+                        <div class="children tag-children"></div>`;
+
+        ele = div.querySelector(".children");
+        children.forEach((child) => {
+            var i = level + 1;
+            addTagIndexItem(child, ele, i);
+        });
+    } else {
+        div = document.createElement("div");
+        div.className = `me-tag level-${level}`;
+        tar_ele.appendChild(div);
+
+        //let tag_name = item.name.replace("[[", "").replace("]]", "").toLowerCase();
+        let tag_name = item.name.replace("[[", "").replace("]]", "");
+
+        div.innerHTML = `<div class="tag-item">
+                            <i class="fa-solid fa-circle"></i>
+                            <span class="link name">${tag_name}</span>
+                        </div>`;
+    }
+    debugger;
+    ele = div.querySelector("span.link");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            var tags = [];
+            let tag = ele.textContent.toLowerCase();
+            let link_spans = ele.closest(".me-tag").querySelectorAll(".name");
+            link_spans.forEach((ss) => {
+                tags.push(ss.textContent.toLowerCase());
+            });
+
+            filterQuestionsOnTagBased(tag, tags, ele);
         });
     }
 }
@@ -4011,7 +4086,7 @@ async function getDataFromJSONFiles() {
     tags_list = my_data[0].tags_list;
 
     mocks_data = await fetchDataFromFile(`mocks_${exam}`);
-    debugger;
+
     user = getDataFromLocale("esa_user");
     if (false) {
         document.querySelector(".loading").classList.add("hide");
@@ -4238,7 +4313,7 @@ function getBlockHTMLTemplate() {
                         <span class="bullet"></span>
                         <span class="text-inner"></span>
                     </div>
-                    <div class="icon_">
+                    <div class="icon_ hide">
                         <span class="plus">+</span> 
                         <i class="fa-regular todo fa-circle hide "></i>
                         <i class="fa-regular fa-share-nodes share hide"></i>

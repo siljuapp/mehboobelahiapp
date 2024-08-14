@@ -276,6 +276,7 @@ span.logo::before {
     display: flex;
     align-items: flex-start;
     margin: 7px 0px;
+    margin-left: 25px;
     padding: 7px;
     border-radius: 2px;
     background-color: #e2eaf7;
@@ -1277,12 +1278,8 @@ div.tab.separator {
     max-width: 100%;
     overflow-x: auto;
     height: 45px;
-
-    /* Use auto to show scroll only when needed */
-    -webkit-overflow-scrolling: touch;
-    /* Smooth scrolling on touch devices */
-    border-bottom: 1px solid gray;
-    ;
+    background-color: #eaeaea;
+    border-bottom: 0px solid #d7d7d7;
 }
 
 .main.tabs .tab {
@@ -2148,11 +2145,11 @@ button.add-que-btn:hover {
 
 .fa-play:before {
     content: "\f04b";
-    border: none;
-    padding: 6px 8px;
-    color: white;
-    background-color: red;
-    border-radius: 4px;
+    border: 1px solid black;
+    padding: 3px 7px;
+    color: black;
+    /* background-color: red; */
+    border-radius: 1px;
     font-size: 9px;
 }
 
@@ -3890,7 +3887,7 @@ i.fa-chevron-right:before {
     justify-content: center;
     padding: 4px 0px;
     flex: 1;
-    opacity: 0.3;
+    opacity: 0.6;
     cursor: pointer;
 }
 
@@ -4043,4 +4040,44 @@ i.fa-chevron-right:before {
 
 .pd-mock a.download-pdf * {
     font-size: 0.8em;
+}
+
+
+
+.sidebar .chapter-tag .me-tag .tag-item {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 5px;
+}
+
+.tag-item i {
+    font-size: 0.4em;
+    margin-top: 4px;
+    color: #aca9a9
+}
+
+.sidebar .chapter-tag .me-tag.level-1_ {
+    margin-left: 15px
+}
+
+.sidebar .chapter-tag .me-tag.level-2_ {
+    margin-left: 15px
+}
+
+.sidebar .chapter-tag .me-tag.level-3_ {
+    margin-left: 15px
+}
+
+.sidebar .chapter-tag .me-tag.level-4_ {
+    margin-left: 15px
+}
+
+.sidebar .chapter-tag .me-tag {
+    margin-left: 20px
+}
+
+.mcq .sidebar .all-tags-list {
+    max-height: 80vh;
+    overflow-y: scroll;
 }
