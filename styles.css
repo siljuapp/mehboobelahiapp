@@ -3934,11 +3934,23 @@ i.fa-chevron-right:before {
     margin: 15px 0px;
 }
 
-.new-mock .start-new-mock {
+.new-mock .start-new-mock__ {
     border: none;
     background-color: #0A6AFF;
     color: white;
     padding: 7px 15px;
+    border-radius: 5px;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.new-mock .start-new-mock,
+.new-mock .start-new-pyq-mock {
+
+    border: 0px solid var(--link-color);
+    /* background-color: #0A6AFF; */
+    color: var(--link-color);
+    padding: 7px 7px;
     border-radius: 5px;
     width: fit-content;
     cursor: pointer;
@@ -4169,4 +4181,25 @@ i.fa-chevron-right:before {
     font-size: 0.8em;
     cursor: pointer;
 
+}
+
+.explanations .img {
+    width: 90%;
+}
+
+
+.pyq-based-mock {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.pyq-based-mock span:first {
+    transform: scale(1.4);
+    margin-right: 9px;
+}
+
+.pyq-based-mock span:nth-child(2) {
+    font-size: 1em;
+    opacity: 0.8;
 }

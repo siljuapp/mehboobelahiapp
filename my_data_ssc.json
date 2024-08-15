@@ -20438,6 +20438,1124 @@
                 "video": null
             },
             {
+                "id": "iBAWLRjk4",
+                "create_date": "2024-08-15",
+                "question": "If x% of 280 = 15% of 240 + 20% of 310, then the value of x is?",
+                "options": [
+                    {
+                        "id": "iBAWLRjk4_1",
+                        "text": "35 #ans"
+                    },
+                    {
+                        "id": "iBAWLRjk4_2",
+                        "text": "30"
+                    },
+                    {
+                        "id": "iBAWLRjk4_3",
+                        "text": "40"
+                    },
+                    {
+                        "id": "iBAWLRjk4_4",
+                        "text": "38"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here: {video:QlOSNnNXkq4:204} ",
+                "video": null
+            },
+            {
+                "id": "X9KkuQA9M",
+                "create_date": "2024-08-15",
+                "question": "If 65% of 350 - x% of 250 + 40% of 120 = 158, the find the value of x?",
+                "options": [
+                    {
+                        "id": "X9KkuQA9M_1",
+                        "text": "57"
+                    },
+                    {
+                        "id": "X9KkuQA9M_2",
+                        "text": "54"
+                    },
+                    {
+                        "id": "X9KkuQA9M_3",
+                        "text": "47 #ans"
+                    },
+                    {
+                        "id": "X9KkuQA9M_4",
+                        "text": "63"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here: {video:QlOSNnNXkq4:280}",
+                "video": null
+            },
+            {
+                "id": "NktkYKmU9",
+                "create_date": "2024-08-15",
+                "question": "Which of the following is least?",
+                "options": [
+                    {
+                        "id": "NktkYKmU9_1",
+                        "text": "12% of 625"
+                    },
+                    {
+                        "id": "NktkYKmU9_2",
+                        "text": "15% of 555"
+                    },
+                    {
+                        "id": "NktkYKmU9_3",
+                        "text": "10% of 720 #ans"
+                    },
+                    {
+                        "id": "NktkYKmU9_4",
+                        "text": "9% of 845"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here: {video:QlOSNnNXkq4:378}",
+                "video": null
+            },
+            {
+                "id": "Ua9bCU8FM",
+                "create_date": "2024-08-15",
+                "question": "If A is 95% of B, then what % of A is B?",
+                "options": [
+                    {
+                        "id": "Ua9bCU8FM_1",
+                        "text": "110 (3/19) %"
+                    },
+                    {
+                        "id": "Ua9bCU8FM_2",
+                        "text": "104 (7/19) %"
+                    },
+                    {
+                        "id": "Ua9bCU8FM_3",
+                        "text": "105 (5/19) % #ans"
+                    },
+                    {
+                        "id": "Ua9bCU8FM_4",
+                        "text": "108 (17/19) %"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here: {video:QlOSNnNXkq4:470}",
+                "video": null
+            },
+            {
+                "id": "9cBXN3-Ka",
+                "create_date": "2024-08-15",
+                "question": "In a factory, 48% of the number of male workers is equal to two-third of the number of female workers. What is the ratio os number of males to that of the number of the females?",
+                "options": [
+                    {
+                        "id": "9cBXN3-Ka_1",
+                        "text": "25:18 #ans"
+                    },
+                    {
+                        "id": "9cBXN3-Ka_2",
+                        "text": "12:25"
+                    },
+                    {
+                        "id": "9cBXN3-Ka_3",
+                        "text": "25:12"
+                    },
+                    {
+                        "id": "9cBXN3-Ka_4",
+                        "text": "18:25"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:521} ",
+                "video": null
+            },
+            {
+                "id": "IEY2oUsIk",
+                "create_date": "2024-08-15",
+                "question": "The seals of Maths, English and Chemistry in a scholl are in the ration of 6:4:7. If these seats are increased by 20%, 30% and 40% respectively, then the ration of increased seats is ?",
+                "options": [
+                    {
+                        "id": "IEY2oUsIk_1",
+                        "text": "7 : 9 : 14"
+                    },
+                    {
+                        "id": "IEY2oUsIk_2",
+                        "text": "9 : 7 : 8"
+                    },
+                    {
+                        "id": "IEY2oUsIk_3",
+                        "text": "1 : 2 : 3"
+                    },
+                    {
+                        "id": "IEY2oUsIk_4",
+                        "text": "9 : 7 : 14 #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:553} ",
+                "video": null
+            },
+            {
+                "id": "jDPmUc6RR",
+                "create_date": "2024-08-15",
+                "question": "In an examination a candidate had to sit for three papers A, B, and C. The candidate secured 75% marks in Paper A, 80% marks in Paper B, and 60% marks in Paper C. If the weightage assigned to Papers A, B, and C were 40%, 50% and 10%, respectively, then find the weighted percentage of marks obtained by the candidate, when all the three papers were taken together ?",
+                "options": [
+                    {
+                        "id": "jDPmUc6RR_1",
+                        "text": "72%"
+                    },
+                    {
+                        "id": "jDPmUc6RR_2",
+                        "text": "74%"
+                    },
+                    {
+                        "id": "jDPmUc6RR_3",
+                        "text": "76% #ans"
+                    },
+                    {
+                        "id": "jDPmUc6RR_4",
+                        "text": "77%"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:631} ",
+                "video": null
+            },
+            {
+                "id": "RG5k096bm",
+                "create_date": "2024-08-15",
+                "question": "In the first month, the income of Mohan is increased by 30%. In the second month his income decreased by 30%. What will be the percentage increase or decrease in the income after two months?",
+                "options": [
+                    {
+                        "id": "RG5k096bm_1",
+                        "text": "9% decrease #ans"
+                    },
+                    {
+                        "id": "RG5k096bm_2",
+                        "text": "15% increase"
+                    },
+                    {
+                        "id": "RG5k096bm_3",
+                        "text": "15% decrease"
+                    },
+                    {
+                        "id": "RG5k096bm_4",
+                        "text": "9% increase"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:764} ",
+                "video": null
+            },
+            {
+                "id": "8PKk00_zo",
+                "create_date": "2024-08-15",
+                "question": "Two successive increments of 30% each is by what % more than two successive decrements of 30% each?",
+                "options": [
+                    {
+                        "id": "8PKk00_zo_1",
+                        "text": "32.54%"
+                    },
+                    {
+                        "id": "8PKk00_zo_2",
+                        "text": "25.25%"
+                    },
+                    {
+                        "id": "8PKk00_zo_3",
+                        "text": "28.15%"
+                    },
+                    {
+                        "id": "8PKk00_zo_4",
+                        "text": "35.29% #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:800} ",
+                "video": null
+            },
+            {
+                "id": "GRJLve6kT",
+                "create_date": "2024-08-15",
+                "question": "The cost price of an article is decreased by 10% and then increased by 20%. If the final price is Rs 540, then the original cost price is?",
+                "options": [
+                    {
+                        "id": "GRJLve6kT_1",
+                        "text": "Rs 550"
+                    },
+                    {
+                        "id": "GRJLve6kT_2",
+                        "text": "Rs 650"
+                    },
+                    {
+                        "id": "GRJLve6kT_3",
+                        "text": "Rs 500 #ans"
+                    },
+                    {
+                        "id": "GRJLve6kT_4",
+                        "text": "Rs 600"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:918} ",
+                "video": null
+            },
+            {
+                "id": "OMjdwd3AB",
+                "create_date": "2024-08-15",
+                "question": "The price of an article is increased by r%. The new price was decreased by r% later. Now the latest price is Rs 1. What was the original price of the article.\n(Note: r^2 = r power 2 ) ?",
+                "options": [
+                    {
+                        "id": "OMjdwd3AB_1",
+                        "text": "10000/(10000-r^2) #ans"
+                    },
+                    {
+                        "id": "OMjdwd3AB_2",
+                        "text": "100/(100-r^2)"
+                    },
+                    {
+                        "id": "OMjdwd3AB_3",
+                        "text": "100/(1-r^2)"
+                    },
+                    {
+                        "id": "OMjdwd3AB_4",
+                        "text": "10000-r^2/10000"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:958} ",
+                "video": null
+            },
+            {
+                "id": "WIe-wxzZ0",
+                "create_date": "2024-08-15",
+                "question": "Pass % for an exam is 35%. If a student who got 210 marks, failed by 14 marks, then what are the maximum marks of the exam?",
+                "options": [
+                    {
+                        "id": "WIe-wxzZ0_1",
+                        "text": "600"
+                    },
+                    {
+                        "id": "WIe-wxzZ0_2",
+                        "text": "620"
+                    },
+                    {
+                        "id": "WIe-wxzZ0_3",
+                        "text": "660"
+                    },
+                    {
+                        "id": "WIe-wxzZ0_4",
+                        "text": "640 #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1016} ",
+                "video": null
+            },
+            {
+                "id": "QGL9iNEu8",
+                "create_date": "2024-08-15",
+                "question": "John got 20% marks in exam and failed by 10 marks. In the same exam, Jack got 35% marks which were 20 more than the minimum passing marks. Find the percentage of minimum marks required to pass?",
+                "options": [
+                    {
+                        "id": "QGL9iNEu8_1",
+                        "text": "30%"
+                    },
+                    {
+                        "id": "QGL9iNEu8_2",
+                        "text": "25% #ans"
+                    },
+                    {
+                        "id": "QGL9iNEu8_3",
+                        "text": "20%"
+                    },
+                    {
+                        "id": "QGL9iNEu8_4",
+                        "text": "35%"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1094} ",
+                "video": null
+            },
+            {
+                "id": "AoCXrq6Ma",
+                "create_date": "2024-08-15",
+                "question": "Raj's income is Rs 45,000 and his expenditure is Rs 33,000. If his income is increased by 20% and expenditure by 12%, then what will be percentage increase in savings?",
+                "options": [
+                    {
+                        "id": "AoCXrq6Ma_1",
+                        "text": "36%"
+                    },
+                    {
+                        "id": "AoCXrq6Ma_2",
+                        "text": "56%"
+                    },
+                    {
+                        "id": "AoCXrq6Ma_3",
+                        "text": "42% #ans"
+                    },
+                    {
+                        "id": "AoCXrq6Ma_4",
+                        "text": "48%"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1198} ",
+                "video": null
+            },
+            {
+                "id": "w3C3C7SRj",
+                "create_date": "2024-08-15",
+                "question": "The monthly income of a person was Rs 80,000 and his monthly expenditure was Rs 45,000. Next year, his income increased by 16% and his expenditure by 8%. Find the percentage increase in his savings?",
+                "options": [
+                    {
+                        "id": "w3C3C7SRj_1",
+                        "text": "30.25%"
+                    },
+                    {
+                        "id": "w3C3C7SRj_2",
+                        "text": "26.29% #ans"
+                    },
+                    {
+                        "id": "w3C3C7SRj_3",
+                        "text": "44.36%"
+                    },
+                    {
+                        "id": "w3C3C7SRj_4",
+                        "text": "25.35%"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "",
+                "video": null
+            },
+            {
+                "id": "4rt0ALaOc",
+                "create_date": "2024-08-15",
+                "question": "The ratio between the monthly income and the expenditure of Rahul is 8:5. If his income increased by 20%, and his expenditure increase by30%, the find the % increase or decrease in his monthly savings?",
+                "options": [
+                    {
+                        "id": "4rt0ALaOc_1",
+                        "text": "3(1/3) % decrease"
+                    },
+                    {
+                        "id": "4rt0ALaOc_2",
+                        "text": "5(2/3) % decrease"
+                    },
+                    {
+                        "id": "4rt0ALaOc_3",
+                        "text": "3(1/3) % increase #ans"
+                    },
+                    {
+                        "id": "4rt0ALaOc_4",
+                        "text": "5(2/3) % increase"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1338} ",
+                "video": null
+            },
+            {
+                "id": "6XbrgNOKM",
+                "create_date": "2024-08-15",
+                "question": "Suhani pays tax at the rate of 30% on her entire income of INR 90,000 and Ritika pays tax at the rate of 40% on her entire income of INR y. If the overall tax rate on their combined income comes to 37%, then what is the value of y?",
+                "options": [
+                    {
+                        "id": "6XbrgNOKM_1",
+                        "text": "Rs 2,13,000"
+                    },
+                    {
+                        "id": "6XbrgNOKM_2",
+                        "text": "Rs 2,16,000"
+                    },
+                    {
+                        "id": "6XbrgNOKM_3",
+                        "text": "Rs 2,04,000"
+                    },
+                    {
+                        "id": "6XbrgNOKM_4",
+                        "text": "Rs 2,10,000 #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1409} ",
+                "video": null
+            },
+            {
+                "id": "QG9kSnrVb",
+                "create_date": "2024-08-15",
+                "question": "The salaries of a father, mother and daughter are in the ratio 2 ∶ 3 ∶ 5. What will be the ratio of their salaries if there was an increase of 15%, 10% and 20%, respectively?",
+                "options": [
+                    {
+                        "id": "QG9kSnrVb_1",
+                        "text": "19 ∶ 13 ∶ 15"
+                    },
+                    {
+                        "id": "QG9kSnrVb_2",
+                        "text": "23 ∶ 33 ∶ 60 #ans"
+                    },
+                    {
+                        "id": "QG9kSnrVb_3",
+                        "text": "17 ∶ 37 ∶ 50"
+                    },
+                    {
+                        "id": "QG9kSnrVb_4",
+                        "text": "17 ∶ 18 ∶ 25"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "",
+                "video": null
+            },
+            {
+                "id": "90xtCVpUZ",
+                "create_date": "2024-08-15",
+                "question": "If the price of petrol increased by 7%, then by what percentage should the consumption be decreased by the consumer, if the expenditure on petrol remains unchanged?",
+                "options": [
+                    {
+                        "id": "90xtCVpUZ_1",
+                        "text": "3 (49/107) %"
+                    },
+                    {
+                        "id": "90xtCVpUZ_2",
+                        "text": "5 (11/107) %"
+                    },
+                    {
+                        "id": "90xtCVpUZ_3",
+                        "text": "6 (58/107) % #ans"
+                    },
+                    {
+                        "id": "90xtCVpUZ_4",
+                        "text": "4 (99/107) %"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1637} ",
+                "video": null
+            },
+            {
+                "id": "q7adawb6h",
+                "create_date": "2024-08-15",
+                "question": "If the price of petrol is increased by 81%, by what percentage should the consumption of petrol be decreased by the consumer if the expenditure on petrol remains unchanged?",
+                "options": [
+                    {
+                        "id": "q7adawb6h_1",
+                        "text": "43.12 %"
+                    },
+                    {
+                        "id": "q7adawb6h_2",
+                        "text": "40.45%"
+                    },
+                    {
+                        "id": "q7adawb6h_3",
+                        "text": "41.25%"
+                    },
+                    {
+                        "id": "q7adawb6h_4",
+                        "text": "44.75% #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1722} ",
+                "video": null
+            },
+            {
+                "id": "JQyk8s-T0",
+                "create_date": "2024-08-15",
+                "question": "Soham’s initial expenditure and savings were in the ratio 5 ∶ 3. His income increases by 25%, while his initial savings were Rs 4500. Find his income after the increment?",
+                "options": [
+                    {
+                        "id": "JQyk8s-T0_1",
+                        "text": "Rs 9375"
+                    },
+                    {
+                        "id": "JQyk8s-T0_2",
+                        "text": "15000 #ans"
+                    },
+                    {
+                        "id": "JQyk8s-T0_3",
+                        "text": "12000"
+                    },
+                    {
+                        "id": "JQyk8s-T0_4",
+                        "text": "16000"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1816} ",
+                "video": null
+            },
+            {
+                "id": "-9DyRHeLi",
+                "create_date": "2024-08-15",
+                "question": "Soham’s initial expenditure and savings were in the ratio 5 ∶ 1. His income increases by 25%, while his savings increase by 20%. If Soham’s current expenditure is ₹4,347, what was his initial income?",
+                "options": [
+                    {
+                        "id": "-9DyRHeLi_1",
+                        "text": "₹4,130"
+                    },
+                    {
+                        "id": "-9DyRHeLi_2",
+                        "text": "₹4,140 #ans"
+                    },
+                    {
+                        "id": "-9DyRHeLi_3",
+                        "text": "₹4,150"
+                    },
+                    {
+                        "id": "-9DyRHeLi_4",
+                        "text": "₹4,160"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "",
+                "video": null
+            },
+            {
+                "id": "pI_wSQiT3",
+                "create_date": "2024-08-15",
+                "question": "The monthly income of a person was Rs. 12,000 and his monthly expenditure was Rs. 8,000. Next year, his income increased by 10% and his expenditure by 8%. Find the percentage increase in his savings?",
+                "options": [
+                    {
+                        "id": "pI_wSQiT3_1",
+                        "text": "10%"
+                    },
+                    {
+                        "id": "pI_wSQiT3_2",
+                        "text": "14% #ans"
+                    },
+                    {
+                        "id": "pI_wSQiT3_3",
+                        "text": "12%"
+                    },
+                    {
+                        "id": "pI_wSQiT3_4",
+                        "text": "15%"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "",
+                "video": null
+            },
+            {
+                "id": "Mr6-EpyyX",
+                "create_date": "2024-08-15",
+                "question": "Ravi initially used to save 20% of his monthly income. Recently his monthly income was raised by 25%. His nominal savings also went up by 5%. What percentage of his present nominal income does Ravi currently save?",
+                "options": [
+                    {
+                        "id": "Mr6-EpyyX_1",
+                        "text": "25%"
+                    },
+                    {
+                        "id": "Mr6-EpyyX_2",
+                        "text": "20%"
+                    },
+                    {
+                        "id": "Mr6-EpyyX_3",
+                        "text": "15%"
+                    },
+                    {
+                        "id": "Mr6-EpyyX_4",
+                        "text": "16.8% #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:1903} ",
+                "video": null
+            },
+            {
+                "id": "yz8s6HHkR",
+                "create_date": "2024-08-15",
+                "question": "A family income is Rs. 35,000 in a month. The family spends the income on various expenditures, viz., food, health, education, entertainment, and rent. After incurring all the expenditures, 8% is saved every month. The expenditure on health is 50% more than that of food. While food is three times of the expenditure on entertainment, the expenditure on health is half of the expenditure on education. The expenditure on rent is one-third of the combined expenditure on food, health and education. How much expenditure (in Rs.) is incurred on education?",
+                "options": [
+                    {
+                        "id": "yz8s6HHkR_1",
+                        "text": "12600 #ans"
+                    },
+                    {
+                        "id": "yz8s6HHkR_2",
+                        "text": "8400"
+                    },
+                    {
+                        "id": "yz8s6HHkR_3",
+                        "text": "13200"
+                    },
+                    {
+                        "id": "yz8s6HHkR_4",
+                        "text": "7700"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:2005} ",
+                "video": null
+            },
+            {
+                "id": "w1n1TzYvH",
+                "create_date": "2024-08-15",
+                "question": "A person spends 25% of his income on goods of daily uses. Furthermore, he spends 18% of the rest on house rent and 16% of the rest on travel. After that, only Rs. 861 is left with him. What is his salary?",
+                "options": [
+                    {
+                        "id": "w1n1TzYvH_1",
+                        "text": "Rs. 1852 (1/3)"
+                    },
+                    {
+                        "id": "w1n1TzYvH_2",
+                        "text": "Rs. 1666 (2/3) #ans"
+                    },
+                    {
+                        "id": "w1n1TzYvH_3",
+                        "text": "Rs. 1563 (1/3)"
+                    },
+                    {
+                        "id": "w1n1TzYvH_4",
+                        "text": "Rs. 1426 (1/3)"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:2232} ",
+                "video": null
+            },
+            {
+                "id": "90WWG8SFN",
+                "create_date": "2024-08-15",
+                "question": "Rima spends 35% of her monthly income on food articles and 15% of the remaining on clothes. She saves 40% of the remaining income. If her monthly salary is Rs. 27,500, how much does she save (in Rs.) every month?",
+                "options": [
+                    {
+                        "id": "90WWG8SFN_1",
+                        "text": "6077.5 #ans"
+                    },
+                    {
+                        "id": "90WWG8SFN_2",
+                        "text": "6170.5"
+                    },
+                    {
+                        "id": "90WWG8SFN_3",
+                        "text": "6277.5"
+                    },
+                    {
+                        "id": "90WWG8SFN_4",
+                        "text": "6370.5"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:2392} ",
+                "video": null
+            },
+            {
+                "id": "epZoHiUXc",
+                "create_date": "2024-08-15",
+                "question": "A father gives 8% of his monthly income to both his sons as pocket money. The elder son gets 85% of the total amount given to both sons. He spends 90% of the amount and saves Rs. 17. What is the monthly income of his father?",
+                "options": [
+                    {
+                        "id": "epZoHiUXc_1",
+                        "text": "Rs. 4,500"
+                    },
+                    {
+                        "id": "epZoHiUXc_2",
+                        "text": "Rs. 3,500"
+                    },
+                    {
+                        "id": "epZoHiUXc_3",
+                        "text": "Rs. 2,500 #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:2590} ",
+                "video": null
+            },
+            {
+                "id": "npD5yoxgU",
+                "create_date": "2024-08-15",
+                "question": "In January 2022, Kriti paid an EMI, which was 22% of her monthly salary. She spent the remaining salary on shopping of groceries and clothes in the ratio 7 ∶ 5. She spent Rs. 18,200 on shopping of clothes. If, in February 2022, her salary increased by 16%, then what was her salary (in Rs.) in February?",
+                "options": [
+                    {
+                        "id": "npD5yoxgU_1",
+                        "text": "66,350"
+                    },
+                    {
+                        "id": "npD5yoxgU_2",
+                        "text": "68,520"
+                    },
+                    {
+                        "id": "npD5yoxgU_3",
+                        "text": "70,250"
+                    },
+                    {
+                        "id": "npD5yoxgU_4",
+                        "text": "64,960 #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:2680} ",
+                "video": null
+            },
+            {
+                "id": "R-z-h5d74",
+                "create_date": "2024-08-15",
+                "question": "Out of the total toffees,  (1/10) are wasted. 35% of the rest are given to S and \n(1/8) of the total are given to N. If the toffees with N are 10 more than the wasted toffees, then how many toffees were given to S?",
+                "options": [
+                    {
+                        "id": "R-z-h5d74_1",
+                        "text": "126 #ans"
+                    },
+                    {
+                        "id": "R-z-h5d74_2",
+                        "text": "150"
+                    },
+                    {
+                        "id": "R-z-h5d74_3",
+                        "text": "110"
+                    },
+                    {
+                        "id": "R-z-h5d74_4",
+                        "text": "135"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:2893} ",
+                "video": null
+            },
+            {
+                "id": "D-tK79uHS",
+                "create_date": "2024-08-15",
+                "question": "In a certain year, the population of a city was 18000. If in the next year, the population of males increased by 5% and that of females increased by 7%, and the total population increased to 19200, then what was the ratio of the populations of males and females in that given year?",
+                "options": [
+                    {
+                        "id": "D-tK79uHS_1",
+                        "text": "2 ∶ 5"
+                    },
+                    {
+                        "id": "D-tK79uHS_2",
+                        "text": "1 ∶ 5 #ans"
+                    },
+                    {
+                        "id": "D-tK79uHS_3",
+                        "text": "4 ∶ 3"
+                    },
+                    {
+                        "id": "D-tK79uHS_4",
+                        "text": "3 ∶ 5"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "Watch here {video:QlOSNnNXkq4:3108} ",
+                "video": null
+            },
+            {
+                "id": "48P7fyIHe",
+                "create_date": "2024-08-15",
+                "question": "In an election between three candidates, Arjun, Bhaskar and Saral contested for a post. Arjun got 50% votes more than Saral, and Saral got 2% votes less than Bhaskar. The difference between the votes of Bhaskar and Saral is 1296. What is the half of the difference between the votes of Arjun and Bhaskar?",
+                "options": [
+                    {
+                        "id": "48P7fyIHe_1",
+                        "text": "3888"
+                    },
+                    {
+                        "id": "48P7fyIHe_2",
+                        "text": "13988"
+                    },
+                    {
+                        "id": "48P7fyIHe_3",
+                        "text": "7766"
+                    },
+                    {
+                        "id": "48P7fyIHe_4",
+                        "text": "15228 #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "",
+                "video": null
+            },
+            {
+                "id": "5W4ZwYz4d",
+                "create_date": "2024-08-15",
+                "question": "Two numbers are, respectively, 17% and 50% more than a third number. The ratio of the two numbers is?",
+                "options": [
+                    {
+                        "id": "5W4ZwYz4d_1",
+                        "text": "27 : 25"
+                    },
+                    {
+                        "id": "5W4ZwYz4d_2",
+                        "text": "29 : 25"
+                    },
+                    {
+                        "id": "5W4ZwYz4d_3",
+                        "text": "19 : 11"
+                    },
+                    {
+                        "id": "5W4ZwYz4d_4",
+                        "text": "39 : 50 #ans"
+                    }
+                ],
+                "tags": [
+                    "mock",
+                    "pyq",
+                    "aptitude",
+                    "percentage",
+                    "ssc cgl 2023 tier-1"
+                ],
+                "line_tag": null,
+                "block_uid": "",
+                "explanation": "",
+                "video": null
+            },
+            {
                 "id": "mTqB6otxv",
                 "create_date": "2024-08-15",
                 "question": "Crack the code:\n![](https://firebasestorage.googleapis.com/v0/b/firescript-577a2.appspot.com/o/imgs%2Fapp%2Fsilju_ssc%2FzdccsS1q7A.png?alt=media&token=c89c081f-dda1-4b03-a86e-c5fda7079254)\nFind the password?",
@@ -29522,7 +30640,7 @@
         ],
         "mocks": [
             {
-                "id": "97yb6J6nBD",
+                "id": "4ukBNtBjHP",
                 "name": "Kargil DSSRB Patwari Exam 2019",
                 "pdf": "https://drive.google.com/file/d/1IvJTgMZ-8L-Ld2mACTmxnk_uFAA109RI/view?usp=sharing",
                 "que_ids": [
@@ -29584,7 +30702,7 @@
                 ]
             },
             {
-                "id": "nItiW3T4Qw",
+                "id": "DzJ4Wp6mmJ",
                 "name": "Kargil DSSRB Patwari Exam 2023",
                 "pdf": "https://drive.google.com/file/d/1bNj3LpZtFbO6iiqgLyQ1ab8nYLmESOqt/view",
                 "que_ids": [
@@ -29613,6 +30731,46 @@
                     "0ZuIXt8A7",
                     "_1C2bZL9u",
                     "hUBH1idh0"
+                ]
+            },
+            {
+                "id": "MjbQFK6Dd0",
+                "name": "SSC CGL 2023 Tier-1",
+                "pdf": "",
+                "que_ids": [
+                    "iBAWLRjk4",
+                    "X9KkuQA9M",
+                    "NktkYKmU9",
+                    "Ua9bCU8FM",
+                    "9cBXN3-Ka",
+                    "IEY2oUsIk",
+                    "jDPmUc6RR",
+                    "RG5k096bm",
+                    "8PKk00_zo",
+                    "GRJLve6kT",
+                    "OMjdwd3AB",
+                    "WIe-wxzZ0",
+                    "QGL9iNEu8",
+                    "AoCXrq6Ma",
+                    "w3C3C7SRj",
+                    "4rt0ALaOc",
+                    "6XbrgNOKM",
+                    "QG9kSnrVb",
+                    "90xtCVpUZ",
+                    "q7adawb6h",
+                    "JQyk8s-T0",
+                    "-9DyRHeLi",
+                    "pI_wSQiT3",
+                    "Mr6-EpyyX",
+                    "yz8s6HHkR",
+                    "w1n1TzYvH",
+                    "90WWG8SFN",
+                    "epZoHiUXc",
+                    "npD5yoxgU",
+                    "R-z-h5d74",
+                    "D-tK79uHS",
+                    "48P7fyIHe",
+                    "5W4ZwYz4d"
                 ]
             }
         ]

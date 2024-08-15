@@ -1,4 +1,11 @@
+var exam = "ssc";
 // Initialise firebase
+
+var subjects = {
+    neet: ["Biology", "Physics", "Chemistry"],
+    ssc: ["General Studies", "English", "Aptitude", "Reasoning"],
+    upsc: ["History", "Polity", "Economy", "Int Relations", "Environment"],
+};
 
 let is_online = navigator.onLine; // This is just an example. You might have your own way to determine online status.
 
@@ -39,7 +46,6 @@ if (is_online) {
     console.log("User is offline. Firebase initialization skipped.");
 }
 
-var exam = "ssc";
 // gist data
 var que_data = [];
 var notes_data = [];
@@ -2867,7 +2873,7 @@ function addDividerBefore(element) {
     element.parentElement.insertBefore(div, element);
 }
 
-function startNewMockTest(mock) {
+function startNewMockTest(mock, type) {
     // Load chapters if selected for mock test
 
     var selected_chapters = [];
@@ -2954,6 +2960,8 @@ function startNewMockTest(mock) {
     mock_questions_length = mock_questions_length ? mock_questions_length : 20;
     if (mock_questions_length < 20) mock_questions_length = 20;
     if (mock_questions_length > 50) mock_questions_length = 50;
+
+    let is_pyq_based = document.querySelector(".pyq-based-mock input").checked;
     if (!mock) {
         if (selected_chapters.length) {
             let all_ques = que_data;
@@ -2962,8 +2970,15 @@ function startNewMockTest(mock) {
             let y = 0;
             while (y < mock_questions_length && i < all_ques.length) {
                 if (selected_chapters.some((tag) => all_ques[i].tags.includes(tag))) {
-                    arr.push(all_ques[i].id);
-                    ++y;
+                    if (is_pyq_based) {
+                        if (all_ques[i].tags.includes("pyq")) {
+                            arr.push(all_ques[i].id);
+                            ++y;
+                        }
+                    } else {
+                        arr.push(all_ques[i].id);
+                        ++y;
+                    }
                 }
                 ++i;
             }
@@ -3000,11 +3015,23 @@ function startNewMockTest(mock) {
             ///let filtered_ques = que_data.filter((que) => que.tags.some((tag) => selected_chapters.includes(tag)));
             */
         } else {
-            let tq = que_data.length;
-            for (let i = 0; i < mock_questions_length; i++) {
-                let randomIndex = Math.floor(Math.random() * tq);
-                arr.push(que_data[randomIndex].id); // Remove the element from the copy and push it to result
+            let all_ques = que_data;
+            all_ques = sortArrayRandomly(all_ques);
+            let i = 0;
+            let y = 0;
+            while (y < mock_questions_length && i < all_ques.length) {
+                if (is_pyq_based) {
+                    if (all_ques[i].tags.includes("pyq")) {
+                        arr.push(all_ques[i].id);
+                        ++y;
+                    }
+                } else {
+                    arr.push(all_ques[i].id);
+                    ++y;
+                }
+                ++i;
             }
+            mock_questions_length = y;
         }
     } else {
         arr = mock.que_ids;
@@ -3274,12 +3301,7 @@ function getRandomPageHTMLTemplate() {
                     </div>
                     <i class="fa-light fa-sidebar-flip me-mla"></i>
                 </div>
-                <div class="subject">
-    <span class="gs">General Studies</span>
-    <span class="english">English</span>
-    <span class="aptitude">Aptitude</span>
-    <span class="reasoning">Reasoning</span>
-</div>
+                <div class="subject"> </div>
                 <div class="filter-section">
                     <div class="filtered-tags hide"></div>
                     <span class="filter-ques-count hide label"></span>
@@ -4911,7 +4933,11 @@ function loadMockTestHistory() {
 
 function loadNewMockTestSection() {
     let ele = document.querySelector(".page.mock .main .page-content .new-mock");
-    ele.innerHTML = `<span class="start-new-mock"> Start New Mock Test</span>
+    ele.innerHTML = `<span class="start-new-mock"> Start mock test</span>
+                    <div class="pyq-based-mock hide">
+    <input type="checkbox">
+    <span>Mock test based on "PYQs" only</span>
+</div>
                     <div class="total-mock-questions">
                         <span>Set total questions (20-50): </span>
                         <input type="number" value="20" />
@@ -4932,6 +4958,16 @@ function loadNewMockTestSection() {
                         `;
 
     let div = ele;
+    debugger;
+    if (exam == "neet" && false) {
+        for (let i = 0; i < que_data.length; i++) {
+            if (que_data[i].tags.includes("pyq")) {
+                let pyq_mock_link = div.querySelector(".pyq-based-mock");
+                pyq_mock_link.classList.remove("hide");
+                break;
+            }
+        }
+    }
 
     ele = div.querySelector(".start-new-mock");
     if (ele) {
@@ -5019,6 +5055,7 @@ function loadNewMockTestSection() {
 function loadNewMockTestSection2() {
     let ele = document.querySelector(".page.mock .main .page-content .new-mock");
     ele.innerHTML = `<span class="start-new-mock"> Start New Mock Test</span>
+    <span class="start-new-pyq-mock hide"> Start a new mock based on PYQs</span>
                     <div class="mock-chapters">
                         <div class="top">
                             <span class="label">Select Chapters</span>
@@ -5529,8 +5566,27 @@ function setMcqPageMainItemEvents(main) {
     }
 
     debugger;
-    ele = main.querySelectorAll(".subject *");
+    ele = main.querySelector(".subject");
     if (ele) {
+        ele.innerHTML = "";
+        let arr = subjects[exam];
+        arr.forEach((sub) => {
+            let span = document.createElement("span");
+            span.className = sub.toLowerCase();
+            span.textContent = sub;
+            ele.appendChild(span);
+            span.addEventListener("click", () => {
+                let name = span.textContent.trim().toLowerCase();
+                let tag_items = document.querySelectorAll(".mcq.page .sidebar .tag-item .name");
+                tag_items.forEach((item) => {
+                    let tag = item.textContent.trim().toLowerCase();
+                    if (tag == name) item.click();
+                });
+            });
+        });
+    }
+
+    if (false) {
         ele.forEach((ee) => {
             ee.addEventListener("click", () => {
                 debugger;
