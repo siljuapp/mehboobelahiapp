@@ -2949,7 +2949,6 @@ function startNewMockTest(mock) {
     que_arr = user_data[0].mocks[0].questions;
 
     let arr = [];
-    debugger;
 
     let mock_questions_length = parseInt(document.querySelector(".total-mock-questions input").value);
     mock_questions_length = mock_questions_length ? mock_questions_length : 20;
@@ -3275,6 +3274,12 @@ function getRandomPageHTMLTemplate() {
                     </div>
                     <i class="fa-light fa-sidebar-flip me-mla"></i>
                 </div>
+                <div class="subject">
+    <span class="gs">General Studies</span>
+    <span class="english">English</span>
+    <span class="aptitude">Aptitude</span>
+    <span class="reasoning">Reasoning</span>
+</div>
                 <div class="filter-section">
                     <div class="filtered-tags hide"></div>
                     <span class="filter-ques-count hide label"></span>
@@ -3305,6 +3310,7 @@ function displayQuestion(que, tar_ele, type) {
     span.className = "question me-dis-flex";
     que_div.appendChild(span);
     //var tt = getHTMLFormattedText(que.question);
+
     let text = que.question;
     let lines = text.split("\n");
     let result = "";
@@ -3346,7 +3352,6 @@ function displayQuestion(que, tar_ele, type) {
     que.options.forEach((opt, index) => {
         var optionLetters = ["(a)", "(b)", "(c)", "(d)"];
         var text = opt.text.replace(" #ans", "");
-
         var div = document.createElement("div");
         div.className = "option";
         div.id = opt.id;
@@ -5520,6 +5525,39 @@ function setMcqPageMainItemEvents(main) {
     if (ele) {
         ele.addEventListener("click", (event) => {
             openSidebar(event);
+        });
+    }
+
+    debugger;
+    ele = main.querySelectorAll(".subject *");
+    if (ele) {
+        ele.forEach((ee) => {
+            ee.addEventListener("click", () => {
+                debugger;
+                let class_name = ee.className;
+                let tags = document.querySelectorAll(".mcq.page .sidebar .tag-item .name");
+                if (class_name == "gs") {
+                    tags.forEach((tags_ele) => {
+                        let name = tags_ele.textContent.trim().toLowerCase();
+                        if (name == "general studies") tags_ele.click();
+                    });
+                } else if (class_name == "english") {
+                    tags.forEach((tags_ele) => {
+                        let name = tags_ele.textContent.trim().toLowerCase();
+                        if (name == "english") tags_ele.click();
+                    });
+                } else if (class_name == "aptitude") {
+                    tags.forEach((tags_ele) => {
+                        let name = tags_ele.textContent.trim().toLowerCase();
+                        if (name == "aptitude") tags_ele.click();
+                    });
+                } else if (class_name == "reasoning") {
+                    tags.forEach((tags_ele) => {
+                        let name = tags_ele.textContent.trim().toLowerCase();
+                        if (name == "reasoning") tags_ele.click();
+                    });
+                }
+            });
         });
     }
 

@@ -1877,6 +1877,12 @@ span.block.heading {
 
 .page.mock>.main>* {
     min-width: min(700px, 90%);
+    max-height: calc(100vh - 80px);
+    overflow-y: scroll;
+}
+
+.page.mock>.main>* {
+    min-width: min(700px, 90%);
 }
 
 .mobile .page-text {
@@ -3186,6 +3192,12 @@ i.fa-chevron-right:before {
 
 }
 
+.page .sidebar .content .all-tags {
+    max-height: 80vh;
+    overflow-y: none;
+
+}
+
 .page.notes .sidebar .search .top {
     display: flex;
     justify-content: center;
@@ -3396,9 +3408,10 @@ i.fa-chevron-right:before {
 
 }
 
-.mobile .sidebar {
-    margin-top: 10px;
-    margin-bottom: 30px;
+
+.mobile .page>.sidebar {
+    background-color: #F9FFF8;
+    border-top: 7px solid #9d9d9d;
 }
 
 .mock-chapters .me-mock-chapter input {
@@ -3710,6 +3723,7 @@ i.fa-chevron-right:before {
 .question-section .top-sec {
     display: flex;
     margin: 0px 12px;
+    padding-top: 30px;
 }
 
 .today-questions {
@@ -4027,9 +4041,7 @@ i.fa-chevron-right:before {
 }
 
 
-.page.mcq .main {
-    padding: 30px 0px;
-}
+
 
 .pd-mock a.download-pdf {
     color: var(--link-color);
@@ -4132,4 +4144,29 @@ i.fa-chevron-right:before {
 .mock-data .questions_>* {
     font-size: 0.9em;
     opacity: 0.8;
+}
+
+.que-div .text img {
+    width: 80%;
+}
+
+
+.page.mcq .main .question-section .subject {
+    display: flex;
+    overflow-x: scroll;
+    justify-content: start;
+    align-items: center;
+    gap: 10px;
+    margin: 7px 10px;
+
+}
+
+.page.mcq .main .question-section .subject * {
+    border: 1px solid var(--link-color);
+    color: var(--link-color);
+    padding: 3px 5px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    cursor: pointer;
+
 }
