@@ -4173,6 +4173,10 @@ i.fa-chevron-right:before {
 
 }
 
+img {
+    width: 80%;
+}
+
 .page.mcq .main .question-section .subject * {
     border: 1px solid var(--link-color);
     color: var(--link-color);

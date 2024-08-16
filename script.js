@@ -1,5 +1,29 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js"; // Import Firebase Storage
+import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCv2koOkHrqG_ioHoOU1vuDfI2KPwLNTZM",
+    authDomain: "revise-480317.firebaseapp.com",
+    projectId: "revise-480317",
+    storageBucket: "revise-480317.appspot.com",
+    messagingSenderId: "264373202075",
+    appId: "1:264373202075:web:faca853c3021e78db36a3e",
+    measurementId: "G-2VNZKXQP1Q",
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const storage = getStorage(app);
+const db = getFirestore(app);
+
+const visitorDocRef = doc(db, "siteData", "visitorCount");
+
 var exam = "ssc";
 // Initialise firebase
+
+var total_visitors = 0;
 
 var subjects = {
     neet: ["Biology", "Physics", "Chemistry"],
@@ -9,13 +33,13 @@ var subjects = {
 
 let is_online = navigator.onLine; // This is just an example. You might have your own way to determine online status.
 
-// Function to initialize Firebase
 async function initializeFirebase() {
     try {
         // Dynamically import Firebase modules
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js");
         const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js");
         const { getStorage } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js");
+        const { getFirestore, doc, getDoc, setDoc, increment } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js");
 
         // Firebase configuration
         const firebaseConfig = {
@@ -29,19 +53,82 @@ async function initializeFirebase() {
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const storage = getStorage(app);
+        app = initializeApp(firebaseConfig);
+        analytics = getAnalytics(app);
+        storage = getStorage(app);
+        db = getFirestore(app);
 
-        console.log("Firebase initialized successfully");
+        visitorDocRef = doc(db, "siteData", "visitorCount");
+        debugger;
+        try {
+            const docSnap = await getDoc(visitorDocRef);
+
+            if (docSnap.exists()) {
+                // Update visitor count
+                await setDoc(visitorDocRef, { count: increment(1) }, { merge: true });
+                // Get updated count
+                const updatedDocSnap = await getDoc(visitorDocRef);
+                const totalVisitors = updatedDocSnap.data().count;
+                document.querySelector(".total-visitors").textContent = `Total Visitors: ${totalVisitors}`;
+            } else {
+                // Initialize visitor count if not exists
+                await setDoc(visitorDocRef, { count: 1 });
+                document.querySelector(".total-visitors").textContent = `Total Visitors: 1`;
+            }
+        } catch (error) {
+            console.error("Error updating visitor count: ", error);
+            document.querySelector(".total-visitors").textContent = "Error fetching visitor count.";
+        }
     } catch (error) {
-        console.error("Error initializing Firebase:", error);
+        console.error("Error initializing Firebase: ", error);
     }
 }
 
+async function getVisitorCount() {
+    try {
+        const docSnap = await getDoc(visitorDocRef);
+
+        if (docSnap.exists()) {
+            // Update visitor count
+            await setDoc(visitorDocRef, { count: increment(1) }, { merge: true });
+            // Get updated count
+            const updatedDocSnap = await getDoc(visitorDocRef);
+            const totalVisitors = updatedDocSnap.data().count;
+            document.querySelector(".total-visitors").textContent = `Total Visitors: ${totalVisitors}`;
+        } else {
+            // Initialize visitor count if not exists
+            await setDoc(visitorDocRef, { count: 1 });
+            document.querySelector(".total-visitors").textContent = `Total Visitors: 1`;
+        }
+    } catch (error) {
+        console.error("Error updating visitor count: ", error);
+        document.querySelector(".total-visitors").textContent = "Error fetching visitor count.";
+    }
+}
+
+async function updateVisitorCount() {
+    try {
+        const docSnap = await getDoc(visitorDocRef);
+
+        if (docSnap.exists()) {
+            // Update visitor count
+            await setDoc(visitorDocRef, { count: increment(1) }, { merge: true });
+            // Get updated count
+            const updatedDocSnap = await getDoc(visitorDocRef);
+            const totalCount = updatedDocSnap.data().count;
+            document.querySelector(".total-visitors").textContent = `Total Visitors: ${totalCount}`;
+        } else {
+            // Initialize visitor count if not exists
+            await setDoc(visitorDocRef, { count: 1 });
+            document.querySelector(".total-visitors").textContent = `Total Visitors: 1`;
+        }
+    } catch (error) {
+        console.error("Error updating visitor count: ", error);
+    }
+}
 // Check if the user is online before initializing Firebase
 if (is_online) {
-    initializeFirebase();
+    //initializeFirebase();
 } else {
     console.log("User is offline. Firebase initialization skipped.");
 }
@@ -89,7 +176,7 @@ let gist_ids = {
     user_data: "73963e176edf6bfa16363d810838622a",
 };
 
-let git_token = "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";
+var git_token = "";
 
 //hardReloadCode();
 //clearCache();
@@ -376,7 +463,7 @@ function hardReloadCode() {
 }
 
 //saveDataInLocale("me_admin", true);
-function initialLoading() {
+async function initialLoading() {
     if (window.innerWidth < 500) {
         document.body.classList.add("mobile");
         is_mobile = true;
@@ -404,6 +491,9 @@ function initialLoading() {
         ele = document.querySelector(".download-app");
         if (ele) {
             clearInterval(download_app);
+            debugger;
+            getVisitorCount();
+            if (total_visitors) document.querySelector(".total-visitors").textContent = `Total Visitors: ${total_visitors}`;
             ele.addEventListener("click", () => {
                 const filePath = "/assets/elahi.apk";
                 const link = document.createElement("a");
@@ -424,6 +514,15 @@ function initialLoading() {
             }
         }
     }, 1000);
+
+    let id = gist_ids.usernames;
+    let filename = "usernames.json";
+
+    if (!is_online) return;
+    let git_data = await getDataFromGit(id, filename);
+    if (git_data) {
+        git_token = git_data.other_data.api_token;
+    }
 
     //openPage("home");
     //openNotesPage2();
@@ -4958,7 +5057,7 @@ function loadNewMockTestSection() {
                         `;
 
     let div = ele;
-    debugger;
+
     if (exam == "neet" && false) {
         for (let i = 0; i < que_data.length; i++) {
             if (que_data[i].tags.includes("pyq")) {
@@ -5565,7 +5664,6 @@ function setMcqPageMainItemEvents(main) {
         });
     }
 
-    debugger;
     ele = main.querySelector(".subject");
     if (ele) {
         ele.innerHTML = "";
@@ -5589,7 +5687,6 @@ function setMcqPageMainItemEvents(main) {
     if (false) {
         ele.forEach((ee) => {
             ee.addEventListener("click", () => {
-                debugger;
                 let class_name = ee.className;
                 let tags = document.querySelectorAll(".mcq.page .sidebar .tag-item .name");
                 if (class_name == "gs") {
