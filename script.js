@@ -1,3 +1,4 @@
+/*
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js"; // Import Firebase Storage
@@ -20,8 +21,9 @@ const db = getFirestore(app);
 
 const visitorDocRef = doc(db, "siteData", "visitorCount");
 
+
+*/
 var exam = "ssc";
-// Initialise firebase
 
 var total_visitors = 0;
 
@@ -59,7 +61,7 @@ async function initializeFirebase() {
         db = getFirestore(app);
 
         visitorDocRef = doc(db, "siteData", "visitorCount");
-        debugger;
+
         try {
             const docSnap = await getDoc(visitorDocRef);
 
@@ -85,6 +87,7 @@ async function initializeFirebase() {
 }
 
 async function getVisitorCount() {
+    return;
     try {
         const docSnap = await getDoc(visitorDocRef);
 
@@ -491,7 +494,7 @@ async function initialLoading() {
         ele = document.querySelector(".download-app");
         if (ele) {
             clearInterval(download_app);
-            debugger;
+
             getVisitorCount();
             if (total_visitors) document.querySelector(".total-visitors").textContent = `Total Visitors: ${total_visitors}`;
             ele.addEventListener("click", () => {
@@ -3656,12 +3659,14 @@ function displayQuestion(que, tar_ele, type) {
                         <div class="tag-list"></div>`;
 
         let ignore_list = ["ssc", "general studies", "mock"];
+        let temp_tags = [];
         que.tags.forEach((tag) => {
             let span = document.createElement("span");
             span.className = "tag";
             span.textContent = tag;
             let ele = div.querySelector(".tag-list");
             if (!ignore_list.includes(tag.toLowerCase())) ele.appendChild(span);
+            ignore_list.push(tag.trim().toLowerCase());
 
             span.addEventListener("click", () => {
                 let tag = span.textContent.trim().toLowerCase();
@@ -4308,8 +4313,9 @@ async function getDataFromJSONFiles() {
 
         return;
     }
-    user_data = getUserData();
 
+    user_data = getUserData();
+    debugger;
     if (!user_data || !user_data.length) {
         user_data = [];
         var obj = {
@@ -4561,7 +4567,7 @@ function setBlockIconsEvents(div, item) {
                 return;
             }
             //ele.classList.add("active");
-            div.querySelector(".me-block-icons").classList.remove("hide");
+            //div.querySelector(".me-block-icons").classList.remove("hide");
         });
     }
 
