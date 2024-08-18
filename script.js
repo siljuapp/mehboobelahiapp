@@ -1,4 +1,3 @@
-/*
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js"; // Import Firebase Storage
@@ -21,8 +20,6 @@ const db = getFirestore(app);
 
 const visitorDocRef = doc(db, "siteData", "visitorCount");
 
-
-*/
 var exam = "ssc";
 
 var total_visitors = 0;
@@ -35,6 +32,62 @@ var subjects = {
 
 let is_online = navigator.onLine; // This is just an example. You might have your own way to determine online status.
 
+async function saveDataToFirebase(arr) {
+    try {
+        // Convert array to JSON string
+        const jsonData = JSON.stringify(arr);
+
+        // Set filename based on array name
+        const filename = `${arr.name}.json`;
+
+        // Create a reference to the storage bucket
+        const storageRef = ref(storage, filename);
+
+        // Upload JSON data to Firebase Storage
+        await uploadBytes(storageRef, new Blob([jsonData]));
+
+        console.log(`Data saved successfully to ${filename}`);
+    } catch (error) {
+        console.error("Error saving data:", error);
+    }
+}
+
+async function getDataFromFirebase(filename) {
+    try {
+        // Create a reference to the storage bucket
+        const storageRef = ref(storage, filename);
+
+        // Get download URL of the file
+        const downloadURL = await getDownloadURL(storageRef);
+
+        // Fetch the file content
+        const response = await fetch(downloadURL);
+        const jsonData = await response.json();
+
+        // Return the parsed JSON data (assuming it's an array)
+        return jsonData;
+    } catch (error) {
+        console.error("Error getting data:", error);
+        return null;
+    }
+}
+
+// Example usage
+const myArray = ["Apple", "Code", "Test"];
+myArray.name = "myArray"; // Setting array name (used as filename)
+
+/* Save data to Firebase Storage
+saveDataToFirebase(myArray).then(() => {
+    console.log("Data saved successfully!");
+});
+
+// Retrieve data from Firebase Storage
+getDataFromFirebase("myArray.json").then((data) => {
+    console.log("Retrieved data:", data);
+    // Process retrieved data here
+});
+saveDataToFirebase();
+*/
 async function initializeFirebase() {
     try {
         // Dynamically import Firebase modules
@@ -3341,6 +3394,8 @@ function updateTodayQuestionsCount() {
     let correct_ele = document.querySelector(".page.mcq .main .today-questions .correct");
     let incorrect_ele = document.querySelector(".page.mcq .main .today-questions .incorrect");
     let marks_ele = document.querySelector(".page.mcq .main .today-questions .marks");
+
+    let que_list_ele = document.querySelector(".page.mcq .main .today-questions .questions-list");
     if (!user_data[0].daily_questions.length || user_data[0].daily_questions[0].date != getTodayDate()) return;
 
     let today_questions = user_data[0].daily_questions[0].questions;
@@ -3349,10 +3404,50 @@ function updateTodayQuestionsCount() {
 
     let correct_questions_count = 0;
     let incorrect_questions_count = 0;
-    today_questions.forEach((que) => {
-        if (que.selected_option_id == que.answer_option_id) ++correct_questions_count;
-        else ++incorrect_questions_count;
-    });
+    que_list_ele.innerHTML = "";
+
+    today_questions
+        .slice()
+        .reverse()
+        .forEach((que, index) => {
+            let div = document.createElement("div");
+            div.id = que.que_id;
+            div.textContent = index + 1 + "";
+            que_list_ele.appendChild(div);
+            //div.setAttribute("selected_option_id", que.selected_option_id);
+            //div.setAttribute("selected_option_id", que.selected_option_id);
+            if (que.selected_option_id == que.answer_option_id) {
+                div.classList.add("correct");
+                ++correct_questions_count;
+            } else {
+                div.classList.add("incorrect");
+                ++incorrect_questions_count;
+            }
+
+            div.addEventListener("click", () => {
+                debugger;
+                let quee = getQuestionById(que.que_id);
+                let que_div = displayQuestion(quee);
+                let options = que_div.querySelectorAll(".option");
+                options.forEach((option) => {
+                    option.classList.add("disabled");
+                    if (option.id == que.selected_option_id) {
+                        if (option.id == que.answer_option_id) option.classList.add("correct");
+                        else option.classList.add("incorrect");
+                    } else if (option.id == que.answer_option_id) {
+                        option.classList.add("correct");
+                    }
+                });
+            });
+        });
+
+    const lastElement = que_list_ele.lastElementChild;
+    // Check if the last element exists
+    if (lastElement) {
+        // Scroll the container horizontally to the last element
+        que_list_ele.scrollLeft = lastElement.offsetLeft + lastElement.offsetWidth - que_list_ele.clientWidth;
+    }
+
     correct_ele.textContent = correct_questions_count;
     incorrect_ele.textContent = incorrect_questions_count;
 
@@ -3388,6 +3483,7 @@ function getRandomPageHTMLTemplate() {
                     <span class="num incorrect">0</span>
                 </div>
                 <span class="marks"></span>
+                <div class="questions-list"> </div>
             </div>
 
             <i class="fa-light fa-sidebar-flip me-mla"></i>
@@ -4315,7 +4411,7 @@ async function getDataFromJSONFiles() {
     }
 
     user_data = getUserData();
-    debugger;
+
     if (!user_data || !user_data.length) {
         user_data = [];
         var obj = {
@@ -5525,14 +5621,14 @@ function addSocialMediaSection() {
 
 var old_url = "";
 var first_time = true;
-function openItemBasedOnURL() {
+function openPageBasedOnURL() {
     let obj = null;
     let url = window.location.href;
     if (first_time) {
-        obj = parseUrl3(url);
-
-        if (obj.exam) exam = obj.exam;
         first_time = false;
+        obj = parseUrl3(url);
+        if (obj.exam) exam = obj.exam;
+
         clearCache();
         getDataFromJSONFiles();
     }
@@ -5588,6 +5684,17 @@ function openItemBasedOnURL() {
         openPage("home");
     }
 }
+
+function parseURL(url) {
+    let hashIndex = url.indexOf("#");
+    if (hashIndex !== -1) {
+        let hashPart = url.slice(hashIndex + 2); // Skip '#/' part
+        let items = hashPart.split("/");
+        return items;
+    }
+    return [];
+}
+
 function parseUrl3(url) {
     let urlObj = new URL(url);
     let hashFragment = urlObj.hash.substring(1);
@@ -5619,7 +5726,7 @@ function parseUrl3(url) {
     return result;
 }
 var interva_url = setInterval(() => {
-    openItemBasedOnURL();
+    openPageBasedOnURL();
 }, 100);
 
 function openSidebar(event) {
@@ -5731,6 +5838,7 @@ function setMcqPageMainItemEvents(main) {
                 sortArrayRandomly(fil_ques);
             }
             curr_ques = fil_ques[curr_que_index];
+            //downloadQuestionsAsHTMLFiles();
 
             //document.querySelector(".mcq.page .main .que-div").classList.add("flip");
             let exp_div_target = document.querySelector(".page.mcq .main .question-section");
@@ -6196,4 +6304,55 @@ async function saveUserDataOnline() {
         data.push(obj);
     }
     updateGistFile(id, filename, data);
+}
+
+function downloadQuestionsAsHTMLFiles__() {
+    return;
+    que_data.forEach((que) => {
+        // Define the HTML content for each question
+        let html_content = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${que.id}</title>
+                <link rel="stylesheet" href="styles.css">
+                <style>
+                    .question { margin-bottom: 20px; }
+                    .span { font-weight: bold; }
+                    .options { margin-top: 10px; }
+                    .option { display: block; margin: 5px 0; }
+                </style>
+            </head>
+            <body>
+                <div class="question" id="${que.id}">
+                    <div class="span">${que.question}</div>
+                    <div class="options">
+                        <span class="option">${que.options[0].text}</span>
+                        <span class="option">${que.options[1].text}</span>
+                        <span class="option">${que.options[2].text}</span>
+                        <span class="option">${que.options[3].text}</span>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        // Create a Blob containing the HTML content
+        const blob = new Blob([html_content], { type: "text/html" });
+
+        // Create a link element to trigger the download
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${que.id}.html`; // Set the filename based on the question ID
+
+        // Append the link to the body and trigger the download
+        document.body.appendChild(a);
+        a.click();
+
+        // Clean up
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+    });
 }

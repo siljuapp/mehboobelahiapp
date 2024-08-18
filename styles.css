@@ -307,7 +307,8 @@ span.logo::before {
     color: black;
 }
 
-.que-div .option.wrong {
+.que-div .option.wrong,
+.que-div .option.incorrect {
     background-color: #f9dfdf;
     border: 0px solid red;
     color: black;
@@ -3752,6 +3753,7 @@ i.fa-chevron-right:before {
 }
 
 .today-questions .question-count *,
+.today-questions .questions-list div,
 .mock-data .questions * {
     padding: 3px;
     border-radius: 50%;
@@ -3776,11 +3778,13 @@ i.fa-chevron-right:before {
 
 
 .today-questions .question-count .correct,
+.today-questions .questions-list div.correct,
 .mock-data .questions .correct {
     background-color: #a5ffa6;
 }
 
 .today-questions .question-count .incorrect,
+.today-questions .questions-list div.incorrect,
 .mock-data .questions .incorrect {
     background-color: #ffcccc;
 }
@@ -4206,4 +4210,25 @@ img {
 .pyq-based-mock span:nth-child(2) {
     font-size: 1em;
     opacity: 0.8;
+}
+
+.today-questions .questions-list {
+    display: flex;
+    overflow-x: scroll;
+    gap: 6px;
+    margin: 7px 0px;
+}
+
+.today-questions .questions-list div {
+    padding: 3px 7px;
+}
+
+.today-questions .questions-list_ div.correct {
+    background-color: #a5ffa6;
+    color: gray;
+}
+
+.today-questions .questions-list_ div.incorrect {
+    background-color: #ffcccc;
+    color: gray;
 }
