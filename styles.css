@@ -1,9 +1,17 @@
 :root {
     --span-label-color: #868686;
     --border-line-gray-color: #cbcbcb;
+    --active-tab-color: #3737ed;
     --link-color: #4284F3;
+    --button-bc-color: #007bff;
     --logo-text-color: #7737C7;
     --focus-block-bc: #ffdec9;
+    --correct-option-bc-color: #b6ebb6;
+    --incorrect-option-bc-color: #efaab1;
+    --hard-color: #f84f4f;
+    --medium-color: #4f9ff8;
+    --easy-color: #2ca807;
+
 }
 
 .me-top {
@@ -750,6 +758,7 @@ span.check-ans {
     border-radius: 3px;
     width: 70%;
     text-align: center;
+    z-index: 1000;
     /*width: fit-content;*/
 }
 
@@ -1278,7 +1287,7 @@ div.tab.separator {
     flex-wrap: wrap;
     max-width: 100%;
     overflow-x: auto;
-    height: 45px;
+    height: 40px;
     background-color: #eaeaea;
     border-bottom: 0px solid #d7d7d7;
 }
@@ -3228,6 +3237,7 @@ i.fa-chevron-right:before {
 .page>.sidebar>.content .search-results {
     max-height: 100%;
     overflow-y: scroll;
+    padding-top: 30px;
 
 }
 
@@ -3725,6 +3735,11 @@ i.fa-chevron-right:before {
     display: flex;
     margin: 0px 12px;
     padding-top: 30px;
+    gap: 10px;
+}
+
+.question-section .top-sec i.plus {
+    color: var(--link-color);
 }
 
 .today-questions {
@@ -3846,12 +3861,14 @@ i.fa-chevron-right:before {
 }
 
 .me-overlay .content {
+    border: 1px solid gray;
     width: auto;
     height: auto;
-    background-color: #1a1a1a;
-    padding: 15px;
+    background-color: white;
+    padding: 20px;
     border-radius: 4px;
-    color: white;
+    width: min(600px, 80%);
+    /* color: white;*/
 }
 
 .me-overlay .buttons {
@@ -3916,9 +3933,9 @@ i.fa-chevron-right:before {
 
 .page.mock .main .page-tabs .active {
     opacity: 1;
-    color: #3737ed;
-    border-bottom: 2px solid #3737ed;
-    margin: 0px 10px;
+    color: var(--active-tab-color);
+    border-bottom: 0px solid var(--active-tab-color);
+    margin: 0px;
 }
 
 .page.mock .main .static-mock .pre-defined-mocks {
@@ -4174,6 +4191,8 @@ i.fa-chevron-right:before {
     align-items: center;
     gap: 10px;
     margin: 7px 10px;
+    width: 100%;
+    overflow-x: scroll;
 
 }
 
@@ -4231,4 +4250,338 @@ img {
 .today-questions .questions-list_ div.incorrect {
     background-color: #ffcccc;
     color: gray;
+}
+
+.me-overlay .header {
+    display: flex;
+}
+
+.me-overlay .header .head-label {
+    color: black;
+    font-size: 1.5em;
+}
+
+.me-overlay .header .close {
+    margin-left: auto;
+}
+
+.add-vocab {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    width: 90%;
+}
+
+.add-vocab input,
+textarea {
+    padding: 10px;
+}
+
+.question-section:has(.vocab) .new-question {
+    display: none;
+}
+
+.que-text .vocab {
+    padding: 14px;
+    width: min(370px, 90%);
+    border: 1px solid #f3f3f3;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px 0px #c3c3c3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.que-text .vocab .word {
+    font-size: 2em;
+    font-weight: 550;
+}
+
+.que-text .vocab .word::after {
+    margin-left: 10px;
+    content: "?";
+}
+
+.que-text .vocab .local {
+    border: 0px solid gray;
+    padding: 15px;
+    border-radius: 5px;
+    width: 80%;
+    background-color: #e7ffe0;
+    margin: 15px 0px;
+}
+
+
+.que-text .vocab .english {
+
+    padding: 15px;
+    border-radius: 5px;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 200px;
+    overflow-y: scroll;
+}
+
+.que-text .vocab .english .word_ {
+    font-size: 1.3em;
+}
+
+.vocab .english .part-of-speech {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    background-color: #f0f0f0;
+    padding: 20px 10px;
+}
+
+.english .definitions {
+    display: flex;
+    flex-direction: column;
+    /* padding: 3px 7px; */
+    gap: 10px;
+}
+
+.english .definitions * {
+    padding: 0px 10px;
+}
+
+.english .synonyms {
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.synonyms:has(.synonym) {
+    display: flex;
+}
+
+.english .synonyms span {
+    border: 1px solid gray;
+    padding: 3px 7px;
+    border-radius: 3px;
+}
+
+.english .synonyms span:first-child {
+    border: 0px solid gray !important;
+    border-radius: 3px;
+    display: block;
+    width: 100%;
+    margin: 4px;
+    font-weight: 550;
+}
+
+
+.vocab {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.word {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.check.link.hide {
+    display: none;
+    /* Initially hidden */
+    cursor: pointer;
+}
+
+
+.word_ {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.part-of-speech {
+    margin-bottom: 5px;
+}
+
+.definitions {
+    margin-left: 20px;
+}
+
+.definition {
+    margin-bottom: 5px;
+}
+
+.synonyms {
+    margin-left: 20px;
+}
+
+button {
+    background-color: var(--button-bc-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.new-word {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.new-word:hover {
+    background-color: #0063cc;
+}
+
+.page-tabs {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 2px solid #ccc;
+}
+
+.page-tabs div {
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.page-tabs div.active {
+    border-bottom: 2px solid #007bff;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.page-tabs div:hover {
+    color: #007bff;
+}
+
+.main.tabs .tab.active {
+    color: var(--active-tab-color);
+    font-weight: 600;
+    border-bottom: 4px solid var(--active-tab-color)
+}
+
+/*
+.mock-data {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mock-data .date {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.mock-data .questions_ {
+    margin-bottom: 15px;
+}
+
+.mock-data .questions_ span {
+    margin-right: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.mock-data .marks {
+    background-color: #ffcccc;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.mock-data .marks span {
+    font-size: 14px;
+    color: #333;
+}
+
+.mock-data .me-dis-flex {
+    display: flex;
+    align-items: center;
+}
+
+.mock-data .link {
+    font-size: 14px;
+    color: #007bff;
+    cursor: pointer;
+}
+
+.mock-data .link:hover {
+    text-decoration: underline;
+}
+
+*/
+
+.levels {
+    display: flex;
+    justify-content: start;
+    gap: 10px;
+    margin: 10px 0px;
+}
+
+.level {
+    display: flex;
+    justify-content: start;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.level .hard {
+    color: var(--hard-color);
+    border: 1px solid var(--hard-color);
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+
+.level .hard.active {
+    background-color: var(--hard-color);
+    border: none;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: white;
+}
+
+.level .medium {
+    color: var(--medium-color);
+    border: 1px solid var(--medium-color);
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+
+.level .medium.active {
+    background-color: var(--medium-color);
+    border: none;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: white;
+}
+
+.level .easy {
+    color: var(--easy-color);
+    border: 1px solid var(--easy-color);
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+
+.level .easy.active {
+    background-color: var(--easy-color);
+    border: none;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: white;
+}
+
+.find-in-notes {
+    display: flex;
+    width: fit-content;
+    margin: 10px 0px;
 }

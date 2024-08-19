@@ -1,3 +1,4 @@
+/*
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js"; // Import Firebase Storage
@@ -19,6 +20,7 @@ const storage = getStorage(app);
 const db = getFirestore(app);
 
 const visitorDocRef = doc(db, "siteData", "visitorCount");
+*/
 
 var exam = "ssc";
 
@@ -197,6 +199,10 @@ var tags_list = [];
 var user_data = [];
 var static_mocks = [];
 var mocks_data = [];
+var que_type = "mcq";
+var fil_vocab = [];
+var curr_vocab = "";
+var curr_vocab_index = 0;
 // ghghghg
 var me_video_player = null;
 var is_mobile = false;
@@ -3425,7 +3431,6 @@ function updateTodayQuestionsCount() {
             }
 
             div.addEventListener("click", () => {
-                debugger;
                 let quee = getQuestionById(que.que_id);
                 let que_div = displayQuestion(quee);
                 let options = que_div.querySelectorAll(".option");
@@ -3485,8 +3490,8 @@ function getRandomPageHTMLTemplate() {
                 <span class="marks"></span>
                 <div class="questions-list"> </div>
             </div>
-
-            <i class="fa-light fa-sidebar-flip me-mla"></i>
+            <i class="fa-regular fa-circle-plus me-mla plus"></i>    
+            <i class="fa-light fa-sidebar-flip "></i>
         </div>
                 <div class="top-sec hide">
                     <div class="today-ques">
@@ -5621,7 +5626,7 @@ function addSocialMediaSection() {
 
 var old_url = "";
 var first_time = true;
-function openPageBasedOnURL() {
+function openPageBasedOnURL_() {
     let obj = null;
     let url = window.location.href;
     if (first_time) {
@@ -5671,6 +5676,64 @@ function openPageBasedOnURL() {
         } else if (type == "home") {
             openPage("home");
         } else if (type == "mock") {
+            openMockPage();
+        } else if (type == "more") {
+            openSettingPage();
+        } else if (type == "tasks") {
+            openTasksPage();
+        } else {
+            openPage("home");
+        }
+    } else {
+        openNotesPage2();
+        openPage("home");
+    }
+}
+function openPageBasedOnURL() {
+    let obj = null;
+    let url = window.location.href;
+    if (first_time) {
+        first_time = false;
+        url_items = parseURL(url);
+        if (url_items.length) exam = url_items[0];
+
+        clearCache();
+        getDataFromJSONFiles();
+    }
+
+    if (que_data.length && user_data.length) {
+    } else {
+        return;
+    }
+
+    clearInterval(interva_url);
+    initialLoading();
+    //obj = parseUrl3(url);
+    //old_url = url;
+    //url = "http://127.0.0.1:5500/ssc/question/9Km7Pmaa4";
+    if (url_items.length) {
+        exam = url_items[0];
+        let page = url_items[1];
+        openNotesPage2(); // To load the notes data
+
+        if (page == "question") {
+            let que_id = url_items[2];
+            openMCQPage(que_id);
+        } else if (page == "notes") {
+            let page_id = url_items[2];
+            let block_id = url_items[3];
+            if (block_id) {
+                openNotesPage2(page_id, block_id);
+            } else if (page_id) {
+                //openChapterById(page_id);
+                openNotesPage2(page_id);
+            } else {
+                openNotesPage2();
+            }
+        } else if (page == "home") {
+            openPage("home");
+        } else if (type == "mock") {
+            let sub_page = url_items[2];
             openMockPage();
         } else if (type == "more") {
             openSettingPage();
@@ -5777,9 +5840,78 @@ function setMcqPageMainItemEvents(main) {
         });
     }
 
+    ele = main.querySelector(".top-sec i.plus");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            openOverlay();
+            let eee = document.querySelector(".me-overlay .content");
+
+            eee.innerHTML = `<div class="add-vocab">
+                                <div class="header">
+                                    <span class="head-label">Add new word</span>
+                                    <i class="fa-regular fa-circle-xmark close"></i>
+                                </div>
+                                <input type="text" class="word" placeholder="Add new work here" />
+                                <textarea name="" id="" cols="30" rows="6" class="local" placeholder="Meaning in native language"></textarea>
+                                <textarea name="" id="" cols="30" rows="6" class="english hide" placeholder="Meaning in english"></textarea>
+                                <button class="add">Add</button>
+                            </div>
+                            `;
+            eee.querySelector(".header .close").addEventListener("click", closeOverlay);
+
+            eee.querySelector("button.add").addEventListener("click", () => {
+                let word = eee.querySelector(".word").value.trim();
+                let local_meaning = eee.querySelector(".local").value.trim();
+                let english_meaning = eee.querySelector(".english").value.trim();
+
+                if (word == "") return;
+                debugger;
+                // Initialize the meanings array
+                let words = [];
+                let local_meanings = [];
+
+                // Check if the word contains a comma
+                if (word.includes(",")) {
+                    // Split the word into an array by commas and trim extra spaces
+                    words = word.split(",").map((w) => w.trim());
+
+                    // Split local_meaning into lines
+                    local_meanings = local_meaning.split("\n").map((line) => line.trim());
+                }
+                if (!user_data[0].vocab) user_data[0].vocab = [];
+                if (words.length) {
+                    words.forEach((word, index) => {
+                        let obj = {
+                            id: generateUniqueId(),
+                            word: word,
+                            local_meaning: local_meanings[index] ? local_meanings[index] : "",
+                            english_meaning: "",
+                            level: "hard",
+                        };
+                        user_data[0].vocab.unshift(obj);
+                    });
+                } else {
+                    let obj = {
+                        id: generateUniqueId(),
+                        word: word,
+                        local_meaning: local_meaning,
+                        english_meaning: english_meaning,
+                        level: "hard",
+                    };
+
+                    user_data[0].vocab.unshift(obj);
+                }
+
+                saveUserData();
+                popupAlert(`"${word}" added to your vocab`);
+            });
+        });
+    }
+
     ele = main.querySelector(".subject");
     if (ele) {
         ele.innerHTML = "";
+        debugger;
         let arr = subjects[exam];
         arr.forEach((sub) => {
             let span = document.createElement("span");
@@ -5795,6 +5927,33 @@ function setMcqPageMainItemEvents(main) {
                 });
             });
         });
+
+        if (user_data[0].vocab && user_data[0].vocab.length) {
+            let span = document.createElement("span");
+            span.className = "my-vocab";
+            span.textContent = "my vocab";
+            ele.appendChild(span);
+
+            span.addEventListener("click", () => {
+                que_type = "vocab";
+                fil_vocab = user_data[0].vocab;
+                fil_vocab = sortArrayRandomly(fil_vocab);
+                // Define a custom sort order
+                const levelOrder = {
+                    hard: 1,
+                    medium: 2,
+                    easy: 3,
+                };
+
+                // Sort the array
+                fil_vocab.sort((a, b) => {
+                    return levelOrder[a.level] - levelOrder[b.level];
+                });
+
+                curr_vocab_index = 0;
+                displayVocab();
+            });
+        }
     }
 
     if (false) {
@@ -5970,6 +6129,11 @@ function searchTextInNotes(search_text) {
             searchTextInBlocks(block, page_id, tar_ele, search_text);
         });
     });
+
+    let eee = document.querySelector(".page.notes .sidebar .search-results div");
+    if (!eee) {
+        tar_ele.innerHTML = "No result found";
+    }
 }
 function searchTextInBlocks(block, page_id, tar_ele, search_text) {
     let text = block.text;
@@ -6284,6 +6448,7 @@ async function signup() {
 }
 
 async function saveUserDataOnline() {
+    return;
     let id = gist_ids.user_data;
     let filename = "user_data.json";
     let data = await getDataFromGit(id, filename);
@@ -6354,5 +6519,161 @@ function downloadQuestionsAsHTMLFiles__() {
         // Clean up
         document.body.removeChild(a);
         URL.revokeObjectURL(a.href);
+    });
+}
+async function getMeaning(word) {
+    const apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return null;
+    }
+}
+
+function adjustTextareaHeight(textareaElement) {
+    textareaElement.style.height = "auto"; // Reset height to auto to correctly calculate scrollHeight
+    textareaElement.style.height = textareaElement.scrollHeight + "px"; // Set the height to scrollHeight
+}
+async function displayVocab(obj) {
+    if (!obj) obj = fil_vocab[curr_vocab_index];
+
+    let meaning = obj.english_meaning != "" ? obj.english_meaning : await getMeaning(obj.word.toLowerCase());
+    obj.english_meaning = meaning;
+    saveUserData();
+
+    let ele = document.querySelector(".page.mcq .main .que-text");
+    ele.innerHTML = `<div class="vocab">
+                        <span class="word">${obj.word}</span>
+                        <span class="check link">Show meaning</span>
+                        <div class="word-meaning hide">
+                            <div class="levels">
+                        <span>Level:</span>
+                            <div class="level">
+                                <span class="hard">hard</span>
+                                <span class="medium">medium</span>
+                                <span class="easy">easy</span>
+                            </div>
+                        </div>
+                              
+                            <textarea cols="30" rows="2" class="local "></textarea>
+                            
+                            <span class="find-in-notes link hide">The word "${obj.word}" has been found in notes</span>
+                            <div class="english ">
+                                <span class="word_">Meaning of "${obj.word}"</span>
+                            </div>
+                        </div>
+                        <button class="new-word" style="width: 100%;">New Word</button>
+                    </div>
+    `;
+
+    let eee = ele.querySelector(".check");
+    eee.addEventListener("click", () => {
+        ele.querySelector(".check").classList.add("hide");
+        ele.querySelector(".word-meaning").classList.remove("hide");
+        if (false && obj.english_meaning == "") {
+            obj.english_meaning = meaning;
+            saveUserData();
+        }
+
+        let levels = ele.querySelectorAll(".level span");
+        levels.forEach((span) => {
+            if (span.classList.contains(obj.level)) span.classList.add("active");
+        });
+        levels.forEach((level) => {
+            level.addEventListener("click", () => {
+                levels.forEach((ll) => {
+                    ll.classList.remove("active");
+                });
+                level.classList.add("active");
+                obj.level = level.textContent.trim().toLowerCase();
+                saveUserData();
+            });
+        });
+
+        let input_local = ele.querySelector("textarea.local");
+        input_local.value = obj.local_meaning.trim() == "" ? "Add your text" : obj.local_meaning;
+        input_local.addEventListener("input", () => {
+            obj.local_meaning = input_local.value.trim();
+            adjustTextareaHeight(input_local);
+            saveUserData();
+        });
+
+        let em = obj.english_meaning[0];
+        let eee = ele.querySelector(".english");
+        em.meanings.forEach((meaning) => {
+            let div_ = document.createElement("div");
+            div_.className = "part-of-speech";
+            eee.appendChild(div_);
+
+            let span = document.createElement("span");
+            span.textContent = `Part of speech:  ${meaning.partOfSpeech}`;
+            div_.appendChild(span);
+
+            let div = document.createElement("div");
+            div.className = "definitions";
+            div.textContent = `Definitions:`;
+            div_.appendChild(div);
+
+            meaning.definitions.forEach((definition, index) => {
+                let span = document.createElement("span");
+                span.className = "definition";
+                span.textContent = `${index + 1}.  ${definition.definition}`;
+                div.appendChild(span);
+            });
+
+            div = document.createElement("div");
+            div.className = "synonyms";
+            div_.appendChild(div);
+
+            span = document.createElement("span");
+            span.className = "";
+            span.textContent = `Synonyms:`;
+            div.appendChild(span);
+
+            meaning.synonyms.forEach((synonym) => {
+                let span = document.createElement("span");
+                span.className = "synonym";
+                span.textContent = `${synonym}`;
+                div.appendChild(span);
+            });
+        });
+    });
+
+    eee = ele.querySelector(".find-in-notes");
+
+    // Create a temp element and add all the search results into this element
+    let tar_ele = document.createElement("div");
+    pages_data.forEach((page) => {
+        let page_id = page.id;
+        let data = page.data;
+        data.forEach((block) => {
+            searchTextInBlocks(block, page_id, tar_ele, obj.word);
+        });
+    });
+    // If the temp element has children means the word is in notes .. thus show the link
+    if (tar_ele.children.length) eee.classList.remove("hide");
+    eee.addEventListener("click", () => {
+        debugger;
+        openNotesPage2();
+        let eee = document.querySelector(".page.notes .main i");
+        openSidebar(eee);
+
+        document.querySelector(".page.notes .sidebar  .tab.search").click();
+        document.querySelector(".page.notes .sidebar  .top input.search").value = obj.word;
+        searchTextInNotes(obj.word);
+    });
+
+    eee = ele.querySelector(".new-word");
+    eee.addEventListener("click", () => {
+        ++curr_vocab_index;
+        if (curr_vocab_index == fil_vocab.length) curr_vocab_index = 0;
+        displayVocab();
     });
 }
