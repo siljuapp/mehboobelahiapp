@@ -4140,17 +4140,16 @@ i.fa-chevron-right:before {
     overflow-y: scroll;
 }
 
-.que-div .tags,
-.que-div .tags .tag-list {
+.que-div .tags {
     display: flex;
-    align-items: center;
-    overflow-x: scroll;
+    flex-direction: column;
+    gap: 7px;
 }
 
 .que-div .tags .tag-list {
-    padding: 0px 10px;
-    margin: 0px 3px;
+    display: flex;
 }
+
 
 .que-div .tags>span {
     color: gray;
@@ -4584,4 +4583,30 @@ button {
     display: flex;
     width: fit-content;
     margin: 10px 0px;
+}
+
+.que-div .exams-asked {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 19px 0px;
+    border-top: 1px solid gray;
+}
+
+.que-div .exams-asked>span {
+    color: gray;
+}
+
+.que-div .exams-asked .exams {
+    display: flex;
+    gap: 7px;
+    max-width: 100%;
+    overflow-x: scroll;
+}
+
+.que-div .exams-asked .exam {
+    border: 1px solid #2f74bd;
+    padding: 3px 6px;
+    color: #838383;
+    border-radius: 3px;
 }

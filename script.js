@@ -3729,27 +3729,22 @@ function displayQuestion(que, tar_ele, type) {
         });
     });
 
-    // div = share question div
-    let idiv = document.createElement("div");
-    idiv.className = "que-actions";
-    que_div.appendChild(idiv);
+    if (que.exams.length && (!type || type == "random")) {
+        // Show exam asked as well
+        let div = document.createElement("div");
+        div.className = "exams-asked";
+        que_div.appendChild(div);
 
-    let sdiv = document.createElement("div");
-    sdiv.className = "share-question link";
-    idiv.appendChild(sdiv);
+        div.innerHTML = `<span>Previously asked in:</span>
+                         <div class="exams"></div>`;
 
-    sdiv.innerHTML = `<i class="fa-regular fa-share-nodes"></i>
-                          <span>Share</span>`;
-    sdiv.addEventListener("click", () => {
-        let url = window.location.href;
-        let ind = url.indexOf("#");
-        if (ind != -1) {
-            url = url.substring(0, ind - 1);
-        }
-        url = url + `/#/${exam}/question/${que.id}`;
-        copyToClipboard(url);
-        popupAlert("Question link copied");
-    });
+        que.exams.forEach((exam) => {
+            let span = document.createElement("span");
+            span.className = "exam";
+            span.textContent = exam;
+            div.querySelector(".exams").appendChild(span);
+        });
+    }
 
     if (!type || type == "random") {
         let div = document.createElement("div");
@@ -3783,6 +3778,30 @@ function displayQuestion(que, tar_ele, type) {
 
                 if (!is_found) filterQuestionsOnTagBased(tag, tags);
             });
+        });
+    }
+
+    if (!type || type == "random") {
+        // div = share question div
+        let idiv = document.createElement("div");
+        idiv.className = "que-actions";
+        que_div.appendChild(idiv);
+
+        let sdiv = document.createElement("div");
+        sdiv.className = "share-question link";
+        idiv.appendChild(sdiv);
+
+        sdiv.innerHTML = `<i class="fa-regular fa-share-nodes"></i>
+                          <span>Share</span>`;
+        sdiv.addEventListener("click", () => {
+            let url = window.location.href;
+            let ind = url.indexOf("#");
+            if (ind != -1) {
+                url = url.substring(0, ind - 1);
+            }
+            url = url + `/#/${exam}/question/${que.id}`;
+            copyToClipboard(url);
+            popupAlert("Question link copied");
         });
     }
 
