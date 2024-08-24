@@ -22,6 +22,19 @@ const db = getFirestore(app);
 const visitorDocRef = doc(db, "siteData", "visitorCount");
 */
 
+const firebaseConfig = {
+    apiKey: "AIzaSyBJA35C49-PGhTYOLq6M2WCogPrAf4N1Xo",
+    authDomain: "siljuapp-4c428.firebaseapp.com",
+    projectId: "siljuapp-4c428",
+    storageBucket: "siljuapp-4c428.appspot.com",
+    messagingSenderId: "577085941993",
+    appId: "1:577085941993:web:85460382e9e73d29a12878",
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+firebase.analytics();
+
 var exam = "ssc";
 
 var total_visitors = 0;
@@ -535,6 +548,27 @@ async function initialLoading() {
     let target = document.querySelector(".page.home");
     loadPage(target, "home");
 
+    // Set Id to track Users
+    let user_id_for_tracking = getDataFromLocale("user_id_for_tracking");
+    if (!user_id_for_tracking) {
+        user_id_for_tracking = generateUniqueId();
+        saveDataInLocale("user_id_for_tracking", user_id_for_tracking);
+    }
+    let user_ref = database.ref(`${exam}/visitor_ids`);
+    user_ref.once("value").then(function (snapshot) {
+        debugger;
+        let obj = snapshot.val();
+        if (!obj) {
+            obj = {
+                visitor_ids: [],
+            };
+        }
+        if (!obj.visitor_ids.includes(user_id_for_tracking)) obj.visitor_ids.push(user_id_for_tracking);
+        database.ref(`${exam}/visitor_ids`).set(obj);
+        let div = document.querySelector(".total-visitors .num");
+        div.textContent = obj.visitor_ids.length;
+    });
+
     let div = document.createElement("div");
     div.className = "me-overlay hide";
     document.body.appendChild(div);
@@ -746,6 +780,9 @@ function shuffleArray(array) {
 function getDataFromLocale(key) {
     try {
         const jsonData = localStorage.getItem(key);
+        if (key.indexOf("user_data") == -1) {
+            return jsonData;
+        }
         if (jsonData === null) {
             console.log(`me: No local data is found for key: "${key}"`);
             return null;
@@ -2491,8 +2528,7 @@ function initializeYouTubePlayer(time, video_id, target) {
         url = "https://elahistudyapp.in";
     }
     if (!iframe) {
-        target.innerHTML = `
-                                <div class="header">
+        target.innerHTML = `<div class="header">
                                     <span class="cross">X</span>
                                 </div>
                                 <div class="me-iframe">
@@ -3580,7 +3616,7 @@ function displayQuestion(que, tar_ele, type) {
         var div = document.createElement("div");
         div.className = "option";
         div.id = opt.id;
-        div.innerHTML = `<span>${index + 1}</span>
+        div.innerHTML = `<span class="number">${index + 1}</span>
                         <span class="text">${text}</span>`;
         options.appendChild(div);
         if (opt.text.includes("#ans")) {
@@ -3611,6 +3647,57 @@ function displayQuestion(que, tar_ele, type) {
                     dot.classList.add("selected");
                 }
                 return;
+            }
+
+            //let que_info = updateQuestionInfo(que.id);
+
+            let obj = null;
+            let id = que.id;
+            let user_ref = database.ref(`${exam}/questionInfo/${id}`);
+            let is_online = navigator.onLine;
+            if (is_online) {
+                user_ref.once("value").then(function (snapshot) {
+                    let obj = snapshot.val();
+                    console.log(obj); // This will log the data fetched from Firebase
+
+                    if (obj) {
+                        let options = document.querySelectorAll(".page.mcq .que-div .options .option");
+                        let selected_option = document.querySelector(".page.mcq .que-div .options .option.selected");
+                        options.forEach((option, index) => {
+                            if (selected_option == option) obj.options[index] = obj.options[index] + 1;
+                        });
+                    } else {
+                        obj = {
+                            options: [],
+                        };
+                        let options = document.querySelectorAll(".page.mcq .que-div .options .option");
+                        let selected_option = document.querySelector(".page.mcq .que-div .options .option.selected");
+                        options.forEach((option) => {
+                            if (selected_option == option) obj.options.push(1);
+                            else obj.options.push(0);
+                        });
+                    }
+                    database.ref(`${exam}/questionInfo/${id}`).set(obj);
+
+                    let totalResponses = obj.options.reduce((acc, curr) => acc + curr, 0);
+
+                    let options = document.querySelectorAll(".page.mcq .que-div .options .option");
+                    options.forEach((option, index) => {
+                        let numberElement = option.querySelector(".number");
+                        if (numberElement) {
+                            let percentage = (obj.options[index] / totalResponses) * 100;
+                            let roundedPercentage = Math.round(percentage); // Round to nearest integer
+                            numberElement.textContent = roundedPercentage + "%";
+                            numberElement.className = "percentage"; // Add "percentage" class to style percentages
+                        }
+                    });
+
+                    let options_div = document.querySelector(".page.mcq .que-div .options");
+                    let span = document.createElement("span");
+                    span.className = "total-responses";
+                    span.textContent = `Total Responses: ${totalResponses}`;
+                    options_div.appendChild(span);
+                });
             }
 
             var que_div_ele = span.closest(".que-div");
