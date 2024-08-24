@@ -291,20 +291,6 @@ span.logo::before {
     cursor: pointer;
 }
 
-.que-div .option span:first-child {
-    margin: 0px 6px;
-    display: flex;
-    justify-content: center;
-    background-color: #797979;
-    border-radius: 31px;
-    color: white;
-    width: 18px;
-    height: 18px;
-    align-items: center;
-    font-size: 0.8em;
-    margin-right: 13px;
-}
-
 .que-div .option span.number {
     margin: 0px 6px;
     display: flex;
@@ -4626,7 +4612,7 @@ button {
 }
 
 
-.options .option span.percentage {
+.options .option .percentage {
     background-color: #010103;
     color: white;
     width: 20px;
