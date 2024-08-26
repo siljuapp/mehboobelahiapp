@@ -4653,3 +4653,54 @@ button {
     color: #1d1baa;
     font-weight: 700;
 }
+
+.mock-links {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.shared-mock {
+    margin-left: auto;
+}
+
+.shared-mock-link {
+    display: flex;
+    flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 1px solid #725ddb;
+    border-radius: 4px;
+    width: fit-content;
+    gap: 7px;
+    color: gray;
+    width: 80%;
+    overflow-x: scroll;
+}
+
+.shared-mock-link>div {
+    display: flex;
+}
+
+.shared-mock-link .link span {
+    text-overflow: ellipsis;
+    margin-right: 10px;
+    width: 73%;
+    overflow-x: scroll;
+}
+
+.mobile .shared-mock-link .link span {
+    width: 185px;
+}
+
+.shared-mock-link .cross {
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.new-mock .mock-links span {
+    border: 1px solid var(--link-color);
+    padding: 10px;
+    border-radius: 3px;
+}

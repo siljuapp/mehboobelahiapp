@@ -1,3 +1,4 @@
+// http://127.0.0.1:5500//#/ssc/mock/shared/flyVAD1hPBFZu9l
 const firebaseConfig = {
     apiKey: "AIzaSyBJA35C49-PGhTYOLq6M2WCogPrAf4N1Xo",
     authDomain: "siljuapp-4c428.firebaseapp.com",
@@ -3247,6 +3248,7 @@ function startNewMockTest(mock, type) {
 
         // aNoe save all the question data of the mock
         var que_arr = user_data[0].mocks[0].questions;
+
         mock_test_div.querySelectorAll(".que-div").forEach((que_ele, index) => {
             que_arr[index].id = que_ele.id;
             var options = que_ele.querySelectorAll(".option");
@@ -3255,8 +3257,11 @@ function startNewMockTest(mock, type) {
                 if (option.classList.contains("ans")) que_arr[index].answer_option_id = option.id;
             });
         });
-        // Now save the user data
         saveUserData();
+        // Now save the user data
+
+        //let all_que_divs = mock_test_div.querySelectorAll(".que-div");
+        updateQuestionInfo(mock_test_div);
 
         // Now get the mock test data
         var total_questions = que_arr.length;
@@ -5217,7 +5222,21 @@ function loadMockTestHistory() {
 
 function loadNewMockTestSection() {
     let ele = document.querySelector(".page.mock .main .page-content .new-mock");
-    ele.innerHTML = `<span class="start-new-mock"> Start mock test</span>
+    ele.innerHTML = `<div class="mock-links">
+    <span class="start-new-mock link"> Start a new mock test</span>
+    <span class="shared-mock link"> Create a shared mock test</span>
+</div>
+<div class="shared-mock-link hide">
+    <div class="head_">
+        <span>Shared mock test link</span>
+        <i class="fa-regular fa-circle-xmark cross"></i>
+    </div>
+
+    <div class="link">
+        <span></span>
+        <i class="fa-regular fa-copy"></i>
+    </div>
+</div>
                     <div class="pyq-based-mock hide">
     <input type="checkbox">
     <span>Mock test based on "PYQs" only</span>
@@ -5257,6 +5276,18 @@ function loadNewMockTestSection() {
     if (ele) {
         ele.addEventListener("click", () => {
             startNewMockTest();
+        });
+    }
+
+    ele = div.querySelector(".shared-mock");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            let is_online = navigator.onLine;
+            if (!is_online) {
+                popupAlert("You are offline..");
+                return;
+            }
+            createSharedMock();
         });
     }
 
@@ -5338,7 +5369,15 @@ function loadNewMockTestSection() {
 
 function loadNewMockTestSection2() {
     let ele = document.querySelector(".page.mock .main .page-content .new-mock");
-    ele.innerHTML = `<span class="start-new-mock"> Start New Mock Test</span>
+    ele.innerHTML = `<div class="mock-links">
+    <span class="start-new-mock link"> Start a new mock test</span>
+    <span class="shared-mock link"> Create a shared mock test</span>
+</div>
+<div class="shared-mock-link hide">
+    <span>Copy and share the shared mock test link</span>
+    <span class="link"></span>
+    <i class="fa-regular fa-copy"></i>
+</div>
     <span class="start-new-pyq-mock hide"> Start a new mock based on PYQs</span>
                     <div class="mock-chapters">
                         <div class="top">
@@ -5754,7 +5793,6 @@ function openPageBasedOnURL_() {
         } else if (type == "home") {
             openPage("home");
         } else if (type == "mock") {
-            openMockPage();
         } else if (type == "more") {
             openSettingPage();
         } else if (type == "tasks") {
@@ -5772,6 +5810,7 @@ function openPageBasedOnURL() {
     let url = window.location.href;
     if (first_time) {
         first_time = false;
+
         url_items = parseURL(url);
         if (url_items.length) exam = url_items[0];
 
@@ -5810,9 +5849,23 @@ function openPageBasedOnURL() {
             }
         } else if (page == "home") {
             openPage("home");
-        } else if (type == "mock") {
-            let sub_page = url_items[2];
+        } else if (page == "mock") {
             openMockPage();
+            debugger;
+            let sub_page = url_items[2];
+            if (sub_page == "shared") {
+                let id = url_items[3];
+                let user_ref = database.ref(`${exam}/sharedmock/${id}`);
+                user_ref.once("value").then(function (snapshot) {
+                    openMockPage();
+                    let obj = snapshot.val();
+                    if (obj) {
+                        startNewMockTest(obj);
+                    } else {
+                        popupAlert("The share mock has expired");
+                    }
+                });
+            }
         } else if (type == "more") {
             openSettingPage();
         } else if (type == "tasks") {
@@ -6753,4 +6806,126 @@ async function displayVocab(obj) {
         if (curr_vocab_index == fil_vocab.length) curr_vocab_index = 0;
         displayVocab();
     });
+}
+
+async function updateQuestionInfo(mock_test_div) {
+    let all_que_divs = mock_test_div.querySelectorAll(".que-div");
+    let i = 0;
+    let is_online = navigator.onLine;
+    while (is_online && i < all_que_divs.length) {
+        let que_div = all_que_divs[i];
+        let id = que_div.id;
+        let user_ref = database.ref(`${exam}/questionInfo/${id}`);
+
+        try {
+            let snapshot = await user_ref.once("value");
+            let obj = snapshot.val() || { options: [] };
+
+            let options = que_div.querySelectorAll(".option");
+            let selected_option = que_div.querySelector(".option.selected");
+
+            options.forEach((option, index) => {
+                if (selected_option === option) {
+                    obj.options[index] = (obj.options[index] || 0) + 1;
+                } else {
+                    obj.options[index] = obj.options[index] || 0;
+                }
+            });
+
+            await database.ref(`${exam}/questionInfo/${id}`).set(obj);
+            ++i;
+        } catch (error) {
+            console.error("Error updating question info:", error);
+        }
+    }
+}
+
+async function createSharedMock() {
+    var selected_chapters = [];
+    let chapters = document.querySelectorAll(".new-mock .mock-chapters-list .tag-item");
+    if (chapters) {
+        chapters.forEach((ele) => {
+            if (ele.children[0].checked) {
+                selected_chapters.push(ele.children[1].textContent.toLowerCase());
+            }
+        });
+    }
+
+    let mock_questions_length = parseInt(document.querySelector(".total-mock-questions input").value);
+    mock_questions_length = mock_questions_length ? mock_questions_length : 20;
+    if (mock_questions_length < 20) mock_questions_length = 20;
+    if (mock_questions_length > 50) mock_questions_length = 50;
+
+    let arr = [];
+
+    let is_pyq_based = document.querySelector(".pyq-based-mock input").checked;
+
+    if (selected_chapters.length) {
+        let all_ques = que_data;
+        all_ques = sortArrayRandomly(all_ques);
+        let i = 0;
+        let y = 0;
+        while (y < mock_questions_length && i < all_ques.length) {
+            if (selected_chapters.some((tag) => all_ques[i].tags.includes(tag))) {
+                if (is_pyq_based) {
+                    if (all_ques[i].tags.includes("pyq")) {
+                        arr.push(all_ques[i].id);
+                        ++y;
+                    }
+                } else {
+                    arr.push(all_ques[i].id);
+                    ++y;
+                }
+            }
+            ++i;
+        }
+        mock_questions_length = y;
+    } else {
+        let all_ques = que_data;
+        all_ques = sortArrayRandomly(all_ques);
+        let i = 0;
+        let y = 0;
+        while (y < mock_questions_length && i < all_ques.length) {
+            if (is_pyq_based) {
+                if (all_ques[i].tags.includes("pyq")) {
+                    arr.push(all_ques[i].id);
+                    ++y;
+                }
+            } else {
+                arr.push(all_ques[i].id);
+                ++y;
+            }
+            ++i;
+        }
+        mock_questions_length = y;
+    }
+
+    let id = generateUniqueId();
+    let obj = {
+        id: id,
+        que_ids: arr,
+        users: [],
+    };
+    await database.ref(`${exam}/sharedmock/${id}`).set(obj);
+
+    let ele = document.querySelector(".shared-mock-link");
+    if (ele) {
+        ele.classList.remove("hide");
+
+        let url = window.location.href;
+        let ind = url.indexOf("#");
+        if (ind != -1) {
+            url = url.substring(0, ind - 1);
+        }
+        url = url + `/#/${exam}/mock/shared/${id}`;
+        ele.querySelector(".link span").textContent = url;
+
+        ele.querySelector(".link").addEventListener("click", () => {
+            copyToClipboard(url);
+            popupAlert("Question link copied");
+        });
+        ele.querySelector(".cross").addEventListener("click", () => {
+            ele.classList.add("hide");
+        });
+    }
 }
