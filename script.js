@@ -1,4 +1,3 @@
-// http://127.0.0.1:5500//#/ssc/mock/shared/flyVAD1hPBFZu9l
 const firebaseConfig = {
     apiKey: "AIzaSyBJA35C49-PGhTYOLq6M2WCogPrAf4N1Xo",
     authDomain: "siljuapp-4c428.firebaseapp.com",
