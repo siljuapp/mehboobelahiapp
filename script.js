@@ -7225,7 +7225,6 @@ async function displayUsernameInSharedQuestion(que_div, userid) {
         displayUserPage(obj);
     });
 
-    debugger;
     let is_followed = false;
     userdata.following = userdata.following ? userdata.following : [];
     is_followed = userdata.following.includes(obj.userid);
