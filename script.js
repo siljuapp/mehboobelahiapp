@@ -11,9 +11,123 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 firebase.analytics();
 
-var exam = "ssc";
+// VARIABLES
 
+var exam = "ssc";
+let ver_ques = [];
+let unver_ques = [];
 var total_visitors = 0;
+var user_login_data = {};
+var userdata = null;
+var first_time = true;
+var user_questions = [];
+function signinSetup() {
+    // Initialize Firebase Auth
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    // Function to sign in with Google
+    document.getElementById("google-sign-in-btn").onclick = function () {
+        auth.signInWithPopup(provider)
+            .then((result) => {
+                // This gives you a Google Access Token
+                const credential = result.credential;
+                const token = credential.accessToken;
+                // The signed-in user info.
+                const user = result.user;
+
+                user_login_data = {
+                    gmail: user.email,
+                    display_name: user.displayName,
+                    photo_url: user.photoURL,
+                    username: user.email.substring(0, user.email.indexOf("@")),
+                    userid: generateUniqueId(),
+                };
+                checkIsUserExist(user.email);
+                saveDataInLocale("user_login_data", user_login_data);
+
+                postLogin();
+            })
+            .catch((error) => {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                const email = error.email;
+                const credential = error.credential;
+
+                console.error("Error during signInWithPopup:", errorCode, errorMessage);
+                //alert("Error: " + errorMessage);
+            });
+    };
+
+    // Function to sign out
+    /* 
+    document.getElementById("sign-out-btn").onclick = function () {
+        auth.signOut()
+            .then(() => {
+                saveDataInLocale("user_login_data", null);
+                alert("User signed out");
+                //location.reload(true);
+
+                document.querySelector(".start.login").classList.remove("hide");
+                document.querySelector(".content").classList.add("hide");
+            })
+            .catch((error) => {
+                console.error("Sign out error:", error);
+                alert("Error: " + error.message);
+            });
+    }; */
+
+    // Optional: Monitor authentication state
+    auth.onAuthStateChanged((user) => {
+        if (user && false) {
+            // User is signed in, show user info
+
+            let gmail = user.email;
+            let display_name = user.displayName;
+            let photo_url = user.photoURL;
+            let username = gmail.substring(0, gmail.indexOf("@"));
+
+            user_login_data = {
+                gmail: gmail,
+                display_name: display_name,
+                photo_url,
+                username: username,
+            };
+
+            let user_ref = database.ref(`users/${username}`);
+            user_ref.once("value").then(function (snapshot) {
+                let obj = snapshot.val();
+
+                if (obj) {
+                    //user_data = getUserData(); // Getting userdata from locale
+                    //if (!user_data[0]) user_data[0] = obj.data[exam];
+                    user_data[0] = obj.data[exam];
+                } else {
+                    let obj = {
+                        username: user_login_data.username,
+                        display_name: user_login_data.display_name,
+                        gmail: user_login_data.gmail,
+                    };
+                    database.ref(`users/${username}/user_info`).set(obj);
+                    //database.ref(`users/${username}/data/${exam}`).set(user_data[0]);
+                }
+            });
+
+            let ele = document.querySelector(".user-info");
+            ele.classList.remove("hide");
+            ele.querySelector(".name-photo img").src = photo_url;
+            ele.querySelector(".name").textContent = display_name;
+            ele.querySelector(".email").textContent = gmail;
+
+            document.getElementById("google-sign-in-btn").classList.add("hide");
+        } else {
+            // No user is signed in, hide user info
+            //document.getElementById("user-info").style.display = "none";
+            document.getElementById("google-sign-in-btn").classList.remove("hide");
+        }
+    });
+}
 
 var subjects = {
     neet: ["Biology", "Physics", "Chemistry"],
@@ -23,171 +137,9 @@ var subjects = {
 
 let is_online = navigator.onLine; // This is just an example. You might have your own way to determine online status.
 
-async function saveDataToFirebase(arr) {
-    try {
-        // Convert array to JSON string
-        const jsonData = JSON.stringify(arr);
+var all_tags = [];
+var new_add_ques_tags = [];
 
-        // Set filename based on array name
-        const filename = `${arr.name}.json`;
-
-        // Create a reference to the storage bucket
-        const storageRef = ref(storage, filename);
-
-        // Upload JSON data to Firebase Storage
-        await uploadBytes(storageRef, new Blob([jsonData]));
-
-        console.log(`Data saved successfully to ${filename}`);
-    } catch (error) {
-        console.error("Error saving data:", error);
-    }
-}
-
-async function getDataFromFirebase(filename) {
-    try {
-        // Create a reference to the storage bucket
-        const storageRef = ref(storage, filename);
-
-        // Get download URL of the file
-        const downloadURL = await getDownloadURL(storageRef);
-
-        // Fetch the file content
-        const response = await fetch(downloadURL);
-        const jsonData = await response.json();
-
-        // Return the parsed JSON data (assuming it's an array)
-        return jsonData;
-    } catch (error) {
-        console.error("Error getting data:", error);
-        return null;
-    }
-}
-
-// Example usage
-const myArray = ["Apple", "Code", "Test"];
-myArray.name = "myArray"; // Setting array name (used as filename)
-
-/* Save data to Firebase Storage
-saveDataToFirebase(myArray).then(() => {
-    console.log("Data saved successfully!");
-});
-
-// Retrieve data from Firebase Storage
-getDataFromFirebase("myArray.json").then((data) => {
-    console.log("Retrieved data:", data);
-    // Process retrieved data here
-});
-saveDataToFirebase();
-*/
-async function initializeFirebase() {
-    try {
-        // Dynamically import Firebase modules
-        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js");
-        const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js");
-        const { getStorage } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js");
-        const { getFirestore, doc, getDoc, setDoc, increment } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js");
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCv2koOkHrqG_ioHoOU1vuDfI2KPwLNTZM",
-            authDomain: "revise-480317.firebaseapp.com",
-            projectId: "revise-480317",
-            storageBucket: "revise-480317.appspot.com",
-            messagingSenderId: "264373202075",
-            appId: "1:264373202075:web:faca853c3021e78db36a3e",
-            measurementId: "G-2VNZKXQP1Q",
-        };
-
-        // Initialize Firebase
-        app = initializeApp(firebaseConfig);
-        analytics = getAnalytics(app);
-        storage = getStorage(app);
-        db = getFirestore(app);
-
-        visitorDocRef = doc(db, "siteData", "visitorCount");
-
-        try {
-            const docSnap = await getDoc(visitorDocRef);
-
-            if (docSnap.exists()) {
-                // Update visitor count
-                await setDoc(visitorDocRef, { count: increment(1) }, { merge: true });
-                // Get updated count
-                const updatedDocSnap = await getDoc(visitorDocRef);
-                const totalVisitors = updatedDocSnap.data().count;
-                document.querySelector(".total-visitors").textContent = `Total Visitors: ${totalVisitors}`;
-            } else {
-                // Initialize visitor count if not exists
-                await setDoc(visitorDocRef, { count: 1 });
-                document.querySelector(".total-visitors").textContent = `Total Visitors: 1`;
-            }
-        } catch (error) {
-            console.error("Error updating visitor count: ", error);
-            document.querySelector(".total-visitors").textContent = "Error fetching visitor count.";
-        }
-    } catch (error) {
-        console.error("Error initializing Firebase: ", error);
-    }
-}
-
-async function getVisitorCount() {
-    return;
-    try {
-        const docSnap = await getDoc(visitorDocRef);
-
-        if (docSnap.exists()) {
-            // Update visitor count
-            await setDoc(visitorDocRef, { count: increment(1) }, { merge: true });
-            // Get updated count
-            const updatedDocSnap = await getDoc(visitorDocRef);
-            const totalVisitors = updatedDocSnap.data().count;
-            document.querySelector(".total-visitors").textContent = `Total Visitors: ${totalVisitors}`;
-        } else {
-            // Initialize visitor count if not exists
-            await setDoc(visitorDocRef, { count: 1 });
-            document.querySelector(".total-visitors").textContent = `Total Visitors: 1`;
-        }
-    } catch (error) {
-        console.error("Error updating visitor count: ", error);
-        document.querySelector(".total-visitors").textContent = "Error fetching visitor count.";
-    }
-}
-
-async function updateVisitorCount() {
-    try {
-        const docSnap = await getDoc(visitorDocRef);
-
-        if (docSnap.exists()) {
-            // Update visitor count
-            await setDoc(visitorDocRef, { count: increment(1) }, { merge: true });
-            // Get updated count
-            const updatedDocSnap = await getDoc(visitorDocRef);
-            const totalCount = updatedDocSnap.data().count;
-            document.querySelector(".total-visitors").textContent = `Total Visitors: ${totalCount}`;
-        } else {
-            // Initialize visitor count if not exists
-            await setDoc(visitorDocRef, { count: 1 });
-            document.querySelector(".total-visitors").textContent = `Total Visitors: 1`;
-        }
-    } catch (error) {
-        console.error("Error updating visitor count: ", error);
-    }
-}
-// Check if the user is online before initializing Firebase
-if (is_online) {
-    //initializeFirebase();
-} else {
-    console.log("User is offline. Firebase initialization skipped.");
-}
-
-// gist data
-var que_data = [];
-var notes_data = [];
-var other_data = [];
-var tags_list = [];
-var user_data = [];
-var static_mocks = [];
-var mocks_data = [];
 var que_type = "mcq";
 var fil_vocab = [];
 var curr_vocab = "";
@@ -200,7 +152,7 @@ var tttt = [];
 //load data
 var testing = true;
 var updated_ques = [];
-var all_tags = [];
+
 var fil_ques = [];
 var temp_filtered_tags = [];
 var pages_data = [];
@@ -228,10 +180,6 @@ let gist_ids = {
 };
 
 var git_token = "";
-
-//hardReloadCode();
-//clearCache();
-//getDataFromJSONFiles();
 
 document.addEventListener("DOMContentLoaded", function () {
     //sconst currentURL = window.location.href;
@@ -355,6 +303,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ele) {
         ele.addEventListener("click", () => {
             openNotesPage2();
+        });
+    }
+
+    ele = document.querySelector(".tab.user");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            loadUserPage();
+            openPage("user");
         });
     }
 
@@ -521,10 +477,31 @@ async function initialLoading() {
     }
     document.querySelector(".loading").classList.add("hide");
     document.querySelector(".me-content").classList.remove("hide");
-    let target = document.querySelector(".page.home");
-    loadPage(target, "home");
+
+    let ele = document.querySelector(".home .share.link");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            let link = `https://elahistudyapp.in//#/${exam}/home`;
+            copyToClipboard(link);
+            popupAlert("App link copied");
+        });
+    }
+    ele = document.querySelector(".download-app");
+    ele.addEventListener("click", () => {
+        const filePath = "/assets/elahi.apk";
+        const link = document.createElement("a");
+        link.href = filePath;
+        link.download = filePath.split("/").pop(); // Sets the download attribute to the filename
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    //let target = document.querySelector(".page.home");
+    //loadPage(target, "home");
 
     // Set Id to track Users
+    /*
     let user_id_for_tracking = localStorage.getItem("user_id_for_tracking");
     if (!user_id_for_tracking) {
         user_id_for_tracking = generateUniqueId();
@@ -543,64 +520,12 @@ async function initialLoading() {
         let div = document.querySelector(".total-visitors .num");
         div.textContent = obj.visitor_ids.length;
     });
+    */
 
     let div = document.createElement("div");
     div.className = "me-overlay hide";
     document.body.appendChild(div);
     div.innerHTML = `<div class="content"></div>`;
-
-    var download_app = setInterval(() => {
-        let ele = document.querySelector(".home .share.link");
-        if (ele) {
-            ele.addEventListener("click", () => {
-                let link = `https://elahistudyapp.in//#/${exam}/home`;
-                copyToClipboard(link);
-                popupAlert("App link copied, Now share with your friends");
-            });
-        }
-
-        ele = document.querySelector(".download-app");
-        if (ele) {
-            clearInterval(download_app);
-
-            getVisitorCount();
-            if (total_visitors) document.querySelector(".total-visitors").textContent = `Total Visitors: ${total_visitors}`;
-            ele.addEventListener("click", () => {
-                const filePath = "/assets/elahi.apk";
-                const link = document.createElement("a");
-                link.href = filePath;
-                link.download = filePath.split("/").pop(); // Sets the download attribute to the filename
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            });
-
-            // Check the user-agent string for common patterns in Android .apk environments
-            let userAgent = navigator.userAgent.toLowerCase();
-            let isAPK = userAgent.includes("android") && userAgent.includes("wv");
-
-            if (isAPK) {
-                // If true, show the download link
-                ele.style.display = "none";
-            }
-        }
-    }, 1000);
-
-    let id = gist_ids.usernames;
-    let filename = "usernames.json";
-
-    if (!is_online) return;
-    let git_data = await getDataFromGit(id, filename);
-    if (git_data) {
-        git_token = git_data.other_data.api_token;
-    }
-
-    //openPage("home");
-    //openNotesPage2();
-    //openPage("home");
-    // Load items in home page
-    //supportMyWork();
-    //addSocialMediaSection();
 }
 
 function getCurrentTime() {
@@ -629,35 +554,31 @@ function setAutoComplete(event, arr, type, target) {
     var input = event.target;
 
     input.addEventListener("input", function () {
+        let create_new_tags = false;
+        if (type == "add-new-que-tags") create_new_tags = true;
         var inputValue = input.value.trim().toLowerCase();
         //const matchingNames = [];
         //try {
         const matchingNames = arr.filter((name) => name.toLowerCase().includes(inputValue));
         //} catch (e) {}
-        if (!matchingNames.length) {
+        if (!matchingNames.length && !create_new_tags) {
             autocompleteList.classList.remove("active");
             return null;
         }
         autocompleteList.innerHTML = "";
 
-        if (false && inputValue !== "" && type != "search-filter-tag") {
+        if (create_new_tags) {
             const inputItem = document.createElement("div");
             inputItem.textContent = 'new: "' + inputValue + '"';
 
             inputItem.addEventListener("click", (event) => {
                 var tar = input.parentElement;
                 var tag = event.target.textContent.match(/"([^"]*)"/)[1].trim();
-                var div = document.createElement("div");
-                div.className = "tag";
-                div.innerHTML = `<span class="name">${tag}</span>
-                     <span class="remove-tag">x</span>`;
-                tar.insertBefore(div, input);
-                div.children[1].addEventListener("click", (event) => {
-                    div.remove();
-                });
+                new_add_ques_tags.push(tag);
                 input.value = "";
                 input.focus();
                 autocompleteList.classList.remove("active");
+                addTagElementInTarget(type, tag, target);
             });
             autocompleteList.appendChild(inputItem);
         }
@@ -669,6 +590,26 @@ function setAutoComplete(event, arr, type, target) {
             item.addEventListener("click", (event) => {
                 var tar = input.parentElement;
                 var tag = event.target.textContent.trim();
+                input.value = "";
+                input.focus();
+                autocompleteList.classList.remove("active");
+
+                if (type == "search-users") {
+                    let username = tag.split("@")[1];
+                    for (let i = 0; i < all_users_info.length; i++) {
+                        let user_info = all_users_info[i];
+                        if (!user_info) continue;
+                        if (user_info.username == username) {
+                            displayUserPage(user_info);
+                            autocompleteList.classList.remove("active");
+                            return;
+                        }
+                    }
+                }
+
+                addTagElementInTarget(type, tag, target);
+                return;
+
                 if (type == "search-filter-tag") tar = document.querySelector(".filtered-tags .tags");
                 if (type == "new-mock-select-chapter") {
                     let span = document.createElement("span");
@@ -739,6 +680,7 @@ function displayTags(tag_array, tag_target) {
 
 function loadAllTags(all_tags) {
     console.log("loadAllTags called");
+    let all_ques = esa_ques.concat(shared_ques);
     que_data.forEach((obj) => {
         obj.tags.forEach((tag) => {
             if (!all_tags.includes(tag)) all_tags.push(tag);
@@ -753,31 +695,21 @@ function shuffleArray(array) {
     }
 }
 function getDataFromLocale(key) {
-    try {
-        const jsonData = localStorage.getItem(key);
-        if (jsonData === null) {
-            console.log(`me: No local data is found for key: "${key}"`);
+    let data = localStorage.getItem(key);
+    if (data) {
+        try {
+            data = JSON.parse(data);
+        } catch {
             return null;
         }
-        var data = JSON.parse(jsonData);
-        console.log(`me: Local data for key "${key}" retrived successfully from locale`);
-        return data;
-    } catch (error) {
-        console.error(`me: Error retrieving local data with key "${key}" from localStorage`);
-        return null;
     }
+    return data;
 }
+
 function saveDataInLocale(key, data) {
-    if (key == "user_data") key = `user_data_${exam}`;
-    if (Array.isArray(data)) {
-        var jsonData = JSON.stringify(data);
-        localStorage.setItem(key, jsonData);
-        console.log(`me: Data with key "${key}" saved in locale; [Array]`);
-    } else {
-        //var jsonData = JSON.stringify(data);
-        localStorage.setItem(key, data);
-        console.log(`me: Data with key "${key}" saved in locale`);
-    }
+    data = JSON.stringify(data);
+    localStorage.setItem(key, data);
+    console.log(`Data for "${key}" saved in locale`);
 }
 
 function checkInternetConnection() {
@@ -822,7 +754,7 @@ function loadAllFilterTags() {
 }
 
 function getQuestionById(id) {
-    for (const que of que_data) {
+    for (const que of all_ques) {
         if (que.id == id) {
             return que;
         }
@@ -1055,22 +987,28 @@ function handleFilterTag(input, tag) {
     input.focus();
 }
 
-function popupAlert(message, time) {
+function popupAlert(message, time_in_sec, color) {
     var div = document.createElement("div");
-    div.className = "me-popup-alert";
-    div.textContent = message;
+    div.className = "me-popup-alert" + (color ? ` ${color}` : "");
+    div.innerHTML = `
+        <span class="message">${message}</span>
+        <span class="close">x</span>
+    `;
     document.body.append(div);
-    if (time) {
+    div.querySelector(".close").addEventListener("click", () => {
+        div.remove();
+    });
+    if (time_in_sec) {
         setTimeout(function () {
             div.remove();
-        }, `${time * 1000}`);
+        }, `${time_in_sec * 1000}`);
     } else {
         setTimeout(function () {
             div.remove();
-        }, 3000);
+        }, 5000);
     }
 }
-function popupAlertBackgroundColorChange(color) {}
+
 function removePopupAlert() {
     var x = document.querySelector(".me-popup-alert");
     if (x) x.remove();
@@ -1225,12 +1163,28 @@ function getFilteredQuestions(filtered_tags_array) {
     return que_data.filter((obj) => obj.tags.some((tag) => filtered_tags_array.includes(tag)));
 }
 
-function addTagElementInTarget(tag, target) {}
+function addTagElementInTarget(type, tag, target) {
+    tag = tag.trim().toLowerCase();
+    let tag_div = getTagElement(tag);
+    if (target) {
+        let tags = target.querySelectorAll(".name");
+        tags.forEach((tag_span) => {
+            if (tag_span.textContent == tag) {
+                popupAlert("Duplicate tag");
+                return;
+            }
+        });
+        target.appendChild(tag_div);
+    }
+    tag_div.querySelector(".cross").addEventListener("click", () => {
+        tag_div.remove();
+    });
+}
 function getTagElement(tag) {
     var div = document.createElement("div");
     div.className = "tag";
     div.innerHTML = `<span class="name">${tag}</span>
-                     <span class="remove-tag">x</span>`;
+                     <span class="cross">x</span>`;
     return div;
 }
 
@@ -1738,45 +1692,48 @@ function loadPageText2(item, target, level) {
 
         ele = div.querySelector(".icon_ .todo");
         ele.classList.remove("hide");
-        let read_later_array = user_data[0].tasks.read_later;
+
+        /* let read_later_array = userdata.tasks.read_later ? userdata.tasks.read_later : [];
         for (let i = 0; i < read_later_array.length; i++) {
             if (read_later_array[i].block_id === item.id) {
                 ele.className = "fa-regular todo fa-circle-check";
                 break;
             }
+        } */
+        // ele
+        if (false) {
+            ele.addEventListener("click", (event) => {
+                ele = event.target;
+                let type = "";
+                let read_later_array = userdata.tasks.read_later ? userdata.tasks.read_later : [];
+                if (ele.classList.contains("fa-circle")) type = "circle";
+                else if (ele.classList.contains("fa-circle-check")) type = "check";
+
+                if (type == "circle") {
+                    ele.className = "fa-regular todo fa-circle-check";
+
+                    //const exists = read_later_array.some((obj) => obj.block_id === item.id);
+
+                    let obj = {
+                        id: generateUniqueId(),
+                        page_id: item.page_id,
+                        block_id: item.id,
+                        text: item.text.replace(/{[^}]*}/g, ""),
+                    };
+                    user_data[0].tasks.read_later.push(obj);
+                    console.log("me: new heading added to read later");
+                    saveUserData();
+                    popupAlert("Added to Tasks: Read Later");
+                } else if (type == "check") {
+                    ele.className = "fa-regular todo fa-circle";
+                    let arr = user_data[0].tasks.read_later.filter((obj) => obj.block_id != item.id);
+                    user_data[0].tasks.read_later = arr;
+                    console.log("me: heading removed from read later");
+                    saveUserData();
+                    popupAlert("Removed from Tasks: Read Later");
+                }
+            });
         }
-
-        ele.addEventListener("click", (event) => {
-            ele = event.target;
-            let type = "";
-            let read_later_array = user_data[0].tasks.read_later;
-            if (ele.classList.contains("fa-circle")) type = "circle";
-            else if (ele.classList.contains("fa-circle-check")) type = "check";
-
-            if (type == "circle") {
-                ele.className = "fa-regular todo fa-circle-check";
-
-                //const exists = read_later_array.some((obj) => obj.block_id === item.id);
-
-                let obj = {
-                    id: generateUniqueId(),
-                    page_id: item.page_id,
-                    block_id: item.id,
-                    text: item.text.replace(/{[^}]*}/g, ""),
-                };
-                user_data[0].tasks.read_later.push(obj);
-                console.log("me: new heading added to read later");
-                saveUserData();
-                popupAlert("Added to Tasks: Read Later");
-            } else if (type == "check") {
-                ele.className = "fa-regular todo fa-circle";
-                let arr = user_data[0].tasks.read_later.filter((obj) => obj.block_id != item.id);
-                user_data[0].tasks.read_later = arr;
-                console.log("me: heading removed from read later");
-                saveUserData();
-                popupAlert("Removed from Tasks: Read Later");
-            }
-        });
     }
 
     setBlockIconsEvents(div, item);
@@ -1845,7 +1802,7 @@ function loadPageText2(item, target, level) {
         */
     }
 
-    let children = item.children;
+    let children = item.children ? item.children : [];
     if (children.length) {
         ele = div.querySelector(".children");
         //div.appendChild(cspan);
@@ -2251,6 +2208,7 @@ function getBlockData(block, block_id) {
         //console.log(block.text);
         return block.text;
     }
+    block.children = block.children ? block.children : [];
     if (block.children.length) {
         for (let i = 0; i < block.children.length; i++) {
             const result = getBlockData(block.children[i], block_id);
@@ -2882,7 +2840,7 @@ function getAddNewQuestionHTMLTemplate() {
 function loadPreviousMockResults() {
     var tar_ele = document.querySelector(".page.mock .mock-history-list");
     tar_ele.innerHTML = "";
-    var mocks = user_data[0].mocks;
+    var mocks = userdata.mocks;
     if (!mocks) mocks = [];
     mocks.forEach((mock, index) => {
         var div_mock = document.createElement("div");
@@ -2960,6 +2918,7 @@ function showPreviousMockQuestions(mock) {
     mock.questions.forEach((item) => {
         var que = getQuestionById(item.id);
         var que_div = displayQuestion(que, div, "prev-mock-que");
+        displayQuestionActionItems(que_div, que);
         var id = item.selected_option_id;
         //  id = escapeCSSSelector(id);
         var options = que_div.querySelectorAll(".option");
@@ -3103,7 +3062,7 @@ function startNewMockTest(mock, type) {
         });
     });
 
-    fil_ques = que_data.slice(0, 20);
+    fil_ques = ver_ques.slice(0, 20);
     var mock_obj = {
         id: mock ? mock.id : generateUniqueId(),
         date: getTodayDate(),
@@ -3118,10 +3077,11 @@ function startNewMockTest(mock, type) {
         },
     };
 
-    if (!user_data[0].mocks) user_data[0].mocks = [];
-    user_data[0].mocks.unshift(mock_obj);
+    if (!userdata.mocks) userdata.mocks = [];
+
+    userdata.mocks.unshift(mock_obj);
     var que_arr = [];
-    que_arr = user_data[0].mocks[0].questions;
+    que_arr = userdata.mocks[0].questions;
 
     let arr = [];
 
@@ -3131,9 +3091,10 @@ function startNewMockTest(mock, type) {
     if (mock_questions_length > 50) mock_questions_length = 50;
 
     let is_pyq_based = document.querySelector(".pyq-based-mock input").checked;
+
     if (!mock) {
         if (selected_chapters.length) {
-            let all_ques = que_data;
+            let all_ques = ver_ques;
             all_ques = sortArrayRandomly(all_ques);
             let i = 0;
             let y = 0;
@@ -3184,7 +3145,7 @@ function startNewMockTest(mock, type) {
             ///let filtered_ques = que_data.filter((que) => que.tags.some((tag) => selected_chapters.includes(tag)));
             */
         } else {
-            let all_ques = que_data;
+            let all_ques = ver_ques;
             all_ques = sortArrayRandomly(all_ques);
             let i = 0;
             let y = 0;
@@ -3221,6 +3182,7 @@ function startNewMockTest(mock, type) {
             scrollToView(ele);
         });
     }
+
     setTimer(Math.floor(number_of_questions_for_mock / 2));
 
     arr.forEach((id) => {
@@ -3243,10 +3205,10 @@ function startNewMockTest(mock, type) {
         let mock_test_div = document.querySelector(".main-content > .mock-test");
 
         // save the mock end time in the top element in mocks which is the latest mock test
-        user_data[0].mocks[0].end_time = getCurrentTime();
+        userdata.mocks[0].end_time = getCurrentTime();
 
         // aNoe save all the question data of the mock
-        var que_arr = user_data[0].mocks[0].questions;
+        var que_arr = userdata.mocks[0].questions;
 
         mock_test_div.querySelectorAll(".que-div").forEach((que_ele, index) => {
             que_arr[index].id = que_ele.id;
@@ -3314,7 +3276,8 @@ function startNewMockTest(mock, type) {
         let tar = mock_test_div.querySelector(".result-que-list");
         que_arr.forEach((item) => {
             var que = getQuestionById(item.id);
-            var que_div = displayQuestion(que, tar, "mock-result");
+            var que_div = displayQuestion(que, tar, "mock_results");
+            displayQuestionActionItems(que_div, que);
             var id = item.selected_option_id;
 
             var options = que_div.querySelectorAll(".option");
@@ -3340,7 +3303,9 @@ function openMCQPage(id) {
         page_main = document.querySelector(".page.mcq > .main ");
         page_main.innerHTML = getRandomPageHTMLTemplate();
         setMcqPageMainItemEvents(page_main);
+
         updateTodayQuestionsCount();
+
         var page_sidebar = document.querySelector(".page.mcq > .sidebar ");
         page_sidebar.innerHTML = `<div class="header">
                             <span class="title">Select tags to filter questions</span>
@@ -3408,15 +3373,23 @@ function createGlobalVariable(name, value) {
 }
 
 function updateTodayQuestionsCount() {
+    // No updatation when the user is not signed in
+    let username = user_login_data.username;
+    if (!username) return;
+    //
+    //
     let total_ele = document.querySelector(".page.mcq .main .today-questions .total");
     let correct_ele = document.querySelector(".page.mcq .main .today-questions .correct");
     let incorrect_ele = document.querySelector(".page.mcq .main .today-questions .incorrect");
     let marks_ele = document.querySelector(".page.mcq .main .today-questions .marks");
 
     let que_list_ele = document.querySelector(".page.mcq .main .today-questions .questions-list");
-    if (!user_data[0].daily_questions.length || user_data[0].daily_questions[0].date != getTodayDate()) return;
 
-    let today_questions = user_data[0].daily_questions[0].questions;
+    if (!userdata.daily_questions) userdata.daily_questions = []; // Initialise
+
+    if (!userdata.daily_questions.length || userdata.daily_questions[0].date != getTodayDate()) return;
+
+    let today_questions = userdata.daily_questions[0].questions;
     let total_questions = today_questions.length;
     total_ele.textContent = total_questions;
 
@@ -3516,7 +3489,25 @@ function getRandomPageHTMLTemplate() {
                     </div>
                     <i class="fa-light fa-sidebar-flip me-mla"></i>
                 </div>
-                <div class="subject"> </div>
+
+                <span class="bookmark link hide">Show bookmarked questions</span>
+                
+                <div class="que-type">
+
+                    <div class="top">
+                        <span class="label">Filter questions by type:</span>
+                    </div>
+                    <div class="types">
+                        <span class="type verified active">Verified</span>
+                        <span class="type unverified hide">Unverified</span>
+                        <span class="type following hide">Following</span>
+                    </div>
+                </div>
+                <div class="subject-type">
+    <span class="label">Filter By Subject:</span>
+    <div class="subject"></div>
+</div>
+                <div class="subject hide"> </div>
                 <div class="filter-section">
                     <div class="filtered-tags hide"></div>
                     <span class="filter-ques-count hide label"></span>
@@ -3565,7 +3556,7 @@ function displayQuestion(que, tar_ele, type) {
     //tt.appendChild(result);
 
     var nn = 1;
-    if (type == "mock" || type == "mock-result") {
+    if (type == "mock" || type == "mock_results") {
         if (tar_ele.children) nn = tar_ele.children.length;
         nn = nn < 10 ? `0${nn}` : nn;
     } else {
@@ -3599,13 +3590,15 @@ function displayQuestion(que, tar_ele, type) {
             div.classList.add("ans");
         }
 
-        // No action on options for mock-result, daily-practise-questions;
+        // No action on options for mock_results, daily-practise-questions;
         //if (type == "mock-result") return;
         if (type == "daily-ques") return;
 
         // div = option div
         div.addEventListener("click", (event) => {
             var span = event.target.closest(".option");
+            var que_div_ele = span.closest(".que-div");
+
             if (type == "mock") {
                 var dot = parseInt(span.closest(".que-div").querySelector(".question").children[0].textContent);
                 var dot = document.querySelector(".que-list-dots").children[dot - 1];
@@ -3637,8 +3630,8 @@ function displayQuestion(que, tar_ele, type) {
                     console.log(obj); // This will log the data fetched from Firebase
 
                     if (obj) {
-                        let options = document.querySelectorAll(".page.mcq .que-div .options .option");
-                        let selected_option = document.querySelector(".page.mcq .que-div .options .option.selected");
+                        let options = que_div_ele.querySelectorAll(".options .option");
+                        let selected_option = que_div_ele.querySelector(".options .option.selected");
                         options.forEach((option, index) => {
                             if (selected_option == option) obj.options[index] = obj.options[index] + 1;
                         });
@@ -3646,8 +3639,8 @@ function displayQuestion(que, tar_ele, type) {
                         obj = {
                             options: [],
                         };
-                        let options = document.querySelectorAll(".page.mcq .que-div .options .option");
-                        let selected_option = document.querySelector(".page.mcq .que-div .options .option.selected");
+                        let options = que_div_ele.querySelectorAll(".options .option");
+                        let selected_option = que_div_ele.querySelector(".options .option.selected");
                         options.forEach((option) => {
                             if (selected_option == option) obj.options.push(1);
                             else obj.options.push(0);
@@ -3657,7 +3650,7 @@ function displayQuestion(que, tar_ele, type) {
 
                     let totalResponses = obj.options.reduce((acc, curr) => acc + curr, 0);
 
-                    let options = document.querySelectorAll(".page.mcq .que-div .options .option");
+                    let options = que_div_ele.querySelectorAll(".options .option");
                     options.forEach((option, index) => {
                         let numberElement = option.querySelector(".number");
                         if (numberElement) {
@@ -3668,15 +3661,13 @@ function displayQuestion(que, tar_ele, type) {
                         }
                     });
 
-                    let options_div = document.querySelector(".page.mcq .que-div .options");
+                    let options_div = que_div_ele.querySelector(".options");
                     let span = document.createElement("span");
                     span.className = "total-responses";
                     span.textContent = `Total Responses: ${totalResponses}`;
                     options_div.appendChild(span);
                 });
             }
-
-            var que_div_ele = span.closest(".que-div");
 
             span.classList.add("selected");
 
@@ -3694,13 +3685,24 @@ function displayQuestion(que, tar_ele, type) {
                 optionSpan.classList.add("disabled");
             });
 
-            if (type == "mock-result") return;
+            if (type == "mock_results") {
+                displayQuestionActionItems(que_div_ele, que);
+                return;
+            }
+            if (type == "user_question") {
+                displayQuestionActionItems(que_div_ele, que);
+                return;
+            }
+            if (type == "bookmarked_question") {
+                displayQuestionActionItems(que_div_ele, que);
+                return;
+            }
 
             if (!type || type == "random") {
                 var que_div = que_div_ele;
 
                 // Save daily practise questions;
-                let dpq = user_data[0].daily_questions;
+                let dpq = userdata.daily_questions;
                 let today_date = getTodayDate();
                 if (!dpq.length || dpq[0].date != today_date) {
                     let obj = {
@@ -3710,7 +3712,7 @@ function displayQuestion(que, tar_ele, type) {
                     dpq.unshift(obj);
                 }
 
-                let today_questions = user_data[0].daily_questions[0].questions;
+                let today_questions = userdata.daily_questions[0].questions;
                 let obj = {
                     que_id: curr_ques.id,
                     selected_option_id: que_div.querySelector(".option.selected").id,
@@ -3792,13 +3794,14 @@ function displayQuestion(que, tar_ele, type) {
         });
     });
 
+    que.exams = que.exams ? que.exams : [];
     if (que.exams.length && (!type || type == "random")) {
         // Show exam asked as well
         let div = document.createElement("div");
         div.className = "exams-asked";
         que_div.appendChild(div);
 
-        div.innerHTML = `<span>Previously asked in:</span>
+        div.innerHTML = `<span>Asked in:</span>
                          <div class="exams"></div>`;
 
         que.exams.forEach((exam) => {
@@ -3845,27 +3848,16 @@ function displayQuestion(que, tar_ele, type) {
     }
 
     if (!type || type == "random") {
-        // div = share question div
-        let idiv = document.createElement("div");
-        idiv.className = "que-actions";
-        que_div.appendChild(idiv);
+        // username shared by
+        if (que.userid) {
+            displayUsernameInSharedQuestion(que_div, que.userid);
+        }
 
-        let sdiv = document.createElement("div");
-        sdiv.className = "share-question link";
-        idiv.appendChild(sdiv);
+        if (que.verified == false) {
+            displayQuestionVerficationStatus(que_div, que);
+        }
 
-        sdiv.innerHTML = `<i class="fa-regular fa-share-nodes"></i>
-                          <span>Share</span>`;
-        sdiv.addEventListener("click", () => {
-            let url = window.location.href;
-            let ind = url.indexOf("#");
-            if (ind != -1) {
-                url = url.substring(0, ind - 1);
-            }
-            url = url + `/#/${exam}/question/${que.id}`;
-            copyToClipboard(url);
-            popupAlert("Question link copied");
-        });
+        displayQuestionActionItems(que_div, que);
     }
 
     let note_span = document.createElement("span");
@@ -4026,12 +4018,13 @@ function sortArray(array, type) {
 function addTagIndexList(sidebar) {
     var ele = "";
     // Load structured tags
-    var index_tags = "";
+    /* var index_tags = "";
     for (var i = 0; i < other_data.length; i++) {
         if (other_data[i].type == "tags_index") {
             index_tags = other_data[i].data;
         }
     }
+    */
 
     ele = sidebar.querySelector(".content > .chapter-tag");
     ele.innerHTML = "";
@@ -4072,7 +4065,7 @@ function addAllTagsItems(tag, tar_ele) {
 function addTagIndexItem_old(item, tar_ele, level) {
     item = item.name ? item : item[0];
     try {
-        var children = item.children;
+        var children = item.children ? item.children : [];
     } catch {}
     var span = "";
     if (children.length) {
@@ -4146,7 +4139,7 @@ function addTagIndexItem_old(item, tar_ele, level) {
 function addTagIndexItem(item, tar_ele, level) {
     item = item.name ? item : item[0];
     try {
-        var children = item.children;
+        var children = item.children ? item.children : [];
     } catch {}
 
     let div = "";
@@ -4425,126 +4418,22 @@ function addImageItem(obj, image_div) {
     //image_div.querySelector(".show-image").classList.remove("hide");
 }
 
-async function fetchDataFromFile(filename) {
-    try {
-        const response = await fetch(`${filename}.json`);
-        if (!response.ok) {
-            throw new Error("Network response was not ok " + response.statusText);
-        }
+async function addESADataIntoFirebase() {
+    let filename = `my_data_${exam}.json`;
 
-        const data = await response.json();
+    const response = await fetch(filename);
 
-        //console.log("Fetched data:", data); // Log fetched data for debugging
+    const data = await response.json();
 
-        // Ensure data is in the expected format
-        if (Array.isArray(data)) {
-            return data;
-        } else {
-            console.error("The fetched data is not an array.");
-            return [];
-        }
-    } catch (error) {
-        console.error("There has been a problem with your fetch operation:", error);
-    }
-}
+    let ques_data = data[0].ques;
+    let notes_data = data[0].notes;
+    let mocks_data = data[0].mocks;
+    let tags_list = data[0].tags_list;
 
-var my_data = "";
-async function getDataFromJSONFiles() {
-    my_data = await fetchDataFromFile(`my_data_${exam}`);
-    que_data = my_data[0].ques;
-    notes_data = my_data[0].notes;
-    static_mocks = my_data[0].mocks;
-    tags_list = my_data[0].tags_list;
-
-    mocks_data = await fetchDataFromFile(`mocks_${exam}`);
-
-    user = getDataFromLocale("esa_user");
-    if (false) {
-        document.querySelector(".loading").classList.add("hide");
-        document.querySelector(".me-content").classList.remove("hide");
-        let target = document.querySelector(".page.home");
-        loadPage(target, "login");
-
-        let login_interval = setInterval(() => {
-            let ele = document.querySelector(".login .sign-in .submit");
-            if (ele) {
-                clearInterval(login_interval);
-                ele = document.querySelector(".login .sign-in .submit");
-                if (ele) {
-                    ele.addEventListener("click", () => {
-                        signin();
-                    });
-                }
-                ele = document.querySelector(".login .sign-up .submit");
-                if (ele) {
-                    ele.addEventListener("click", () => {
-                        signup();
-                    });
-                }
-
-                ele = document.querySelector(".login  .new-user .link");
-                if (ele) {
-                    ele.addEventListener("click", () => {
-                        let signin_ele = document.querySelector(".login > .sign-in");
-                        signin_ele.classList.add("hide");
-                        let signup_ele = document.querySelector(".login > .sign-up");
-                        signup_ele.classList.remove("hide");
-                    });
-                }
-            }
-        }, 1000);
-
-        return;
-    }
-
-    user_data = getUserData();
-
-    if (!user_data || !user_data.length) {
-        user_data = [];
-        var obj = {
-            username: "mehboob",
-            daily_practise_questions: [],
-            mocks: [],
-            images: [],
-            videos: [],
-            links: [],
-            starred_questions: [],
-        };
-        user_data.push(obj);
-        saveDataInLocale("user_data", user_data);
-    }
-    if (!user_data[0].username) {
-        while (!user_data[0].username) {
-            user_data.shift();
-        }
-    }
-    if (!user_data[0].daily_questions) {
-        user_data[0].daily_questions = [];
-    }
-    if (!user_data[0].tasks) {
-        user_data[0].tasks = {};
-        user_data[0].tasks.daily_tasks = [];
-        user_data[0].tasks.read_later = [];
-    }
-    let dpq = user_data[0].daily_practise_questions;
-    let today_date = getTodayDate();
-
-    if (!dpq.length) {
-        dpq.unshift({
-            date: today_date,
-            questions: [],
-        });
-        saveUserData();
-    } else if (dpq[0].date !== today_date) {
-        dpq.unshift({
-            date: today_date,
-            questions: [],
-        });
-        saveUserData();
-    }
-
-    //generateSomeMocks();
-    console.log("me: user_data[] loaded");
+    database.ref(`esa_data/${exam}/data/ques_data`).set(ques_data);
+    database.ref(`esa_data/${exam}/data/notes_data`).set(notes_data);
+    database.ref(`esa_data/${exam}/data/mocks_data`).set(mocks_data);
+    database.ref(`esa_data/${exam}/data/tags_list`).set(tags_list);
 }
 
 function openMyNotesPage2() {
@@ -4974,7 +4863,7 @@ function addBlockLinkedItems(div) {
     div.querySelector(".content-list .links").innerHTML = "";
     var linked_div = div.querySelector(".linked-items");
 
-    var videos = user_data[0].videos;
+    var videos = userdata.videos ? userdata.videos : [];
     videos.forEach((video) => {
         video.linked_blocks.forEach((blk) => {
             if (blk.block_id == block_id) {
@@ -5022,7 +4911,7 @@ function addBlockLinkedItems(div) {
         });
     });
 
-    var links = user_data[0].links;
+    var links = userdata.links ? userdata.links : [];
     links.forEach((link) => {
         link.linked_blocks.forEach((blk) => {
             if (blk.block_id == block_id) {
@@ -5044,7 +4933,7 @@ function addBlockLinkedItems(div) {
         });
     });
 
-    var images = user_data[0].images;
+    var images = userdata.images ? userdata.images : [];
     images.forEach((image) => {
         image.linked_blocks.forEach((blk) => {
             if (blk.block_id == block_id) {
@@ -5098,10 +4987,19 @@ async function clearCache() {
 }
 
 function saveUserData() {
-    saveDataInLocale(`user_data_${exam}`, user_data);
-    if (is_online) saveUserDataOnline();
+    let userid = user_login_data.userid;
+    if (!userid) return;
+    saveDataInLocale(`esa_userdata_${exam}`, userdata);
+    let is_online = navigator.onLine;
+
+    if (is_online) {
+        database.ref(`${exam}/users/${userid}/userdata`).set(userdata);
+    } else {
+        popupAlert("Your Data is NOT saved in cloud.. You are offline..");
+    }
 }
 function getUserData() {
+    return null;
     return getDataFromLocale(`user_data_${exam}`);
 }
 
@@ -5740,93 +5638,36 @@ function addSocialMediaSection() {
     });
 }
 
-var old_url = "";
-var first_time = true;
-function openPageBasedOnURL_() {
-    let obj = null;
-    let url = window.location.href;
-    if (first_time) {
-        first_time = false;
-        obj = parseUrl3(url);
-        if (obj.exam) exam = obj.exam;
+// Load Data
+var que_data = null,
+    shared_ques = null,
+    esa_ques = null,
+    all_ques = null,
+    follower_ques = null,
+    all_users_info = null,
+    notes_data = null,
+    tags_list = null,
+    static_mocks = null,
+    userdata = null;
+//start from here
+async function startApp() {
+    clearCache();
+    signinSetup();
+    user_login_data = getDataFromLocale("user_login_data");
 
-        clearCache();
-        getDataFromJSONFiles();
-    }
-
-    if (que_data.length && user_data.length) {
+    if (user_login_data) {
+        postLogin();
     } else {
-        return;
+        document.querySelector(".start.login").classList.remove("hide");
+        document.querySelector(".content").classList.add("hide");
     }
-
-    clearInterval(interva_url);
-    initialLoading();
-    obj = parseUrl3(url);
-    old_url = url;
-    //url = "http://127.0.0.1:5500/ssc/question/9Km7Pmaa4";
-    if (obj.type) {
-        exam = obj.exam;
-        let type = obj.type;
-        let que_id = obj.que_id;
-        let page_id = obj.page_id;
-        let block_id = obj.block_id;
-        openNotesPage2(); // To load the notes data
-
-        if (type == "question") {
-            openPage("random");
-            if (que_id) {
-                openMCQPage(que_id);
-                //let que = getQuestionById(que_id);
-                //displayQuestion(que);
-            }
-        } else if (type == "notes") {
-            if (block_id) {
-                //openChapterById(page_id, block_id);
-                openNotesPage2(page_id, block_id);
-            } else if (page_id) {
-                //openChapterById(page_id);
-                openNotesPage2(page_id);
-            } else {
-                openNotesPage2();
-            }
-        } else if (type == "home") {
-            openPage("home");
-        } else if (type == "mock") {
-        } else if (type == "more") {
-            openSettingPage();
-        } else if (type == "tasks") {
-            openTasksPage();
-        } else {
-            openPage("home");
-        }
-    } else {
-        openNotesPage2();
-        openPage("home");
-    }
+    return;
 }
-function openPageBasedOnURL() {
-    let obj = null;
+async function openPageBasedOnURL() {
     let url = window.location.href;
-    if (first_time) {
-        first_time = false;
+    url_items = parseURL(url);
+    if (url_items.length) exam = url_items[0];
 
-        url_items = parseURL(url);
-        if (url_items.length) exam = url_items[0];
-
-        clearCache();
-        getDataFromJSONFiles();
-    }
-
-    if (que_data.length && user_data.length) {
-    } else {
-        return;
-    }
-
-    clearInterval(interva_url);
-    initialLoading();
-    //obj = parseUrl3(url);
-    //old_url = url;
-    //url = "http://127.0.0.1:5500/ssc/question/9Km7Pmaa4";
     if (url_items.length) {
         exam = url_items[0];
         let page = url_items[1];
@@ -5850,7 +5691,7 @@ function openPageBasedOnURL() {
             openPage("home");
         } else if (page == "mock") {
             openMockPage();
-            debugger;
+
             let sub_page = url_items[2];
             if (sub_page == "shared") {
                 let id = url_items[3];
@@ -5873,7 +5714,7 @@ function openPageBasedOnURL() {
             openPage("home");
         }
     } else {
-        openNotesPage2();
+        //openNotesPage2();
         openPage("home");
     }
 }
@@ -5918,9 +5759,8 @@ function parseUrl3(url) {
     }
     return result;
 }
-var interva_url = setInterval(() => {
-    openPageBasedOnURL();
-}, 100);
+
+startApp();
 
 function openSidebar(event) {
     let ele;
@@ -5963,6 +5803,73 @@ function setMcqPageMainItemEvents(main) {
         });
     }
 
+    ele = main.querySelectorAll(".que-type .type");
+    if (ele) {
+        ele.forEach((eee) => {
+            eee.addEventListener("click", (event) => {
+                loadRefreshQuestions();
+                let ele = event.target;
+                if (ele.classList.contains("active")) return;
+
+                main.querySelectorAll(".que-type .type").forEach((ee) => {
+                    ee.classList.remove("active");
+                });
+                ele.classList.add("active");
+
+                //loadRefreshQuestions();
+
+                if (ele.classList.contains("verified")) {
+                    que_data = esa_ques.concat(ver_ques);
+                } else if (ele.classList.contains("unverified")) {
+                    que_data = unver_ques;
+                } else if (ele.classList.contains("following")) {
+                    que_data = follower_ques;
+                }
+                que_data = sortArrayRandomly(que_data);
+
+                curr_que_index = 0;
+                fil_ques = que_data;
+                fil_ques = sortArrayRandomly(fil_ques);
+                curr_ques = fil_ques[0];
+                displayQuestion();
+            });
+        });
+    }
+    ele = main.querySelector(".que-type .types");
+    if (shared_ques.length) {
+        ele.querySelector(".unverified").classList.remove("hide");
+    }
+    if (follower_ques.length) {
+        ele.querySelector(".following").classList.remove("hide");
+    }
+
+    ele = main.querySelector("span.link.bookmark");
+    userdata.bookmarks = userdata.bookmarks ? userdata.bookmarks : [];
+    if (userdata.bookmarks.length) {
+        main.querySelector("span.link.bookmark").classList.remove("hide");
+    }
+    ele.addEventListener("click", () => {
+        openOverlay();
+        let eee = document.querySelector(".me-overlay .content");
+
+        eee.innerHTML = `<div class="bookmark-list">
+        <div class="header">
+            <span class="head-label">Bookmark Questions</span>
+            <i class="fa-regular fa-circle-xmark close"></i>
+        </div>
+        <div class="bookmark-items"></div>
+        </div>`;
+
+        let bookmark_items = eee.querySelector(".bookmark-items");
+        userdata.bookmarks.forEach((id) => {
+            let que = getQuestionById(id);
+            if (!que) return;
+            let target = eee.querySelector(".bookmark-items");
+            let que_div = displayQuestion(que, target, "bookmarked_question");
+        });
+        eee.querySelector(".close").addEventListener("click", closeOverlay);
+    });
+
     ele = main.querySelector(".fa-sidebar-flip");
     if (ele) {
         ele.addEventListener("click", (event) => {
@@ -5987,6 +5894,230 @@ function setMcqPageMainItemEvents(main) {
                                 <button class="add">Add</button>
                             </div>
                             `;
+
+            eee.innerHTML = `<div class="items">
+    <span class="link">Add vocab</span>
+    <span class="link">Add questions</span>
+</div>`;
+
+            eee.innerHTML = `
+                            <div class="add-question">
+                                <div class="top">
+                                    <span class="title">Add Questions</span>
+                                    <i class="fa-solid fa-xmark close"></i>
+                                </div>
+
+                                <div class="que-section">
+                                    <textarea name="" id="" cols="30" rows="3" class="question" placeholder="Question text"></textarea>
+                                    <div class="options">
+                                        <div class="option">
+                                            <input type="radio" name="option" />
+                                            <input type="text" placeholder="Option 1" />
+                                        </div>
+                                        <div class="option">
+                                            <input type="radio" name="option" />
+                                            <input type="text" placeholder="Option 2" />
+                                        </div>
+                                        <div class="option">
+                                            <input type="radio" name="option" />
+                                            <input type="text" placeholder="Option 3" />
+                                        </div>
+                                        <div class="option">
+                                            <input type="radio" name="option" />
+                                            <input type="text" placeholder="Option 4" />
+                                        </div>
+                                        <button class="add-options">Add options</button>
+                                    </div>
+                                    <div class="add-subject">
+                                    <span>Subject:</span>
+                                    </div>
+
+                                    <div class="tags-sec">
+                                        <input type="search" placeholder="Add Tags" />
+                                        <div class="tags"></div>
+                                    </div>
+                                    <input type="text" placeholder="Previous Exam" class="exams hide" />
+                                    <button class="add-new-question">Add Questions</button>
+                                </div>
+                            </div>
+                            `;
+
+            let ele = eee.querySelector(".add-options");
+            if (ele) {
+                ele.addEventListener("click", () => {
+                    let div = document.createElement("div");
+                    div.className = "option";
+                    let options = eee.querySelector(".options");
+                    let child = options.children.length;
+                    div.innerHTML = `<input type="radio" name="option" />
+                                            <input type="text" placeholder="Option ${child}" />`;
+                    let bfr = eee.querySelector(".add-options");
+                    options.insertBefore(div, bfr);
+                    div.querySelector("input[type='text']").focus();
+                });
+            }
+
+            ele = eee.querySelector(".close");
+            if (ele) {
+                ele.addEventListener("click", () => {
+                    closeOverlay();
+                });
+            }
+
+            ele = eee.querySelector(".add-subject");
+            let subjects_ = subjects[exam];
+            subjects_.forEach((sub) => {
+                let span = document.createElement("span");
+                let sub_class = sub.toLowerCase();
+                span.className = `subject ${sub_class}`;
+                span.textContent = sub;
+                ele.appendChild(span);
+            });
+            ele = ele.querySelector(".subject");
+            if (ele) {
+                ele = eee.querySelectorAll(".add-subject .subject");
+                ele.forEach((sub) => {
+                    sub.addEventListener("click", (event) => {
+                        let cele = event.target;
+                        if (cele.classList.contains("selected")) return;
+                        let sss = eee.querySelectorAll(".add-subject .subject");
+                        sss.forEach((ss) => {
+                            ss.classList.remove("selected");
+                        });
+                        cele.classList.add("selected");
+                    });
+                });
+            }
+
+            ele = eee.querySelector(".tags-sec input");
+            if (ele) {
+                ele.addEventListener("focus", (event) => {
+                    let tags = all_tags.concat(new_add_ques_tags);
+                    let target = eee.querySelector(".tags-sec .tags");
+                    setAutoComplete(event, tags, "add-new-que-tags", target);
+                });
+            }
+
+            ele = eee.querySelector("button.add-new-question");
+            if (ele) {
+                ele.addEventListener("click", () => {
+                    let id = generateUniqueId();
+                    let question = eee.querySelector("textarea.question").value.trim();
+                    if (question == "") {
+                        popupAlert("Question text cannot be empty", 5, "red");
+                        return;
+                    }
+                    if (!question.endsWith("?")) {
+                        question += " ?";
+                    }
+
+                    let options = [];
+                    let option_ele = eee.querySelectorAll(".option");
+
+                    let is_ans_selected = false;
+                    option_ele.forEach((option) => {
+                        if (option.children[0].checked) is_ans_selected = true;
+                    });
+                    if (!is_ans_selected) {
+                        popupAlert("No Answer is selected", 5, "red");
+                        return;
+                    }
+                    option_ele.forEach((option, index) => {
+                        // Assume the first child is a radio input and the second child is a text element
+                        let radio = option.querySelector("input[type='radio']"); // or option.children[0]
+                        let text = option.children[1].value.trim();
+
+                        // Check if the radio button is checked
+                        if (radio && radio.checked) {
+                            text += " #ans";
+                        }
+
+                        // Create and push the object to the options array
+                        let obj = {
+                            id: id + "_" + (index + 1),
+                            text: text,
+                        };
+
+                        options.push(obj);
+                    });
+
+                    let subject = eee.querySelector(".subject.selected");
+                    if (!subject) {
+                        popupAlert("Select a subject", 5, "red");
+                        return;
+                    }
+                    let tags = [];
+                    subject = subject.textContent.trim().toLowerCase();
+                    tags.push(subject);
+
+                    let tag_names = eee.querySelectorAll(".tags .name");
+                    tag_names = tag_names.length ? tag_names : [];
+                    tag_names.forEach((name_span) => {
+                        let tag = name_span.textContent;
+                        if (!tags.includes(tag)) tags.push(tag);
+                    });
+
+                    if (question.toLowerCase().startsWith("who ")) {
+                        if (!tags.includes("person")) tags.push("person");
+                    }
+                    let verification_status = {
+                        question: 0,
+                        options: 0,
+                        answer: 0,
+                        tags: 0,
+                    };
+
+                    let que_obj = {
+                        question: question,
+                        options: options,
+                        userid: user_login_data.userid,
+                        tags: tags,
+                        id: id,
+                        verified: false,
+                        verification_status: verification_status,
+                        create_date: getTodayDate(),
+                        update_date: "",
+                        linked_block: "",
+                        explanation: "",
+                        video_link: "",
+                    };
+
+                    let username = user_login_data.username;
+                    if (!username) {
+                        popupAlert("Question cannot be added as you are not sigined in");
+                        return;
+                    }
+
+                    let is_online = navigator.onLine;
+                    if (!is_online) {
+                        if (!username) {
+                            popupAlert("You are Offline");
+                            return;
+                        }
+                    }
+                    if (!username) {
+                        popupAlert("Question cannot be added as you are offline");
+                        return;
+                    }
+
+                    let user_ref = database.ref(`${exam}/shared_questions/data`);
+                    user_ref.once("value").then(function (snapshot) {
+                        let obj = snapshot.val();
+
+                        if (!obj) {
+                            obj = [];
+                        }
+                        obj.unshift(que_obj);
+                        user_questions.unshift(que_obj);
+                        database.ref(`${exam}/shared_questions/data`).set(obj);
+                        popupAlert("Question has been created", 5, "green");
+                        loadUserQuestions();
+                        shared_ques.push(que_obj);
+                    });
+                });
+            }
+
+            /*
             eee.querySelector(".header .close").addEventListener("click", closeOverlay);
 
             eee.querySelector("button.add").addEventListener("click", () => {
@@ -6035,6 +6166,7 @@ function setMcqPageMainItemEvents(main) {
                 saveUserData();
                 popupAlert(`"${word}" added to your vocab`);
             });
+            */
         });
     }
 
@@ -6058,7 +6190,8 @@ function setMcqPageMainItemEvents(main) {
             });
         });
 
-        if (user_data[0].vocab && user_data[0].vocab.length) {
+        if (!userdata.vocab) userdata.vocab = [];
+        if (userdata.vocab.length) {
             let span = document.createElement("span");
             span.className = "my-vocab";
             span.textContent = "my vocab";
@@ -6310,6 +6443,7 @@ function searchTextInBlocks(block, page_id, tar_ele, search_text) {
         span2.innerHTML = getHTMLFormattedText(text);
         div.appendChild(span2);
     }
+    block.children = block.children ? block.children : [];
     if (block.children.length) {
         block.children.forEach((child) => {
             searchTextInBlocks(child, page_id, tar_ele, search_text);
@@ -6502,155 +6636,6 @@ function getFormattedDateMMddYYYY(date) {
     return formattedDateWithSuffix;
 }
 
-async function signin() {
-    let username = document.querySelector(".login .sign-in #username").value;
-    let password = document.querySelector(".login .sign-in #password").value;
-    let error_span = document.querySelector(".login .sign-in .error");
-    if (username == "" || password == "") {
-        error_span.textContent = "Username and Password cannot be empty";
-        return;
-    }
-    let id = gist_ids.usernames;
-    let filename = "usernames.json";
-    data = await getDataFromGit(id, filename);
-    if (!data) {
-        error_span.textContent = "Username and Password cannot be empty";
-    }
-    data.forEach((obj) => {
-        if (obj.username == username) {
-            user = {
-                id: obj.id,
-                username: obj.username,
-            };
-            saveDataInLocale("esa_user", user);
-        }
-    });
-
-    if (user.id == "") {
-        error_span.textContent = "Username not found";
-        return;
-    } else {
-        saveDataInLocale("esa_user", user);
-    }
-    id = gist_ids.user_data;
-    filename = "user_data.json";
-    data = await getDataFromGit(id, filename);
-    data.forEach((obj) => {
-        if (obj.id == user.id) {
-            user_data = obj.data;
-            saveUserData();
-        }
-    });
-    document.querySelector(".loading").classList.remove("hide");
-    document.querySelector(".me-content").classList.add("hide");
-    setTimeout(function () {
-        initialLoadind();
-    }, 2000);
-}
-async function signup() {
-    let username = document.querySelector(".login .sign-up #username").value;
-    let password = document.querySelector(".login .sign-up #password").value;
-    let error_span = document.querySelector(".login .sign-up .error");
-    if (username == "" || password == "") {
-        error_span.textContent = "Username and Password cannot be empty";
-    }
-    let id = gist_ids.usernames;
-    let filename = "usernames.json";
-    usernames_data = await getDataFromGit(id, filename);
-    if (usernames_data.length) {
-        usernames_data.forEach((obj) => {
-            if (obj.username == username) {
-                error_span.textContent = "Username already exists.";
-                return;
-            }
-        });
-    }
-    let obj = {
-        username: username,
-        passowrd: password,
-        id: generateUniqueId(),
-    };
-    user.id = obj.id;
-    user.username = obj.username;
-
-    usernames_data.push(obj);
-    await updateGistFile(id, filename, usernames_data);
-}
-
-async function saveUserDataOnline() {
-    return;
-    let id = gist_ids.user_data;
-    let filename = "user_data.json";
-    let data = await getDataFromGit(id, filename);
-    if (data && data.length) {
-        let is_data = false;
-        data.forEach((obj) => {
-            if (obj.id == user.id) {
-                is_data = true;
-                obj.data = user_data;
-            }
-        });
-    } else {
-        data = [];
-        let obj = {
-            id: user.id,
-            data: user_data,
-        };
-        data.push(obj);
-    }
-    updateGistFile(id, filename, data);
-}
-
-function downloadQuestionsAsHTMLFiles__() {
-    return;
-    que_data.forEach((que) => {
-        // Define the HTML content for each question
-        let html_content = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${que.id}</title>
-                <link rel="stylesheet" href="styles.css">
-                <style>
-                    .question { margin-bottom: 20px; }
-                    .span { font-weight: bold; }
-                    .options { margin-top: 10px; }
-                    .option { display: block; margin: 5px 0; }
-                </style>
-            </head>
-            <body>
-                <div class="question" id="${que.id}">
-                    <div class="span">${que.question}</div>
-                    <div class="options">
-                        <span class="option">${que.options[0].text}</span>
-                        <span class="option">${que.options[1].text}</span>
-                        <span class="option">${que.options[2].text}</span>
-                        <span class="option">${que.options[3].text}</span>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
-
-        // Create a Blob containing the HTML content
-        const blob = new Blob([html_content], { type: "text/html" });
-
-        // Create a link element to trigger the download
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `${que.id}.html`; // Set the filename based on the question ID
-
-        // Append the link to the body and trigger the download
-        document.body.appendChild(a);
-        a.click();
-
-        // Clean up
-        document.body.removeChild(a);
-        URL.revokeObjectURL(a.href);
-    });
-}
 async function getMeaning(word) {
     const apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
     try {
@@ -6926,5 +6911,731 @@ async function createSharedMock() {
         ele.querySelector(".cross").addEventListener("click", () => {
             ele.classList.add("hide");
         });
+    }
+}
+
+async function getUserDataFromFirebase() {
+    let userid = user_login_data.userid;
+    let user_ref = database.ref(`${exam}/users/${userid}/userdata`);
+    let is_online = navigator.onLine;
+    if (!is_online) {
+        popupAlert("You are offline, Userdata cannot be retrieved");
+        return null;
+    }
+    try {
+        let snapshot = await user_ref.once("value");
+        let obj = snapshot.val() || {};
+        userdata = obj;
+        return obj;
+    } catch (error) {
+        console.error("Error getting userdata from firebase:", error);
+    }
+}
+
+async function getDataFromFireBase() {
+    let user_ref = database.ref(`esa_data/${exam}/data`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || null;
+    return obj;
+}
+async function getSharedQuestionsFromFirebase() {
+    let user_ref = database.ref(`${exam}/shared_questions/data`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || null;
+
+    shared_ques = obj ? obj : [];
+
+    return obj;
+}
+
+function getCurrentTimeSTamp() {
+    const now = new Date();
+
+    // Extract year, month, day, hour, minute, second and pad with zeros if necessary
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const day = String(now.getDate()).padStart(2, "0");
+    const hour = String(now.getHours()).padStart(2, "0");
+    const minute = String(now.getMinutes()).padStart(2, "0");
+    const second = String(now.getSeconds()).padStart(2, "0");
+
+    // Construct the timestamp string
+    const timestampString = `${year}${month}${day}${hour}${minute}${second}`;
+    return timestampString;
+    // Convert the string to an integer
+    //const timestampInteger = parseInt(timestampString, 10);
+
+    //timestampInteger;
+}
+
+async function postLogin() {
+    let userid = user_login_data.userid;
+    let user_ref = database.ref(`${exam}/users/${userid}/user_info`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || null;
+    if (!obj) {
+        user_ref.set(user_login_data);
+    }
+
+    document.querySelector(".start.login").classList.add("hide");
+    document.querySelector(".content").classList.remove("hide");
+    document.querySelector(".main-content").classList.remove("hide");
+    // Hide google sigin btn
+    // document.getElementById("google-sign-in-btn").classList.add("hide");
+    // Show user-info
+    //let ele = document.querySelector(".user-info");
+    //ele.classList.remove("hide");
+    //ele.querySelector(".name-photo img").src = user_login_data.photo_url;
+    //ele.querySelector(".name").textContent = user_login_data.display_name;
+    //ele.querySelector(".username").textContent = "@" + user_login_data.username;
+    popupAlert(`Signed in as "${user_login_data.display_name}"`);
+
+    await getAllUsersInfo();
+    let data = await getDataFromFireBase();
+
+    esa_ques = data.ques_data;
+    que_data = esa_ques;
+    notes_data = data.notes_data;
+    tags_list = data.tags_list;
+    static_mocks = data.mocks_data;
+    console.log(`ESA data loaded`);
+
+    await loadRefreshQuestions();
+    //await getSharedQuestionsFromFirebase();
+
+    //userdata = await getUserDataFromFirebase();
+    //if (!userdata) userdata = {};
+
+    if (!userdata.daily_questions) {
+        // Check for old data
+        let old_user_data = localStorage.getItem(`user_data_${exam}`);
+        if (old_user_data) {
+            old_user_data = JSON.parse(old_user_data);
+            old_user_data = old_user_data[0];
+            userdata.daily_questions = old_user_data.daily_questions ? old_user_data.daily_questions : [];
+            userdata.mocks = old_user_data.mock_tests ? old_user_data.mock_tests : [];
+            userdata.images = old_user_data.images ? old_user_data.images : [];
+            userdata.videos = old_user_data.videos ? old_user_data.videos : [];
+            userdata.links = old_user_data.links ? old_user_data.links : [];
+            saveUserData();
+            //localStorage.removeItem(`user_data_${exam}`);
+        }
+    }
+
+    initialLoading();
+    loadUserPage();
+    openPageBasedOnURL();
+}
+
+function loadUserPage() {
+    let user_page = document.querySelector(".user.page");
+    user_page.innerHTML = `
+                      <div class="search-users">
+                            <i class="fa-regular fa-user"></i>
+                            <input type="search" class="search" placeholder="Search users" />
+                        </div>
+                        
+                        <div class="user-info">
+                            <div class="name-photo">
+                                <canvas id="profileCanvas" width="200" height="200"></canvas>
+                                <div class="name-email">
+                                    <span class="name">${user_login_data.display_name}</span>
+                                    <span class="username"> @${user_login_data.username}</span>
+                                    <span class="email"> ${user_login_data.gmail}</span>
+                                </div>
+                                <span class="edit link">Edit profile</span>
+                                <span id="sign-out-btn">sign out</span>
+                            </div>
+                            <div class="followings-info">
+                                <div class="following">
+                                    <span class="count"></span>
+                                    <span>Following</span>
+                                </div>
+                                <div class="followers">
+                                    <span class="count"></span>
+                                    <span>Followers</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="top-sec hide">
+                            <div class="filter">
+                                <i class="fa-regular fa-filter"></i>
+                                <span>filter</span>
+                            </div>
+                            <div class="search">
+                                <i class="fa-regular fa-magnifying-glass"></i>
+                                <span>search</span>
+                            </div>
+                            <div class="refresh">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span>refresh</span>
+                            </div>
+                        </div>
+                        <div class="user-question-sec">
+                            <h2> Shared Questions</h2>
+                            <div class="user-questions"></div>
+                        </div>
+                        
+    `;
+    userdata.following = userdata.following ? userdata.following : [];
+    user_page.querySelector(".following .count").textContent = userdata.following.length;
+
+    userdata.followers = userdata.followers ? userdata.followers : [];
+    user_page.querySelector(".followers .count").textContent = userdata.followers.length;
+
+    setProfileCanvaPic(user_page);
+    let signout_btn = user_page.querySelector("#sign-out-btn");
+    signout_btn.addEventListener("click", () => {
+        saveDataInLocale("user_login_data", null);
+        //alert("User signed out");
+        //location.reload(true);
+
+        document.querySelector(".start.login").classList.remove("hide");
+        document.querySelector(".content").classList.add("hide");
+    });
+    loadUserQuestions();
+    let refresh_ele = user_page.querySelector(".refresh");
+    if (refresh_ele) {
+        refresh_ele.addEventListener("click", () => {
+            loadUserQuestions();
+        });
+    }
+
+    let edit_profile = user_page.querySelector(".edit");
+    if (edit_profile) {
+        edit_profile.addEventListener("click", () => {
+            openOverlay();
+            let overlay_content = document.querySelector(".me-overlay .content");
+            overlay_content.innerHTML = `
+            <div class="update-user indo">
+                <h3>Update User Info</h3>
+                <div class="display_name">
+                    <span class="label">Display Name</span>
+                    <input type="text" class="display_name" />
+                </div>
+
+                <div class="username">
+                    <span class="label">Username</span>
+                    <input type="text" class="username" />
+                </div>
+
+                <div class="btns">
+                    <span class="link close">close</span>
+                    <button class="update">Update</button>
+                </div>
+            </div>
+            `;
+
+            overlay_content.querySelector(".display_name input").value = user_login_data.display_name;
+            overlay_content.querySelector(".username input").value = user_login_data.username;
+
+            overlay_content.querySelector(".close").addEventListener("click", () => {
+                closeOverlay();
+            });
+
+            overlay_content.querySelector(".update").addEventListener("click", () => {
+                let display_name = overlay_content.querySelector(".display_name input").value;
+                let username = overlay_content.querySelector(".username input").value;
+                updateUserInfo(display_name, username);
+            });
+        });
+    }
+
+    let search_ele = user_page.querySelector(".search-users input");
+    search_ele.addEventListener("focus", (event) => {
+        let arr = [];
+
+        all_users_info.forEach((user) => {
+            let name = user.display_name + "  @" + user.username;
+            if (user.username != user_login_data.username) arr.push(name);
+        });
+        setAutoComplete(event, arr, "search-users");
+        //search_ele.parentElement.style.border = "2px solid blue";
+    });
+    search_ele.addEventListener("blur", () => {
+        //search_ele.parentElement.style.border = "0px solid gray";
+    });
+}
+
+function loadUserQuestions() {
+    let target_ele = document.querySelector(".page.user .user-questions");
+    target_ele.innerHTML = "";
+    user_questions.forEach((que) => {
+        let que_div = displayQuestion(que, target_ele, "user_question");
+        //target_ele.appendChild(que_div);
+        let div = document.createElement("div");
+        div.className = "delete";
+
+        div.innerHTML = `
+        <i class="fa-solid fa-trash-can"></i>
+        <span>Delete</span>
+        `;
+        que_div.appendChild(div);
+
+        div.addEventListener("click", () => {
+            openOverlay();
+            let overlay = document.querySelector(".me-overlay .content");
+            overlay.innerHTML = `
+            <div class="confirmation delete-question ">
+                <span>Are you sure you want to delete this question?</span>
+                <div class="btns">
+                    <span class="no link">No</span>
+                    <button class="yes">Yes</button>
+            </div>
+            `;
+            overlay.querySelector(".yes").addEventListener("click", () => {
+                deleteSharedQuestion(que.id);
+                que_div.remove();
+                closeOverlay();
+            });
+            overlay.querySelector(".no").addEventListener("click", () => {
+                closeOverlay();
+            });
+        });
+    });
+}
+
+async function displayUsernameInSharedQuestion(que_div, userid) {
+    let div = document.createElement("div");
+    div.className = "shared-by";
+    que_div.appendChild(div);
+
+    let user_ref = database.ref(`${exam}/users/${userid}/user_info`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val();
+    let display_name = obj.display_name;
+
+    div.innerHTML = `<span style="color:gray">Shared by: </span>
+                    <span class="name link">${display_name}</span>
+                    <span class="follow link"> follow </span>
+                    `;
+
+    if (obj.userid == user_login_data.userid) {
+        div.querySelector(".follow").classList.add("hide");
+        div.querySelector(".name").textContent = "You";
+    }
+
+    let display_name_ele = div.querySelector(".name");
+    display_name_ele.addEventListener("click", () => {
+        if (obj.userid == user_login_data.userid) {
+            openPage("user");
+            return;
+        }
+        displayUserPage(obj);
+    });
+
+    debugger;
+    let is_followed = false;
+    userdata.following = userdata.following ? userdata.following : [];
+    is_followed = userdata.following.includes(obj.userid);
+
+    let span_follow = div.querySelector(".follow");
+    if (is_followed) {
+        span_follow.className = "following";
+        span_follow.textContent = "Following";
+    } else {
+        span_follow.addEventListener("click", () => {
+            userdata.following.push(obj.userid);
+
+            updateFollowerData(obj);
+
+            saveUserData();
+            popupAlert(`You have now followed "${display_name}"`);
+            span_follow.className = "following";
+            span_follow.textContent = "Following";
+            span_follow.addEventListener("click", () => {});
+        });
+    }
+}
+
+async function updateFollowerData(obj) {
+    let user_ref = database.ref(`${exam}/users/${obj.userid}/userdata`);
+    let snapshot = await user_ref.once("value");
+    let new_obj = snapshot.val() || {};
+    new_obj.followers = new_obj.followers ? new_obj.followers : [];
+    new_obj.followers.push(user_login_data.userid);
+    await user_ref.set(new_obj);
+}
+
+async function saveQuestionReportMessage(id, text, div) {
+    let user_ref = database.ref(`${exam}/reported_questions`);
+
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || [];
+
+    let re_obj = {
+        que_id: id,
+        message: text,
+        reported_by: user_login_data.username,
+        reported_date: getTodayDate(),
+    };
+    obj.push(re_obj);
+    await database.ref(`${exam}/reported_questions`).set(obj);
+    popupAlert("Question has been reported", 5, "green");
+    div.remove();
+}
+
+function displayUserPage(obj) {
+    openOverlay();
+    let overlay = document.querySelector(".me-overlay .content");
+    overlay.innerHTML = getUserPageHTMLTemplate(obj);
+
+    overlay.querySelector(".close").addEventListener("click", () => {
+        closeOverlay();
+    });
+
+    shared_ques.forEach((que) => {
+        if (que.userid == obj.userid) {
+            let tar = overlay.querySelector(".user-questions");
+            let que_div = displayQuestion(que, tar, "user_question");
+            displayQuestionActionItems(que_div, que);
+        }
+    });
+}
+
+function getUserPageHTMLTemplate(user_login_data) {
+    return `
+    <div class="user-page">
+        <div class="top">
+            <i class="fa-solid fa-arrow-left-long close"></i>
+            <div class="user-info">
+                <div class="name-photo">
+                    <img src="${user_login_data.photo_url}" class="photo" />
+                    <div class="name-email">
+                        <span class="name">${user_login_data.display_name}</span>
+                        <span class="username">@${user_login_data.username}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="followings-info hide">
+                                <div class="following">
+                                    <span class="count"></span>
+                                    <span>Following</span>
+                                </div>
+                                <div class="followers">
+                                    <span class="count"></span>
+                                    <span>Followers</span>
+                                </div>
+                            </div>
+            <div class="follow-info hide ">
+                <span class="follow link hide">Follow</span>
+                <span class="unfollow link hide">Unfollow</span>
+            </div>
+            
+
+        </div>
+        <div class="header">
+            <h3>Shared Questions</h3>
+        </div>
+        <div class="user-questions"></div>
+    </div>
+    `;
+}
+
+async function deleteSharedQuestion(id) {
+    await database.ref(`${exam}/shared_questions/data/${id}`).remove();
+    shared_ques = shared_ques.filter((que) => que.id != id);
+    popupAlert("Question has been deleted", 5, "green");
+}
+
+function displayQuestionActionItems(que_div, que) {
+    // div = share question div
+    let idiv = document.createElement("div");
+    idiv.className = "que-actions";
+    que_div.appendChild(idiv);
+
+    let sdiv = document.createElement("div");
+    sdiv.className = "bookmark-question link";
+    idiv.appendChild(sdiv);
+
+    let is_que_bookmarked = userdata.bookmarks ? userdata.bookmarks.includes(que.id) : false;
+    if (is_que_bookmarked) {
+        sdiv.innerHTML = `<i class="fa-solid fa-bookmark"></i>
+                          <span>Bookmarked</span>`;
+    } else {
+        sdiv.innerHTML = `<i class="fa-regular fa-bookmark"></i>
+                          <span>Bookmark</span>`;
+    }
+
+    sdiv.addEventListener("click", () => {
+        userdata.bookmarks = userdata.bookmarks ? userdata.bookmarks : [];
+
+        if (is_que_bookmarked) {
+            // Remove from bookmarks
+            userdata.bookmarks.splice(userdata.bookmarks.indexOf(que.id), 1);
+            que_div.querySelector(".bookmark-question i").className = "fa-regular fa-bookmark";
+            que_div.querySelector(".bookmark-question  span").textContent = "Bookmark";
+            popupAlert("Question removed from bookmarks");
+            is_que_bookmarked = false;
+        } else {
+            // Add to bookmarks
+            is_que_bookmarked = true;
+            userdata.bookmarks.push(que.id);
+            que_div.querySelector(".bookmark-question i").className = "fa-solid fa-bookmark";
+            que_div.querySelector(".bookmark-question  span").textContent = "Bookmarked";
+            popupAlert("Question added to bookmarks");
+        }
+        userdata.bookmarks = userdata.bookmarks ? userdata.bookmarks : [];
+        if (userdata.bookmarks.length) {
+            document.querySelector(".page.mcq .main span.link.bookmark").classList.remove("hide");
+        }
+        saveUserData();
+    });
+
+    sdiv = document.createElement("div");
+    sdiv.className = "report-question link";
+    idiv.appendChild(sdiv);
+
+    sdiv.innerHTML = `<i class="fa-duotone fa-solid fa-circle-exclamation"></i>
+                          <span>Report</span>`;
+    sdiv.addEventListener("click", () => {
+        let div = document.createElement("div");
+        div.className = "report";
+        let ele_bfr = que_div.querySelector(".me-note");
+        que_div.insertBefore(div, ele_bfr);
+        div.innerHTML = `
+            <textarea name="" id="" cols="30" rows="5" placeholder="Add report message here"></textarea>
+            <div class="bottom">
+                <span class="link cancel">cancel</span>
+                <button class="submit">Submit</button>
+            </div>
+            `;
+
+        div.querySelector(".cancel").addEventListener("click", () => {
+            div.remove();
+        });
+        div.querySelector(".submit").addEventListener("click", () => {
+            let text = div.querySelector("textarea").value.trim();
+            if (text == "") {
+                popupAlert("Report message cannot be empty", 5, "red");
+                return;
+            }
+            saveQuestionReportMessage(que.id, text, div);
+        });
+    });
+
+    sdiv = document.createElement("div");
+    sdiv.className = "share-question link";
+    idiv.appendChild(sdiv);
+
+    sdiv.innerHTML = `<i class="fa-regular fa-share-nodes"></i>
+                          <span>Share</span>`;
+    sdiv.addEventListener("click", () => {
+        let url = window.location.href;
+        let ind = url.indexOf("#");
+        if (ind != -1) {
+            url = url.substring(0, ind - 1);
+        }
+        url = url + `/#/${exam}/question/${que.id}`;
+        copyToClipboard(url);
+        popupAlert("Question link copied");
+    });
+}
+
+async function displayQuestionVerficationStatus(que_div, que) {
+    return;
+    let div = document.createElement("div");
+    div.className = "verification-status";
+    que_div.appendChild(div);
+
+    div.innerHTML = `
+    <span>Could you pleaseerify this question:</span>
+    <span class="yes link">Yes</span>
+    <div class="verify-items hide">
+        <div class="item question">
+            <input type="checkbox" name="" id="">
+            <span>Question is propert</span>
+        </div>
+        <div class="item options">
+            <input type="checkbox" name="" id="">
+            <span>Options are proper</span>
+        </div>
+        <div class="item answer">
+            <input type="checkbox" name="" id="">
+            <span>Answer is correct</span>
+        </div>
+        <div class="item tags">
+            <input type="checkbox" name="" id="">
+            <span>Tags are proper</span>
+        </div>
+        <button class="submit">Submit</button>
+    </div>
+    `;
+
+    div.querySelector(".yes").addEventListener("click", () => {
+        div.querySelector(".verify-items").classList.remove("hide");
+    });
+
+    div.querySelector(".submit").addEventListener("click", () => {
+        let obj = {
+            question: div.querySelector(".question input").checked ? que.verification_status.question + 1 : que.verification_status.question,
+            options: div.querySelector(".options input").checked ? que.verification_status.options + 1 : que.verification_status.options,
+            answer: div.querySelector(".answer input").checked ? que.verification_status.answer + 1 : que.verification_status.answer,
+            tags: div.querySelector(".tags input").checked ? que.verification_status.tags + 1 : que.verification_status.tags,
+        };
+
+        //Update shared_question verification status in firebase
+        updateQuestionVerficationStatus(que.id, obj);
+
+        div.remove();
+    });
+}
+async function updateQuestionVerficationStatus(id, obj) {
+    const ref = database.ref(`${exam}/shared_questions/data`);
+
+    // Fetch the current value of 'data' arrays̤
+    ref.once("value", (snapshot) => {
+        const data = snapshot.val();
+        const index = data.findIndex((item) => item.id === id);
+        if (index !== -1) data[index].verification_status = obj;
+
+        ref.set(data)
+            .then(() => {
+                popupAlert("Verification status updated successfully", 5, "green");
+            })
+            .catch((error) => {
+                popupAlert("Error updating verification status", 5, "red");
+            });
+    });
+}
+
+async function checkIsUserExist(email) {
+    let user_ref = database.ref(`${exam}/all_user_info`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || [];
+    for (let i = 0; i < obj.length; i++) {
+        if (obj[i].email == email) {
+            user_login_data = obj[i];
+            return user_login_data;
+        }
+    }
+    obj.push(user_login_data);
+    await user_ref.set(obj);
+    await database.ref(`${exam}/users/${user_login_data.userid}/user_info`).set(user_login_data);
+    return user_login_data;
+}
+
+async function getAllUsersInfo() {
+    let user_ref = database.ref(`${exam}/all_user_info`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || [];
+    all_users_info = obj;
+    if (!all_users_info[0]) all_users_info.splice(0, 1);
+}
+
+async function updateUserInfo(display_name, username) {
+    let user_ref = database.ref(`${exam}/all_user_info`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || [];
+    if (!obj[0]) obj.splice(0, 1);
+    for (let i = 0; i < obj.length; i++) {
+        if (obj[i].username == username && obj[i].username != user_login_data.username) {
+            popupAlert("Username already exists", 5, "red");
+            return;
+        }
+    }
+    let index = obj.findIndex((item) => item.userid == user_login_data.userid);
+
+    user_login_data.display_name = display_name;
+    user_login_data.username = username;
+
+    const initials = display_name.charAt(0);
+    const avatarUrl = getAvatarUrl(initials);
+    user_login_data.photo_url = avatarUrl;
+    if (index !== -1) {
+        obj[index].display_name = display_name;
+        obj[index].username = username;
+        obj[index].photo_url = avatarUrl;
+    }
+    //obj.push(user_login_data);
+
+    await user_ref.set(obj);
+    await database.ref(`${exam}/users/${user_login_data.userid}/user_info`).set(user_login_data);
+    saveDataInLocale("user_login_data", user_login_data);
+    loadUserPage();
+    popupAlert("User info updated successfully", 5, "green");
+    closeOverlay();
+}
+
+function updateBookmarQuestions() {}
+
+function getAvatarUrl(initials, size = 200) {
+    const cleanInitials = initials.trim().toLowerCase();
+    const hash = CryptoJS.MD5(cleanInitials).toString(CryptoJS.enc.Hex);
+    const baseUrl = "https://www.gravatar.com/avatar/";
+    const query = `d=identicon&s=${size}`;
+    return `${baseUrl}${hash}?${query}`;
+}
+
+function setProfileCanvaPic(ele) {
+    const canvas = ele.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+
+    function drawProfilePicture(initial) {
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw background (you can customize colors and styles)
+        ctx.fillStyle = getRandomColor();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw initial
+        ctx.font = "80px Arial"; // Font size and family
+        ctx.fillStyle = "black"; // Text color
+        ctx.textAlign = "center"; // Center the text horizontally
+        ctx.textBaseline = "middle"; // Center the text vertically
+        ctx.font = "bold 100px Arial"; // Make the text bold
+        ctx.fillText(initial.toUpperCase(), canvas.width / 2, canvas.height / 2); // Draw initial in the center
+    }
+
+    // Example usage:
+    const name = user_login_data.display_name;
+    const initial = name.charAt(0); // Get the first character of the name
+    drawProfilePicture(initial);
+}
+
+function getRandomColor() {
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+async function loadRefreshQuestions() {
+    let ele = document.querySelector(".que-type .types");
+    await getSharedQuestionsFromFirebase();
+    ver_ques = [];
+    unver_ques = [];
+    user_questions = [];
+
+    shared_ques.forEach((que) => {
+        if (que.userid === user_login_data.userid) user_questions.push(que);
+
+        if (que.verified) {
+            ver_ques.push(que);
+        } else {
+            unver_ques.push(que);
+        }
+    });
+    ver_ques = ver_ques.concat(esa_ques);
+    all_ques = esa_ques.concat(shared_ques);
+
+    if (shared_ques.length) {
+        if (ele) ele.querySelector(".unverified").classList.remove("hide");
+    }
+    await getUserDataFromFirebase();
+    if (!userdata.following) userdata.following = [];
+    follower_ques = [];
+
+    shared_ques.forEach((que) => {
+        if (userdata.following.includes(que.userid)) follower_ques.push(que);
+    });
+    if (follower_ques.length) {
+        if (ele) ele.querySelector(".following").classList.remove("hide");
+    } else {
+        if (ele) ele.querySelector(".following").classList.add("hide");
     }
 }
