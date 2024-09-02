@@ -42,7 +42,9 @@ function signinSetup() {
                     photo_url: user.photoURL,
                     username: user.email.substring(0, user.email.indexOf("@")),
                     userid: generateUniqueId(),
+                    exam: exam,
                 };
+
                 checkIsUserExist(user.email);
                 saveDataInLocale("user_login_data", user_login_data);
 
@@ -478,24 +480,7 @@ async function initialLoading() {
     document.querySelector(".loading").classList.add("hide");
     document.querySelector(".me-content").classList.remove("hide");
 
-    let ele = document.querySelector(".home .share.link");
-    if (ele) {
-        ele.addEventListener("click", () => {
-            let link = `https://elahistudyapp.in//#/${exam}/home`;
-            copyToClipboard(link);
-            popupAlert("App link copied");
-        });
-    }
-    ele = document.querySelector(".download-app");
-    ele.addEventListener("click", () => {
-        const filePath = "/assets/elahi.apk";
-        const link = document.createElement("a");
-        link.href = filePath;
-        link.download = filePath.split("/").pop(); // Sets the download attribute to the filename
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
+    setHomePageEvents();
 
     //let target = document.querySelector(".page.home");
     //loadPage(target, "home");
@@ -1278,17 +1263,7 @@ function setTimer(minutes) {
 }
 
 function openPage(tab) {
-    if (tab == "home") {
-        setHomeUrl();
-    } else if (tab == "mock") {
-        setMockUrl();
-    } else if (tab == "notes") {
-        setNotesURL();
-    } else if (tab == "more") {
-        setMoreURL();
-    } else if (tab == "tasks") {
-        setTasksURL();
-    }
+    setUrl(tab);
     document.querySelectorAll(".main.tabs > .tab").forEach((tab) => {
         tab.classList.remove("active");
     });
@@ -3522,7 +3497,7 @@ function displayQuestion(que, tar_ele, type) {
     if (!type || type == "random") {
         if (!que) que = curr_ques;
         else curr_ques = que;
-        setQuestionURL(curr_ques.id);
+        setUrl(`question/${que.id}`);
     }
 
     if (!tar_ele) tar_ele = document.querySelector(".page.mcq .main .que-text");
@@ -4425,15 +4400,18 @@ async function addESADataIntoFirebase() {
 
     const data = await response.json();
 
-    let ques_data = data[0].ques;
-    let notes_data = data[0].notes;
-    let mocks_data = data[0].mocks;
-    let tags_list = data[0].tags_list;
+    let ques_data = data[0].ques ? data[0].ques : [];
+    let notes_data = data[0].notes ? data[0].notes : [];
+    let mocks_data = data[0].mocks ? data[0].mocks : [];
+    let tags_list = data[0].tags_list ? data[0].tags_list : [];
+
+    if (exam == "neet") notes_data = [];
 
     database.ref(`esa_data/${exam}/data/ques_data`).set(ques_data);
     database.ref(`esa_data/${exam}/data/notes_data`).set(notes_data);
     database.ref(`esa_data/${exam}/data/mocks_data`).set(mocks_data);
     database.ref(`esa_data/${exam}/data/tags_list`).set(tags_list);
+    popupAlert("Data added to firebase");
 }
 
 function openMyNotesPage2() {
@@ -5648,14 +5626,30 @@ var que_data = null,
     notes_data = null,
     tags_list = null,
     static_mocks = null,
-    userdata = null;
+    userdata = null,
+    app_level_data = null;
 //start from here
 async function startApp() {
     clearCache();
     signinSetup();
+    let url_items = parseURL(window.location.href);
+    if (url_items.length) {
+        exam = url_items[0];
+        localStorage.setItem("esa_exam", exam);
+    } else {
+        exam = localStorage.getItem("esa_exam");
+    }
+    document.querySelector(".home .exam select").value = exam;
     user_login_data = getDataFromLocale("user_login_data");
 
-    if (user_login_data) {
+    if (user_login_data && user_login_data.exam == exam) {
+        popupAlert(`Loged in as ${user_login_data.display_name} for ${exam.toUpperCase()}`);
+        postLogin();
+    } else if (user_login_data) {
+        user_login_data.exam = exam;
+        checkIsUserExist(user.email);
+        popupAlert(`Loged in as ${user_login_data.display_name} for ${exam.toUpperCase()}`);
+        saveDataInLocale("user_login_data", user_login_data);
         postLogin();
     } else {
         document.querySelector(".start.login").classList.remove("hide");
@@ -5665,17 +5659,27 @@ async function startApp() {
 }
 async function openPageBasedOnURL() {
     let url = window.location.href;
-    url_items = parseURL(url);
+    let url_items = parseURL(url);
     if (url_items.length) exam = url_items[0];
-
+    exam = localStorage.getItem("esa_exam") || exam;
     if (url_items.length) {
         exam = url_items[0];
+        localStorage.setItem("esa_exam", exam);
         let page = url_items[1];
+        page = page == "question" ? "mcq" : page;
+        openPage(page);
+
         openNotesPage2(); // To load the notes data
 
         if (page == "question") {
+            openPage("mcq");
             let que_id = url_items[2];
-            openMCQPage(que_id);
+            if (que_id) {
+                let que = getQuestionById(que_id);
+                if (que) {
+                    displayQuestion(que);
+                }
+            }
         } else if (page == "notes") {
             let page_id = url_items[2];
             let block_id = url_items[3];
@@ -5706,10 +5710,6 @@ async function openPageBasedOnURL() {
                     }
                 });
             }
-        } else if (type == "more") {
-            openSettingPage();
-        } else if (type == "tasks") {
-            openTasksPage();
         } else {
             openPage("home");
         }
@@ -5727,37 +5727,6 @@ function parseURL(url) {
         return items;
     }
     return [];
-}
-
-function parseUrl3(url) {
-    let urlObj = new URL(url);
-    let hashFragment = urlObj.hash.substring(1);
-    let segments = hashFragment.split("/").filter((segment) => segment.length > 0);
-
-    let result = {
-        exam: null,
-        type: null,
-        que_id: null,
-        page_id: null,
-        block_id: null,
-    };
-
-    if (segments.length === 0) {
-        return result;
-    }
-
-    result.exam = segments[0] || null;
-    result.type = segments[1] || null;
-
-    if (result.type === "question" && segments.length >= 3) {
-        result.que_id = segments[2] || null;
-    } else if (result.type === "notes" && segments.length >= 3) {
-        result.page_id = segments[2] || null;
-        if (segments.length >= 4) {
-            result.block_id = segments[3] || null;
-        }
-    }
-    return result;
 }
 
 startApp();
@@ -6906,7 +6875,7 @@ async function createSharedMock() {
 
         ele.querySelector(".link").addEventListener("click", () => {
             copyToClipboard(url);
-            popupAlert("Question link copied");
+            popupAlert("Shared Mock Link Copied");
         });
         ele.querySelector(".cross").addEventListener("click", () => {
             ele.classList.add("hide");
@@ -6937,6 +6906,15 @@ async function getDataFromFireBase() {
     let snapshot = await user_ref.once("value");
     let obj = snapshot.val() || null;
     return obj;
+}
+async function getAppLevelDataFromFireBase() {
+    let user_ref = database.ref(`esa_app_level_data`);
+    let snapshot = await user_ref.once("value");
+    let obj = snapshot.val() || [];
+    return obj;
+}
+async function saveAppLevelDataInFireBase() {
+    await database.ref(`esa_app_level_data`).set(app_level_data);
 }
 async function getSharedQuestionsFromFirebase() {
     let user_ref = database.ref(`${exam}/shared_questions/data`);
@@ -6991,13 +6969,14 @@ async function postLogin() {
     popupAlert(`Signed in as "${user_login_data.display_name}"`);
 
     await getAllUsersInfo();
-    let data = await getDataFromFireBase();
 
-    esa_ques = data.ques_data;
+    let data = await getDataFromFireBase();
+    data = data ? data : {};
+    esa_ques = data.ques_data ? data.ques_data : [];
     que_data = esa_ques;
-    notes_data = data.notes_data;
-    tags_list = data.tags_list;
-    static_mocks = data.mocks_data;
+    notes_data = data.notes_data ? data.notes_data : [];
+    tags_list = data.tags_list ? data.tags_list : [];
+    static_mocks = data.mocks_data ? data.mocks_data : [];
     console.log(`ESA data loaded`);
 
     await loadRefreshQuestions();
@@ -7421,13 +7400,7 @@ function displayQuestionActionItems(que_div, que) {
     sdiv.innerHTML = `<i class="fa-regular fa-share-nodes"></i>
                           <span>Share</span>`;
     sdiv.addEventListener("click", () => {
-        let url = window.location.href;
-        let ind = url.indexOf("#");
-        if (ind != -1) {
-            url = url.substring(0, ind - 1);
-        }
-        url = url + `/#/${exam}/question/${que.id}`;
-        copyToClipboard(url);
+        copyToClipboard(window.location.href);
         popupAlert("Question link copied");
     });
 }
@@ -7637,4 +7610,44 @@ async function loadRefreshQuestions() {
     } else {
         if (ele) ele.querySelector(".following").classList.add("hide");
     }
+}
+
+function setUrl(tab) {
+    let url = window.location.href;
+    let ind = url.indexOf("#");
+    if (ind != -1) {
+        url = url.substring(0, ind - 1);
+    }
+    window.location.href = url + `/#/${exam}/${tab}`;
+}
+
+function setHomePageEvents() {
+    let ele = document.querySelector(".home .share.link");
+    if (ele) {
+        ele.addEventListener("click", () => {
+            let link = `https://elahistudyapp.in//#/${exam}/home`;
+            copyToClipboard(link);
+            popupAlert("App link copied");
+        });
+    }
+    ele = document.querySelector(".download-app");
+    ele.addEventListener("click", () => {
+        const filePath = "/assets/elahi.apk";
+        const link = document.createElement("a");
+        link.href = filePath;
+        link.download = filePath.split("/").pop(); // Sets the download attribute to the filename
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    let exam_select = document.querySelector(".page.home .exam select");
+    exam_select.onchange = function () {
+        let url = window.location.href;
+        exam = exam_select.value;
+        localStorage.setItem("esa_exam", exam);
+        setUrl("home");
+
+        location.reload();
+    };
 }
