@@ -5274,3 +5274,25 @@ h2 {
     color: gray;
     margin-left: auto;
 }
+
+.home .exam {
+    border: 1px solid gray;
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    padding: 10px;
+    border-radius: 11px;
+}
+
+.home #exam {
+    font-size: 1.4em;
+    border: 0px;
+    margin: 0px 11px;
+    background-color: transparent;
+}
+
+.home .exam select {
+    outline: none;
+}
