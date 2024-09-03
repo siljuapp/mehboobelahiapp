@@ -5642,6 +5642,7 @@ async function openPageBasedOnURL() {
     let url_items = parseURL(url);
     if (url_items.length) exam = url_items[0];
     exam = localStorage.getItem("esa_exam") || exam;
+    debugger;
     if (url_items.length) {
         exam = url_items[0];
         localStorage.setItem("esa_exam", exam);
@@ -5651,8 +5652,8 @@ async function openPageBasedOnURL() {
 
         openNotesPage2(); // To load the notes data
 
-        if (page == "question") {
-            openPage("mcq");
+        if (page == "mcq") {
+            openMCQPage();
             let que_id = url_items[2];
             if (que_id) {
                 let que = getQuestionById(que_id);
