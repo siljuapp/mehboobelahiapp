@@ -5321,3 +5321,11 @@ h2 {
 .explanation-video .video-label {
     color: gray;
 }
+
+.me-block .icon_ .share {
+    display: none;
+}
+
+.me-block-main:hover .icon_ .share {
+    display: block;
+}

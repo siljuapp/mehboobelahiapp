@@ -472,7 +472,7 @@ function hardReloadCode() {
 
 //saveDataInLocale("me_admin", true);
 async function initialLoading() {
-    if (window.innerWidth < 500) {
+    if (window.innerWidth < 550) {
         document.body.classList.add("mobile");
         is_mobile = true;
     }
@@ -1664,8 +1664,8 @@ function loadPageText2(item, target, level) {
         div.classList.add("heading");
         div.classList.add(`level-${level}`);
 
-        ele = div.querySelector(".icon_ .todo");
-        ele.classList.remove("hide");
+        //ele = div.querySelector(".icon_ .todo");
+        //ele.classList.remove("hide");
 
         /* let read_later_array = userdata.tasks.read_later ? userdata.tasks.read_later : [];
         for (let i = 0; i < read_later_array.length; i++) {
@@ -4523,10 +4523,10 @@ function getBlockHTMLTemplate() {
                         <span class="bullet"></span>
                         <span class="text-inner"></span>
                     </div>
-                    <div class="icon_ hide">
-                        <span class="plus">+</span> 
+                    <div class="icon_ ">
+                        <span class="plus hide">+</span> 
                         <i class="fa-regular todo fa-circle hide "></i>
-                        <i class="fa-regular fa-share-nodes share hide"></i>
+                        <i class="fa-regular fa-share-nodes share"></i>
                         <span class="linked-ques"></span>
                         <i class="fa-brands fa-youtube video hide"></i>
                     </div>
@@ -4598,20 +4598,28 @@ function setBlockIconsEvents(div, item) {
             var ele = event.target.closest(".me-block");
             let page_id = ele.getAttribute("page-id");
             let block_id = ele.id;
-            if (!page_id) {
-                page_id = block_id;
-                //block_id = null;
+            let currentUrl = window.location.href + `/${block_id}`;
+            if (is_mobile && navigator.share) {
+                // Use Web Share API to share
+                navigator
+                    .share({
+                        title: "Shared Note Link",
+                        url: currentUrl,
+                    })
+                    .then(() => {
+                        console.log("Link shared successfully");
+                        popupAlert("Link shared successfully");
+                    })
+                    .catch((error) => {
+                        console.error("Error sharing link:", error);
+                        copyToClipboard(currentUrl); // Fallback to copy URL to clipboard
+                        popupAlert("Link copied to clipboard");
+                    });
+            } else {
+                // Fallback for browsers that do not support Web Share API
+                copyToClipboard(currentUrl); // Copy URL to clipboard
+                popupAlert("Link copied to clipboard");
             }
-
-            let url = window.location.href;
-            let ind = url.indexOf("#");
-            if (ind != -1) {
-                url = url.substring(0, ind - 1);
-            }
-            if (block_id) url = url + `/#/${exam}/notes/${page_id}/${block_id}`;
-            else url = url + `/#/${exam}/notes/${page_id}`;
-            copyToClipboard(url);
-            popupAlert("Question link copied");
         });
     }
     if (item && item.video_id != "") {
@@ -6846,8 +6854,27 @@ async function createSharedMock() {
         ele.querySelector(".link span").textContent = url;
 
         ele.querySelector(".link").addEventListener("click", () => {
-            copyToClipboard(url);
-            popupAlert("Shared Mock Link Copied");
+            if (is_mobile && navigator.share) {
+                // Use Web Share API to share
+                navigator
+                    .share({
+                        title: "Shared Mock Link",
+                        url: url,
+                    })
+                    .then(() => {
+                        console.log("Link shared successfully");
+                        popupAlert("Link shared successfully");
+                    })
+                    .catch((error) => {
+                        console.error("Error sharing link:", error);
+                        copyToClipboard(url); // Fallback to copy URL to clipboard
+                        popupAlert("Link copied to clipboard");
+                    });
+            } else {
+                // Fallback for browsers that do not support Web Share API
+                copyToClipboard(url); // Copy URL to clipboard
+                popupAlert("Link copied to clipboard");
+            }
         });
         ele.querySelector(".cross").addEventListener("click", () => {
             ele.classList.add("hide");
@@ -7377,11 +7404,11 @@ function displayQuestionActionItems(que_div, que) {
 
         // Check if Web Share API is supported
 
-        if (navigator.share) {
+        if (is_mobile && navigator.share) {
             // Use Web Share API to share
             navigator
                 .share({
-                    title: "Share Current Link",
+                    title: "Share Current Question",
                     url: currentUrl,
                 })
                 .then(() => {
@@ -7396,7 +7423,7 @@ function displayQuestionActionItems(que_div, que) {
         } else {
             // Fallback for browsers that do not support Web Share API
             copyToClipboard(currentUrl); // Copy URL to clipboard
-            popupAlert("Link copied to clipboard");
+            popupAlert("Question Link copied");
         }
     });
 }
