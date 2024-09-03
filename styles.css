@@ -5296,3 +5296,28 @@ h2 {
 .home .exam select {
     outline: none;
 }
+
+.explanation-videos {
+    margin: 15px 0px;
+    background-color: #f2f1ff;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.explanation-video {
+    margin: 7px;
+    padding: 7px;
+    display: flex;
+    max-width: 100%;
+    overflow-x: scroll;
+    gap: 10px;
+}
+
+.explanation-video>* {
+    text-wrap: nowrap;
+    ;
+}
+
+.explanation-video .video-label {
+    color: gray;
+}

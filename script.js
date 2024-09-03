@@ -37,12 +37,11 @@ function signinSetup() {
                 const user = result.user;
 
                 user_login_data = {
-                    gmail: user.email,
+                    email: user.email,
                     display_name: user.displayName,
                     photo_url: user.photoURL,
                     username: user.email.substring(0, user.email.indexOf("@")),
                     userid: generateUniqueId(),
-                    exam: exam,
                 };
 
                 checkIsUserExist(user.email);
@@ -2307,81 +2306,27 @@ function generateSomeMocks() {
     }
 }
 
-function playVideoPlayer_____(time, video_id, target) {
-    // Initialize the YouTube player using the IFrame API
-    function initializeYouTubePlayer() {
-        const iframe = target.querySelector("iframe");
-        if (!iframe) {
-            console.error("Iframe not found in the target element.");
-            return;
-        }
-
-        // If the player is already initialized, just seek and play
-        if (iframe.me_video_player) {
-            iframe.me_video_player.seekTo(time);
-            iframe.me_video_player.playVideo();
-            return;
-        }
-
-        // Initialize the player for the first time
-        iframe.me_video_player = new YT.Player(iframe.id, {
-            events: {
-                onReady: function (event) {
-                    // Seek to the specified time and play the video
-                    event.target.seekTo(time);
-                    event.target.playVideo();
-                },
-                onError: function (event) {
-                    console.error("YouTube Player Error:", event.data);
-                    // Additional error logging
-                    switch (event.data) {
-                        case 2:
-                            console.error("Invalid parameter. Please ensure the video ID is correct.");
-                            break;
-                        case 5:
-                            console.error("HTML5 player issue.");
-                            break;
-                        case 100:
-                            console.error("Video not found.");
-                            break;
-                        case 101:
-                        case 150:
-                            console.error("Video not allowed to be played in embedded players.");
-                            break;
-                        default:
-                            console.error("Unknown error.");
-                            break;
-                    }
-                },
-            },
-            playerVars: {
-                autoplay: 1,
-                start: time,
-            },
-        });
-    }
-
-    // Check if the YouTube IFrame API script is already loaded
-    if (typeof YT === "undefined" || typeof YT.Player === "undefined") {
-        // Load the YouTube IFrame API script
-        const tag = document.createElement("script");
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName("script")[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // Set the onYouTubeIframeAPIReady function to initialize the player
-        window.onYouTubeIframeAPIReady = function () {
-            initializeYouTubePlayer();
-        };
-    } else {
-        // The YouTube IFrame API script is already loaded, initialize the player
-        initializeYouTubePlayer();
-    }
-}
-
 function playVideoPlayer(video_id, time, event) {
-    let target = event.target.closest(".page").querySelector(".me-iframe-div");
-    const iframe = document.querySelector(".page.notes .me-iframe-div  iframe");
+    let target = "",
+        iframe = "";
+    target = event.target.closest(".page");
+    if (target.classList.contains("mcq")) {
+        openOverlay();
+        target = document.querySelector(".me-overlay .content .me-iframe-div");
+        iframe = document.querySelector(".me-overlay .content .me-iframe-div iframe");
+        if (!target) {
+            let div = document.createElement("div");
+            div.className = "me-iframe-div";
+            div.innerHTML = `<span > TTT </span>`;
+            document.querySelector(".me-overlay .content").appendChild(div);
+            target = div;
+            //initializeYouTubePlayer(time, video_id, target);
+            //return;
+        }
+    } else if (target.classList.contains("notes")) {
+        target = event.target.closest(".page").querySelector(".me-iframe-div");
+        iframe = document.querySelector(".page.notes .me-iframe-div  iframe");
+    }
     // If the player is already initialized and the video ID matches, just seek and play
     //let block_id = target.closest(".me-block").id;
     //let new_video_block_id = block_id + video_id;
@@ -2425,13 +2370,9 @@ function playVideoPlayer(video_id, time, event) {
 function initializeYouTubePlayer(time, video_id, target) {
     // Initialize the player with the new video ID
     //const iframe = target.querySelector("iframe");
-    let iframe = target.querySelector(" iframe");
+    let iframe = target.querySelector("iframe");
     var url = window.location.href; // Get the current URL
-    if (url.includes("127.0.0")) {
-        url = "http://127.0.0.1:5500";
-    } else {
-        url = "https://elahistudyapp.in";
-    }
+    url = url.substring(0, url.indexOf("//#", 8));
     if (!iframe) {
         target.innerHTML = `<div class="header">
                                     <span class="cross">X</span>
@@ -2442,10 +2383,14 @@ function initializeYouTubePlayer(time, video_id, target) {
                             `;
         let ele = target.querySelector(".header .cross");
         if (ele) {
-            ele.addEventListener("click", () => {
+            ele.addEventListener("click", (event) => {
+                let ele = event.target.closest(".me-overlay");
                 me_video_player.pauseVideo();
                 me_video_player = null;
                 target.innerHTML = "";
+                if (ele) {
+                    closeOverlay();
+                }
                 return;
             });
         }
@@ -3660,15 +3605,41 @@ function displayQuestion(que, tar_ele, type) {
                 optionSpan.classList.add("disabled");
             });
 
-            if (type == "mock_results") {
-                displayQuestionActionItems(que_div_ele, que);
-                return;
+            let explanation_text = que.explanation;
+            let video_items = getVideoItemsFromText(explanation_text);
+            video_items = video_items ? video_items : [];
+            var exp__div = "";
+            if (video_items.length) {
+                exp__div = document.createElement("div");
+                exp__div.className = "explanation-videos";
+                que_div_ele.insertBefore(exp__div, que_div_ele.children[2]);
+                exp__div.innerHTML = `<span class="label" style="color: gray;">Explanations:</span>`;
             }
-            if (type == "user_question") {
-                displayQuestionActionItems(que_div_ele, que);
-                return;
-            }
-            if (type == "bookmarked_question") {
+            video_items.forEach((video_item) => {
+                let video_id = video_item.video_id;
+                let time = video_item.time;
+                //let event = video_item.event;
+                getVideoInfoUsingVideoId(video_id).then((channel_info) => {
+                    let channel_name = channel_info.channel_name;
+                    let channel_url = channel_info.channel_url;
+
+                    let div = document.createElement("div");
+                    div.className = "explanation-video";
+                    div.innerHTML = `
+                                            <span class="video-label">Watch </span>
+                                            <i class="fa-brands fa-youtube"></i>
+                                            
+                                            <span>  | From channel:</span>
+                                            <a href="${channel_url}" target="_blank">${channel_name}</a>
+                                        `;
+                    exp__div.appendChild(div);
+                    div.querySelector("i.fa-youtube").addEventListener("click", (event) => {
+                        playVideoPlayer(video_id, time, event);
+                    });
+                });
+            });
+
+            if (type == "mock_results" || type == "daily-ques" || type == "user_question" || type == "bookmarked_question") {
                 displayQuestionActionItems(que_div_ele, que);
                 return;
             }
@@ -3717,7 +3688,7 @@ function displayQuestion(que, tar_ele, type) {
                 me_iframe_div.className = "me-iframe-div";
                 exp_div.appendChild(me_iframe_div);
 
-                if (que.explanation && que.explanation != "") {
+                if (false && que.explanation && que.explanation != "") {
                     let span = document.createElement("span");
                     span.className = "que-explanation";
                     span.innerHTML = getHTMLFormattedText(que.explanation);
@@ -5638,17 +5609,18 @@ async function startApp() {
         localStorage.setItem("esa_exam", exam);
     } else {
         exam = localStorage.getItem("esa_exam");
+        exam = exam ? exam : "ssc";
     }
     document.querySelector(".home .exam select").value = exam;
     user_login_data = getDataFromLocale("user_login_data");
-
-    if (user_login_data && user_login_data.exam == exam) {
-        popupAlert(`Loged in as ${user_login_data.display_name} for ${exam.toUpperCase()}`);
-        postLogin();
-    } else if (user_login_data) {
-        user_login_data.exam = exam;
-        checkIsUserExist(user.email);
-        popupAlert(`Loged in as ${user_login_data.display_name} for ${exam.toUpperCase()}`);
+    await getAllUsersInfo();
+    if (user_login_data) {
+        for (let i = 0; i < all_users_info.length; i++) {
+            if (all_users_info[i].email == user_login_data.email) {
+                user_login_data = all_users_info[i];
+                break;
+            }
+        }
         saveDataInLocale("user_login_data", user_login_data);
         postLogin();
     } else {
@@ -6966,7 +6938,8 @@ async function postLogin() {
     //ele.querySelector(".name-photo img").src = user_login_data.photo_url;
     //ele.querySelector(".name").textContent = user_login_data.display_name;
     //ele.querySelector(".username").textContent = "@" + user_login_data.username;
-    popupAlert(`Signed in as "${user_login_data.display_name}"`);
+    //popupAlert(`Signed in as "${user_login_data.display_name}"`);
+    popupAlert(`Signed in as "${user_login_data.display_name}" &  Exam: "${exam.toUpperCase()}"`);
 
     await getAllUsersInfo();
 
@@ -7020,7 +6993,7 @@ function loadUserPage() {
                                 <div class="name-email">
                                     <span class="name">${user_login_data.display_name}</span>
                                     <span class="username"> @${user_login_data.username}</span>
-                                    <span class="email"> ${user_login_data.gmail}</span>
+                                    <span class="email"> ${user_login_data.email}</span>
                                 </div>
                                 <span class="edit link">Edit profile</span>
                                 <span id="sign-out-btn">sign out</span>
@@ -7052,7 +7025,7 @@ function loadUserPage() {
                             </div>
                         </div>
                         <div class="user-question-sec">
-                            <h2> Shared Questions</h2>
+                            <h2> Shared ${exam.toUpperCase()} Questions</h2>
                             <div class="user-questions"></div>
                         </div>
                         
@@ -7304,7 +7277,7 @@ function getUserPageHTMLTemplate(user_login_data) {
 
         </div>
         <div class="header">
-            <h3>Shared Questions</h3>
+            <h3>Shared ${exam.toUpperCase()} Questions</h3>
         </div>
         <div class="user-questions"></div>
     </div>
@@ -7400,8 +7373,31 @@ function displayQuestionActionItems(que_div, que) {
     sdiv.innerHTML = `<i class="fa-regular fa-share-nodes"></i>
                           <span>Share</span>`;
     sdiv.addEventListener("click", () => {
-        copyToClipboard(window.location.href);
-        popupAlert("Question link copied");
+        const currentUrl = window.location.href;
+
+        // Check if Web Share API is supported
+
+        if (navigator.share) {
+            // Use Web Share API to share
+            navigator
+                .share({
+                    title: "Share Current Link",
+                    url: currentUrl,
+                })
+                .then(() => {
+                    console.log("Link shared successfully");
+                    popupAlert("Link shared successfully");
+                })
+                .catch((error) => {
+                    console.error("Error sharing link:", error);
+                    copyToClipboard(currentUrl); // Fallback to copy URL to clipboard
+                    popupAlert("Link copied to clipboard");
+                });
+        } else {
+            // Fallback for browsers that do not support Web Share API
+            copyToClipboard(currentUrl); // Copy URL to clipboard
+            popupAlert("Link copied to clipboard");
+        }
     });
 }
 
@@ -7473,7 +7469,7 @@ async function updateQuestionVerficationStatus(id, obj) {
 }
 
 async function checkIsUserExist(email) {
-    let user_ref = database.ref(`${exam}/all_user_info`);
+    let user_ref = database.ref(`esa_data/users`);
     let snapshot = await user_ref.once("value");
     let obj = snapshot.val() || [];
     for (let i = 0; i < obj.length; i++) {
@@ -7484,20 +7480,17 @@ async function checkIsUserExist(email) {
     }
     obj.push(user_login_data);
     await user_ref.set(obj);
-    await database.ref(`${exam}/users/${user_login_data.userid}/user_info`).set(user_login_data);
-    return user_login_data;
 }
 
 async function getAllUsersInfo() {
-    let user_ref = database.ref(`${exam}/all_user_info`);
+    let user_ref = database.ref(`esa_data/users`);
     let snapshot = await user_ref.once("value");
     let obj = snapshot.val() || [];
     all_users_info = obj;
-    if (!all_users_info[0]) all_users_info.splice(0, 1);
 }
 
 async function updateUserInfo(display_name, username) {
-    let user_ref = database.ref(`${exam}/all_user_info`);
+    let user_ref = database.ref(`esa_data/users`);
     let snapshot = await user_ref.once("value");
     let obj = snapshot.val() || [];
     if (!obj[0]) obj.splice(0, 1);
@@ -7647,7 +7640,54 @@ function setHomePageEvents() {
         exam = exam_select.value;
         localStorage.setItem("esa_exam", exam);
         setUrl("home");
-
         location.reload();
     };
+}
+//const Youtube_API = "AIzaSyBVZm9SQX17luce8LDzPzy-HmG3YkjKAt8";
+
+async function getVideoInfoUsingVideoId(video_id) {
+    const apiKey = "AIzaSyBVZm9SQX17luce8LDzPzy-HmG3YkjKAt8";
+    const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${apiKey}&part=snippet`;
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error("Network response was not ok.");
+        }
+
+        const data = await response.json();
+        if (data.items.length === 0) {
+            throw new Error("No video found with that ID.");
+        }
+
+        const channelTitle = data.items[0].snippet.channelTitle;
+        const channelId = data.items[0].snippet.channelId;
+        const channelUrl = `https://www.youtube.com/channel/${channelId}`;
+        const videoTitle = data.items[0].snippet.title;
+
+        return {
+            channel_name: channelTitle,
+            channel_url: channelUrl,
+            video_title: videoTitle,
+        };
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return null;
+    }
+}
+
+function getVideoItemsFromText(text) {
+    let pattern = /\{video:([^:}]+):([^:}]+)\}/g;
+
+    // Array to store all matches
+    let matches = [];
+    let match;
+
+    // Loop through all matches found in the text
+    while ((match = pattern.exec(text)) !== null) {
+        let video_id = match[1]; // Extract the video_id (the first capture group)
+        let time = match[2]; // Extract the time (the second capture group)
+        matches.push({ video_id, time });
+    }
+    return matches;
 }
