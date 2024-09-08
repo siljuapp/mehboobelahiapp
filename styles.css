@@ -1949,6 +1949,7 @@ span.block.heading {
 
 .page.mock>.main>* {
     min-width: min(700px, 90%);
+    max-width: min(700px, 90%);
 }
 
 .mobile .page-text {
@@ -2268,6 +2269,8 @@ div.head * {
 
 .pre-defined-mocks .mock-test-list {
     max-width: 700px;
+    max-height: 100%;
+    overflow-y: scroll;
     display: flex;
     flex-wrap: wrap;
     justify-content: start;
@@ -3466,6 +3469,15 @@ i.fa-chevron-right:before {
     width: min(300px, 80%);
 }
 
+.new-mock .mock-chapters .list>input {
+    margin: 15px auto;
+    border-radius: 3px;
+    padding: 7px;
+    text-align: center;
+    border: 1px solid gray;
+    width: min(300px, 80%);
+}
+
 .mock-chapters .me-mock-chapter {
     margin: 7px 3px;
 }
@@ -4048,9 +4060,29 @@ i.fa-chevron-right:before {
 }
 
 .new-mock .mock-chapters .top .label {
-    font-size: 1.4em;
-    color: black;
+    font-size: 1.2em;
+    color: #5f5f5f;
     font-weight: 550;
+}
+
+.new-mock .mock-chapters .tabs {
+    display: flex;
+    margin: 10px;
+}
+
+.new-mock .mock-chapters .tabs .tab {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}
+
+.new-mock .mock-chapters .tabs .tab.active {
+    padding-bottom: 7px;
+    border-bottom: 3px solid var(--link-color);
+    color: var(--link-color);
+    font-weight: 600;
 }
 
 .new-mock .mock-chapters .top .clear-all {
@@ -5328,4 +5360,95 @@ h2 {
 
 .me-block-main:hover .icon_ .share {
     display: block;
+}
+
+.me-block.empty-block .bullet {
+    display: none;
+}
+
+.filter-blocks {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}
+
+.filter-blocks input {
+    border: 1px solid gray;
+    padding: 10px;
+    width: 90%;
+    border-radius: 21px;
+    text-align: center;
+}
+
+.filter-blocks .result-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    background-color: #e9efff;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+
+
+.pdf-block .text .text-inner .download-pdf {
+    border: 1px solid #551a8b;
+    width: fit-content;
+    display: flex !important;
+    padding: 5px 15px;
+    border-radius: 3px;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.new-mock .tags {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: scroll;
+}
+
+.new-mock .tags .tag {
+    background-color: transparent;
+    border: 1px solid gray;
+    cursor: pointer;
+}
+
+.new-mock .tags .tag.selected {
+    background-color: rgb(255 229 184);
+
+}
+
+.new-mock .tab-content .chapter-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.new-mock input.filter-all-tags,
+.new-mock input.filter-all-chapters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+    padding: 10px;
+    border-radius: 35px;
+    text-align: center;
+    border: 1px solid gray;
+}
+
+.new-mock .tab-content .tag-item {
+    display: flex;
+    align-items: center;
+}
+
+.new-mock .tag .cross {
+    display: none;
 }
