@@ -5452,3 +5452,13 @@ h2 {
 .new-mock .tag .cross {
     display: none;
 }
+
+.me-overlay .content:has(.me-iframe-div) {
+    background-color: #00000000;
+    border: none;
+}
+
+.me-overlay .content:has(.me-iframe-div) .cross {
+    color: white;
+    border: 2px solid white;
+}

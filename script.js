@@ -2426,6 +2426,7 @@ function playVideoPlayer(video_id, time, event) {
             let div = document.createElement("div");
             div.className = "me-iframe-div";
             div.innerHTML = `<span > TTT </span>`;
+            document.querySelector(".me-overlay .content").innerHTML = "";
             document.querySelector(".me-overlay .content").appendChild(div);
             target = div;
             //initializeYouTubePlayer(time, video_id, target);
@@ -5761,7 +5762,14 @@ var que_data = null,
     app_level_data = null;
 //start from here
 async function startApp() {
-    clearCache();
+    let catch_id = "20240910";
+    let catch_id_from_locale = localStorage.getItem("catch_id");
+    if (catch_id != catch_id_from_locale) {
+        localStorage.setItem("catch_id", catch_id);
+        clearCache();
+
+        popupAlert("Cache cleared");
+    }
     signinSetup();
     let url_items = parseURL(window.location.href);
     if (url_items.length) {
