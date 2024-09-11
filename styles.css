@@ -3513,6 +3513,19 @@ i.fa-chevron-right:before {
 
 .mobile .download-app {
     display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: fit-content;
+    gap: 10px;
+    margin: 20px 0px;
+}
+
+.mobile .download-app * {
+    color: #3A88FF;
+}
+
+.mobile .download-app__ {
+    display: flex;
     margin: 30px 0px;
     align-items: center;
     gap: 18px;
@@ -3783,16 +3796,12 @@ i.fa-chevron-right:before {
 .home .share {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    border-radius: 5px;
-    background-color: #3A88FF;
-    color: white !important;
-    padding: 15px 7px;
-    margin: 20px 0px;
+    gap: 6px;
+    margin: 15px 0px;
 }
 
 .home .share * {
-    color: white !important;
+    color: #3A88FF !important;
 }
 
 .page.home .social-media {
@@ -5308,10 +5317,10 @@ h2 {
 }
 
 .home .exam {
-    border: 1px solid gray;
+    border: 0px solid gray;
     width: fit-content;
     display: flex;
-    justify-content: center;
+    justify-content: end;
     align-items: center;
     margin: 20px auto;
     padding: 10px;
@@ -5319,7 +5328,7 @@ h2 {
 }
 
 .home #exam {
-    font-size: 1.4em;
+    font-size: 1em;
     border: 0px;
     margin: 0px 11px;
     background-color: transparent;
@@ -5461,4 +5470,73 @@ h2 {
 .me-overlay .content:has(.me-iframe-div) .cross {
     color: white;
     border: 2px solid white;
+}
+
+.about-me-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+}
+
+.about-me-section .social-media-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.about-me-section .social-media-icons i {
+    font-size: 1.2em;
+}
+
+
+/* App Title Typing Animation */
+@keyframes typing {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
+}
+
+#app-title {
+    font-family: Arial, sans-serif;
+    font-size: 2em;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 3px solid black;
+    width: 0;
+    animation: typing 3s steps(30, end), blink 0.75s step-end infinite;
+}
+
+/* Initial state of the image */
+.home .app-name .expand-image {
+    width: 0;
+    /* Start with width 0 */
+    transition: width 2s ease-out;
+    /* Smooth transition for width */
+    transform-origin: center;
+    /* Define the point to expand from (center here) */
+}
+
+
+.home .app-name img {
+    width: 0px;
+}
+
+.home .app-name img.expand-image {
+    width: 60px;
+    /* Start with width 0 */
+    transition: width 2s ease-out;
+    /* Smooth transition for width */
+    transform-origin: center;
+    /* Define the point to expand from (center here) */
 }

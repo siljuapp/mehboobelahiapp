@@ -7811,7 +7811,16 @@ function setUrl(tab) {
 }
 
 function setHomePageEvents() {
-    let ele = document.querySelector(".home .share.link");
+    debugger;
+    let ele = document.querySelector(".home .app-name img");
+    if (ele) {
+        ele.classList.add("expand-image");
+    }
+    setTimeout(() => {
+        typeWriter();
+    }, 2000);
+
+    ele = document.querySelector(".home .share.link");
     if (ele) {
         ele.addEventListener("click", () => {
             //let link = `https://elahistudyapp.in//#/${exam}/home`;
@@ -8013,4 +8022,41 @@ function showTab(tab, event) {
     });
 
     tab_content.querySelector(`.${tab}`).classList.remove("hide");
+}
+
+function typeWriter(text, element, speed) {
+    text = text ? text : "Elahi Study App";
+    element = element ? element : document.querySelector(".app-title");
+    element.innerHTML = "";
+    speed = speed ? speed : 150;
+    let i = 0;
+
+    // Typing sound effect
+    const typeSound = new Audio("/assets/typing_sound.wav"); // Replace 'typing-sound.mp3' with your actual sound file
+
+    // Cursor blinking effect
+    const cursorBlink = document.createElement("span");
+    cursorBlink.className = "cursor";
+    cursorBlink.textContent = "|"; // Initial cursor state
+    //element.appendChild(cursorBlink);
+
+    const typingEffect = setInterval(() => {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            //typeSound.play(); // Play typing sound
+        } else {
+            clearInterval(typingEffect);
+            cursorBlink.remove(); // Remove cursor after typing ends
+            //typeSound.pause(); // Stop the sound after typing is done
+            //typeSound.currentTime = 0; // Reset sound to the start (optional)
+        }
+    }, speed); // Adjust speed by changing the interval
+
+    // Cursor blinking animation
+    setInterval(() => {
+        cursorBlink.style.visibility = cursorBlink.style.visibility === "hidden" ? "visible" : "hidden";
+    }, 500); // Adjust blinking speed (500ms for visibility toggle)
+
+    typeSound.pause();
 }
