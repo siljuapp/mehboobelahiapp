@@ -5762,7 +5762,7 @@ var que_data = null,
     app_level_data = null;
 //start from here
 async function startApp() {
-    let catch_id = "20240910";
+    let catch_id = "20240912";
     let catch_id_from_locale = localStorage.getItem("catch_id");
     if (catch_id != catch_id_from_locale) {
         localStorage.setItem("catch_id", catch_id);
