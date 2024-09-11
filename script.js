@@ -7811,7 +7811,6 @@ function setUrl(tab) {
 }
 
 function setHomePageEvents() {
-    debugger;
     let ele = document.querySelector(".home .app-name img");
     if (ele) {
         ele.classList.add("expand-image");
