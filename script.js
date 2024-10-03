@@ -2845,17 +2845,21 @@ import ReactDOM from "react-dom";
         // Store user data in a variable
 
         // Unregister all service workers
-        if ("serviceWorker" in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (let registration of registrations) {
-                await registration.unregister();
+        try {
+            if ("serviceWorker" in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
             }
-        }
 
-        // Clear all caches
-        const cacheNames = await caches.keys();
-        for (let name of cacheNames) {
-            await caches.delete(name);
+            // Clear all caches
+            const cacheNames = await caches.keys();
+            for (let name of cacheNames) {
+                await caches.delete(name);
+            }
+        } catch (error) {
+            console.error("Error clearing cache:", error);
         }
     }
 
