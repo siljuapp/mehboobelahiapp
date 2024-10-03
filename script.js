@@ -2864,7 +2864,7 @@ import ReactDOM from "react-dom";
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
         let cache_id = "2024_10_03_00_00_00";
-        if (false && local_cache_id != cache_id) {
+        if (local_cache_id != cache_id) {
             clearCache();
             localStorage.setItem("esa_cache_id", cache_id);
             //window.location.reload();
