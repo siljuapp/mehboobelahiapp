@@ -173,7 +173,7 @@ import ReactDOM from "react-dom";
     function LoadHTML() {
         setTimeout(() => {
             initialLoading();
-            openPageBasedOnURL(url);
+            openPageBasedOnURL();
         }, 2000);
         return (
             <div className="container-inner">
@@ -435,6 +435,8 @@ import ReactDOM from "react-dom";
                         </select>
                     </div>
 
+                    <iframe className="rm-iframe-component w-[100%] h-[100vh]" src="https://www.tldraw.com/s/v2_c_-MrH5W7gj_8Ooyp2uzPGY?d=v-34.-101.1288.847.8TdHWmDP0G89hPNKpJsdA" frameborder="0" height="100%" width="100%"></iframe>
+
                     <div className="app-features flex flex-col justify-start items-start gap-2 m-2 p-2">
                         <h1 className="text-xl font-bold text-gray-800">Features:</h1>
                         <div className="flex justify-start mcq items-center gap-2">
@@ -546,9 +548,14 @@ import ReactDOM from "react-dom";
                         ))}
                     </div>
                 </div>
-                <div className="filter-message-div flex justify-start items-start flex-wrap gap-2 py-2 px-3 bg-blue-100   rounded-md">
-                    <span className="text-sm flex  flex-wrap flex-1 filter-mcq-message text-gray-700 "></span>
-                    <i className="fa-regular fa-circle-xmark clear-filter ml-auto cursor-pointer text-red-600 mt-1 hide" onClick={() => clearFilter()}></i>
+                <div className="filter-message-div flex flex-col justify-start items-start flex-wrap gap-2 py-2 px-3 bg-blue-100   rounded-md">
+                    <div className="flex justify-start items-center gap-2">
+                        <span className="text-sm flex  flex-wrap flex-1 filter-mcq-message text-gray-700 "></span>
+                        <i className="fa-regular fa-circle-xmark clear-filter ml-auto cursor-pointer text-red-600 mt-1 hide" onClick={() => clearFilter()}></i>
+                    </div>
+                    <span className="text-sm text-gray-700 cursor-pointer" onClick={() => downloadMcqsAsPdf()}>
+                        Download filtered mcqs as pdf
+                    </span>
                 </div>
                 <div className="que-text"></div>
                 <div className="bottom flex justify-center items-center ">
@@ -560,6 +567,145 @@ import ReactDOM from "react-dom";
         );
     }
 
+    const { jsPDF } = window.jspdf;
+
+    function downloadMcqsAsPdf(ques, name) {
+        // Sample filtered questions for demonstration
+        //let filtered_ques = ques ? ques : filtered_ques;
+        let message = document.querySelector(".filter-mcq-message").textContent;
+
+        // Use a regular expression to extract the text inside square brackets
+        let tag_name = message.match(/\[(.*?)\]/)[1]; // Extracts text inside [ ]
+
+        // Replace spaces with underscores
+        tag_name = tag_name.replace(/ /g, "_");
+
+        // Create a string using the modified tag name
+        name = `elahistudyapp_mcqs_${tag_name}`;
+
+        // Check if there are filtered questions
+        if (!filtered_ques || filtered_ques.length === 0) {
+            alert("No questions to download. Please filter some questions first.");
+            return;
+        }
+
+        // Initialize jsPDF
+        const doc = new jsPDF();
+
+        // Set initial y position for content
+        let y = 10;
+        const lineHeight = 10;
+        const pageHeight = doc.internal.pageSize.height; // Get the height of the page
+        const marginBottom = 20; // Margin at the bottom
+
+        // Function to calculate the height needed for a question and its options
+        function calculateQuestionHeight(que) {
+            let questionHeight = lineHeight; // For the question text itself
+            questionHeight += que.options.length * lineHeight; // For each option
+            return questionHeight;
+        }
+
+        // Loop through filtered questions and add to PDF
+        filtered_ques.forEach((que, index) => {
+            const questionHeight = calculateQuestionHeight(que);
+
+            // Check if the question fits in the remaining space on the current page
+            if (y + questionHeight > pageHeight - marginBottom) {
+                doc.addPage(); // Add a new page
+                y = 10; // Reset y-position for the new page
+            }
+
+            // Add question number and text
+            doc.text(`Q${index + 1}: ${que.question}`, 10, y);
+            y += lineHeight;
+
+            // Add options
+            que.options.forEach((option, optIndex) => {
+                doc.text(`(${String.fromCharCode(65 + optIndex)}) ${option.text}`, 15, y);
+                y += lineHeight;
+            });
+
+            // Add some space between questions
+            y += lineHeight;
+
+            // If y exceeds the page height after each question, add a new page
+            if (y > pageHeight - marginBottom) {
+                doc.addPage();
+                y = 10;
+            }
+        });
+
+        // Save the PDF
+        doc.save(name);
+    }
+
+    function downloadMcqsAsPdf2() {
+        // Check if there are filtered questions
+        if (!filtered_ques || filtered_ques.length === 0) {
+            alert("No questions to download. Please filter some questions first.");
+            return;
+        }
+
+        // Initialize jsPDF
+        const doc = new jsPDF();
+
+        // Set initial y position for content
+        let y = 10;
+
+        // Loop through filtered questions and add to PDF
+        filtered_ques.forEach((que, index) => {
+            // Add question number and text
+            doc.text(`Q${index + 1}: ${que.question}`, 10, y);
+            y += 10;
+
+            // Add options
+            que.options.forEach((option, optIndex) => {
+                doc.text(`(${String.fromCharCode(65 + optIndex)}) ${option.text}`, 15, y);
+                y += 10;
+            });
+
+            // Add some space between questions
+            y += 10;
+        });
+
+        // Save the PDF
+        doc.save("elahistudyapp_mcq.pdf");
+    }
+    function downloadMcqsAsPdf__() {
+        // Check if there are filtered questions
+        if (!filtered_ques || filtered_ques.length === 0) {
+            alert("No questions to download. Please filter some questions first.");
+            return;
+        }
+
+        // Create content for PDF
+        let content = filtered_ques
+            .map((que, index) => {
+                let questionContent = `Q${index + 1}: ${que.question}\n\n`;
+                questionContent += que.options
+                    .map((option, optIndex) => {
+                        //return `(${String.fromCharCode(65 + optIndex)}) ${option.text}\n`;
+                        return `(${optIndex + 1}). ${option.text}\n`;
+                    })
+                    .join("\n");
+                return questionContent + "\n\n";
+            })
+            .join("");
+
+        // Create a Blob with the content
+        debugger;
+        const blob = new Blob([content], { type: "application/pdf" });
+
+        // Create a link element, set the download attribute, and click it
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "elahistudyapp_mcq.pdf";
+
+        // Append to the document, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
     function NotesPageHTML() {
         return (
             <div className="notes-page-inner flex flex-col h-full">
