@@ -4,8 +4,8 @@ const urlsToCache = [
     "/index.html",
     "/styles.css",
     "/script.js",
-    "/assets/esalogo192.png",
-    "/assets/esalogo512.png",
+    "/assets/android-chrome-192x192.png",
+    "/assets/android-chrome-512x512.png",
     "/v6.4.2/css/sharp-solid-1.css",
     "v6.4.2/css/all-1.css",
     "v6.4.2/css/docs.css",
@@ -34,48 +34,62 @@ const urlsToCache = [
 ];
 
 // Install event - caching essential resources
-self.addEventListener("install", function (event) {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(function (cache) {
-            return cache.addAll(urlsToCache);
-        })
-    );
-});
+try {
+    self.addEventListener("install", function (event) {
+        event.waitUntil(
+            caches.open(CACHE_NAME).then(function (cache) {
+                return cache.addAll(urlsToCache);
+            })
+        );
+    });
+} catch (error) {
+    console.error("Error installing service worker:", error);
+}
 
 // Activate event - clean up old caches
-self.addEventListener("activate", function (event) {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then(function (cacheNames) {
-            return Promise.all(
-                cacheNames.map(function (cacheName) {
-                    if (!cacheWhitelist.includes(cacheName)) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
+
+try {
+    self.addEventListener("activate", function (event) {
+        const cacheWhitelist = [CACHE_NAME];
+        event.waitUntil(
+            caches.keys().then(function (cacheNames) {
+                return Promise.all(
+                    cacheNames.map(function (cacheName) {
+                        if (!cacheWhitelist.includes(cacheName)) {
+                            return caches.delete(cacheName);
+                        }
+                    })
+                );
+            })
+        );
+    });
+} catch (error) {
+    console.error("Error activating service worker:", error);
+}
 
 // Fetch event - serve cached content or fetch from network
-self.addEventListener("fetch", function (event) {
-    event.respondWith(
-        caches.match(event.request).then(function (response) {
-            if (response) {
-                // Return the cached response
-                return response;
-            }
 
-            // Fetch from network and cache the response
-            return fetch(event.request).catch(function () {
-                // If offline and fetch fails, serve a fallback page for navigation requests
-                if (event.request.mode === "navigate") {
-                    return caches.match("/offline.html");
+try {
+    self.addEventListener("fetch", function (event) {
+        event.respondWith(
+            caches.match(event.request).then(function (response) {
+                if (response) {
+                    // Return the cached response
+                    return response;
                 }
-                // Optionally return a fallback for other types of requests
-                return new Response("Network error occurred");
-            });
-        })
-    );
-});
+
+                // Fetch from network and cache the response
+                return fetch(event.request).catch(function () {
+                    // If offline and fetch fails, serve a fallback page for navigation requests
+                    if (event.request.mode === "navigate") {
+                        return caches.match("/offline.html");
+                    }
+                    // Optionally return a fallback for other types of requests
+                    return new Response("Network error occurred");
+                });
+            })
+        );
+    });
+} catch (error) {
+    console.error("Error fetching:", error);
+}
