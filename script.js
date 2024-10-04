@@ -218,7 +218,6 @@ import ReactDOM from "react-dom";
     }
 
     function animateLoader() {
-        debugger;
         const loader = document.getElementById("elahi-loader");
         const letters = loader.querySelectorAll("span");
 
@@ -250,7 +249,6 @@ import ReactDOM from "react-dom";
             ReactDOM.render(<LoadSignInPageHTML />, container);
         }
         if (arg == "home") {
-            debugger;
             ReactDOM.render(<LoadHTML />, container);
         }
         //ReactDOM.render(<LoadHTML />, container);
@@ -570,19 +568,23 @@ import ReactDOM from "react-dom";
     const { jsPDF } = window.jspdf;
 
     function downloadMcqsAsPdf(ques, name) {
-        let message = document.querySelector(".filter-mcq-message").textContent;
+        if (!name) {
+            let message = document.querySelector(".filter-mcq-message").textContent;
 
-        // Use a regular expression to extract the text inside square brackets
-        let tag_name = message.match(/\[(.*?)\]/)[1]; // Extracts text inside [ ]
+            // Use a regular expression to extract the text inside square brackets
+            let tag_name = message.match(/\[(.*?)\]/)[1]; // Extracts text inside [ ]
 
-        // Replace spaces with underscores
-        tag_name = tag_name.replace(/ /g, "_");
+            // Replace spaces with underscores
+            name = tag_name.replace(/ /g, "_");
+        }
 
         // Create a string using the modified tag name
-        name = `elahistudyapp_mcqs_${tag_name}`;
+
+        name = `elahistudyapp_mcqs_${name}`;
+        let all_ques = ques ? ques : filtered_ques;
 
         // Check if there are filtered questions
-        if (!filtered_ques || filtered_ques.length === 0) {
+        if (!all_ques || all_ques.length === 0) {
             alert("No questions to download. Please filter some questions first.");
             return;
         }
@@ -614,7 +616,8 @@ import ReactDOM from "react-dom";
         }
 
         // Loop through filtered questions and add to PDF
-        filtered_ques.forEach((que, index) => {
+
+        all_ques.forEach((que, index) => {
             const questionHeight = calculateQuestionHeight(que);
 
             // Check if the question fits in the remaining space on the current page
@@ -658,73 +661,6 @@ import ReactDOM from "react-dom";
         doc.save(name);
     }
 
-    function downloadMcqsAsPdf2() {
-        // Check if there are filtered questions
-        if (!filtered_ques || filtered_ques.length === 0) {
-            alert("No questions to download. Please filter some questions first.");
-            return;
-        }
-
-        // Initialize jsPDF
-        const doc = new jsPDF();
-
-        // Set initial y position for content
-        let y = 10;
-
-        // Loop through filtered questions and add to PDF
-        filtered_ques.forEach((que, index) => {
-            // Add question number and text
-            doc.text(`Q${index + 1}: ${que.question}`, 10, y);
-            y += 10;
-
-            // Add options
-            que.options.forEach((option, optIndex) => {
-                doc.text(`(${String.fromCharCode(65 + optIndex)}) ${option.text}`, 15, y);
-                y += 10;
-            });
-
-            // Add some space between questions
-            y += 10;
-        });
-
-        // Save the PDF
-        doc.save("elahistudyapp_mcq.pdf");
-    }
-    function downloadMcqsAsPdf__() {
-        // Check if there are filtered questions
-        if (!filtered_ques || filtered_ques.length === 0) {
-            alert("No questions to download. Please filter some questions first.");
-            return;
-        }
-
-        // Create content for PDF
-        let content = filtered_ques
-            .map((que, index) => {
-                let questionContent = `Q${index + 1}: ${que.question}\n\n`;
-                questionContent += que.options
-                    .map((option, optIndex) => {
-                        //return `(${String.fromCharCode(65 + optIndex)}) ${option.text}\n`;
-                        return `(${optIndex + 1}). ${option.text}\n`;
-                    })
-                    .join("\n");
-                return questionContent + "\n\n";
-            })
-            .join("");
-
-        // Create a Blob with the content
-        debugger;
-        const blob = new Blob([content], { type: "application/pdf" });
-
-        // Create a link element, set the download attribute, and click it
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "elahistudyapp_mcq.pdf";
-
-        // Append to the document, click, and remove
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
     function NotesPageHTML() {
         return (
             <div className="notes-page-inner flex flex-col h-full">
@@ -1114,6 +1050,26 @@ import ReactDOM from "react-dom";
                     <span className="options-only text-sm border-2 rounded-md py-1 px-2 cursor-pointer text-gray-500" onClick={(event) => filterSearchedMcqs(event, "options")}>
                         Options Only
                     </span>
+                    <span
+                        className="download-as-pdf text-sm border-2 border-blue-500 rounded-md py-1 px-2 cursor-pointer text-blue-500"
+                        onClick={(event) => {
+                            let search_text = "__" + event.target.closest(".me-overlay").querySelector(".search-mcq-input").value.trim();
+
+                            let overlay_div = event.target.closest(".me-overlay");
+                            let all_ques = overlay_div.querySelector(".search-results").querySelectorAll(".que-div");
+                            if (!all_ques) return;
+
+                            let ques = [];
+                            all_ques.forEach((que_div) => {
+                                let que = que_data.find((que) => que.id == que_div.id);
+                                if (que) ques.push(que);
+                            });
+                            ques = ques.length ? ques : null;
+                            downloadMcqsAsPdf(ques, search_text);
+                        }}
+                    >
+                        Download as PDF
+                    </span>
                 </div>
 
                 <span className="text-sm text-gray-500 w-full text-center my-1 searched-mcq-filter-message"></span>
@@ -1125,7 +1081,6 @@ import ReactDOM from "react-dom";
         );
     }
     function filterSearchedMcqs(event, filter_type) {
-        debugger;
         event.target.parentElement.querySelectorAll("span").forEach((child) => {
             child.classList.remove("bg-blue-500");
             child.classList.replace("text-white", "text-gray-500"); // Replace works here
@@ -1140,7 +1095,6 @@ import ReactDOM from "react-dom";
         all_ques.forEach((que_div) => {
             que_div.classList.add("hide");
         });
-        debugger;
         if (filter_type == "question") {
             let all_ques_ques_only = overlay_div.querySelector(".search-results").querySelectorAll(".que-div:has(.question .me-search)");
 
@@ -1163,7 +1117,6 @@ import ReactDOM from "react-dom";
         }
     }
     function searchMCQsbyText(event, search_text) {
-        debugger;
         let overlay_div = document.querySelector(".search-mcq-overlay");
 
         if (event && event.target.classList.contains("search-mcq-input")) {
@@ -1251,8 +1204,6 @@ import ReactDOM from "react-dom";
     }
 
     function filterMcqsBySubject(subject, event) {
-        debugger;
-
         subject = subject.toLowerCase();
         let subject_div = event.target.closest(".subject-div");
         //let subject_divs = subject_div.querySelectorAll(".link");
@@ -1619,7 +1570,6 @@ import ReactDOM from "react-dom";
 
     async function openPageBasedOnURL(url) {
         url = url ? url : window.location.href;
-        debugger;
         url = load_url ? load_url : url;
         let url_items = parseURL(url);
 
@@ -3082,8 +3032,6 @@ import ReactDOM from "react-dom";
 
         await loadData();
         loadHTML("home");
-
-        debugger;
     }
 
     function getCurrentDateAndTime() {
