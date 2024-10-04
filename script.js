@@ -435,7 +435,7 @@ import ReactDOM from "react-dom";
                         </select>
                     </div>
 
-                    <iframe className="rm-iframe-component w-[100%] h-[100vh]" src="https://www.tldraw.com/s/v2_c_-MrH5W7gj_8Ooyp2uzPGY?d=v-34.-101.1288.847.8TdHWmDP0G89hPNKpJsdA" frameborder="0" height="100%" width="100%"></iframe>
+                    <iframe className="hide rm-iframe-component w-[100%] h-[100vh]" src="https://www.tldraw.com/s/v2_c_-MrH5W7gj_8Ooyp2uzPGY?d=v-34.-101.1288.847.8TdHWmDP0G89hPNKpJsdA" frameborder="0" height="100%" width="100%"></iframe>
 
                     <div className="app-features flex flex-col justify-start items-start gap-2 m-2 p-2">
                         <h1 className="text-xl font-bold text-gray-800">Features:</h1>
@@ -570,8 +570,6 @@ import ReactDOM from "react-dom";
     const { jsPDF } = window.jspdf;
 
     function downloadMcqsAsPdf(ques, name) {
-        // Sample filtered questions for demonstration
-        //let filtered_ques = ques ? ques : filtered_ques;
         let message = document.querySelector(".filter-mcq-message").textContent;
 
         // Use a regular expression to extract the text inside square brackets
@@ -591,9 +589,11 @@ import ReactDOM from "react-dom";
 
         // Initialize jsPDF
         const doc = new jsPDF();
+        const url = `https://elahistudyapp.in//#/${exam}/home`;
+        const mcqUrl = `https://elahistudyapp.in//#/${exam}/mcq/`;
 
         // Set initial y position for content
-        let y = 10;
+        let y = 20; // Adjusted to leave space for the top header link
         const lineHeight = 10;
         const pageHeight = doc.internal.pageSize.height; // Get the height of the page
         const marginBottom = 20; // Margin at the bottom
@@ -602,7 +602,15 @@ import ReactDOM from "react-dom";
         function calculateQuestionHeight(que) {
             let questionHeight = lineHeight; // For the question text itself
             questionHeight += que.options.length * lineHeight; // For each option
+            questionHeight += lineHeight; // For the "open in app" link
             return questionHeight;
+        }
+
+        // Function to add the top center link
+        function addTopLink() {
+            doc.setTextColor(0, 0, 255); // Set text color to blue
+            doc.textWithLink("MCQs Downloaded from Elahi Study App", doc.internal.pageSize.width / 2, 10, { url: url, align: "center" });
+            doc.setTextColor(0, 0, 0); // Reset text color to black
         }
 
         // Loop through filtered questions and add to PDF
@@ -612,7 +620,13 @@ import ReactDOM from "react-dom";
             // Check if the question fits in the remaining space on the current page
             if (y + questionHeight > pageHeight - marginBottom) {
                 doc.addPage(); // Add a new page
-                y = 10; // Reset y-position for the new page
+                y = 20; // Reset y-position for the new page and account for the header
+                addTopLink(); // Add the link to the top of each new page
+            }
+
+            // Add top link on the first page
+            if (index === 0) {
+                addTopLink();
             }
 
             // Add question number and text
@@ -625,13 +639,18 @@ import ReactDOM from "react-dom";
                 y += lineHeight;
             });
 
-            // Add some space between questions
-            y += lineHeight;
+            // Add "open in app" link
+            const queLink = mcqUrl + que.id; // Assuming `que.id` is the unique identifier for the question
+            doc.setTextColor(0, 0, 255); // Set text color to blue
+            doc.textWithLink("Open the MCQ in app", 10, y, { url: queLink });
+            doc.setTextColor(0, 0, 0); // Reset text color to black
+            y += lineHeight + 5; // Add space between questions
 
             // If y exceeds the page height after each question, add a new page
             if (y > pageHeight - marginBottom) {
                 doc.addPage();
-                y = 10;
+                y = 20; // Reset y-position for the new page
+                addTopLink(); // Add the link to the top of each new page
             }
         });
 
@@ -1600,6 +1619,8 @@ import ReactDOM from "react-dom";
 
     async function openPageBasedOnURL(url) {
         url = url ? url : window.location.href;
+        debugger;
+        url = load_url ? load_url : url;
         let url_items = parseURL(url);
 
         if (url_items.length) {
@@ -3011,16 +3032,17 @@ import ReactDOM from "react-dom";
 
     let user_login_data = {};
 
+    let load_url = null;
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
-        let cache_id = "2024_10_03_011_00_00";
+        let cache_id = "2024_10_03_021_00_00";
         if (local_cache_id != cache_id) {
             clearCache();
             localStorage.setItem("esa_cache_id", cache_id);
             //window.location.reload();
         }
         loadHTML("loading");
-
+        load_url = window.location.href;
         user_login_data = localStorage.getItem("esa_user_login_data");
         /*user_login_data = {
         display_name: "Mehboob Elahi",
