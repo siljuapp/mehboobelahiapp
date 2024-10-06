@@ -674,7 +674,7 @@ import ReactDOM from "react-dom";
                     </div>
 
                     <div
-                        className="handnotes-list  hide flex justify-center items-center gap-2 border rounded-md px-2 py-1 cursor-pointer link"
+                        className="handnotes-list flex justify-center items-center gap-2 border rounded-md px-2 py-1 cursor-pointer link"
                         onClick={() => {
                             let overlay_name = "handnotes-list-overlay";
                             let overlay_div = document.querySelector(`.${overlay_name}`);
@@ -704,7 +704,6 @@ import ReactDOM from "react-dom";
 
     let handnotes_index = 0;
     function openHandnotesItem(id) {
-        debugger;
         id = id ? id : handnotes_data[handnotes_index].id;
         let handnote = handnotes_data.find((item) => item.id == id);
         let link = handnote.link;
@@ -725,7 +724,7 @@ import ReactDOM from "react-dom";
             //openHandnotesItem(handnotes_data[handnotes_index].id);
         }, 1000);
         return (
-            <div className="container handnotes-list-overlay-inner flex flex-col justify-center items-start gap-2 p-0 h-90vh w-90vw">
+            <div className="container handnotes-list-overlay-inner flex flex-col justify-center items-center gap-2 p-0 h-90vh w-90vw">
                 <div className="search-div flex justify-center items-center gap-2   rounded-md px-2 py-1 border-2 border-gray-400 w-[80%] h-[40px] mx-auto my-3">
                     <i className="fa-regular fa-magnifying-glass"></i>
                     <input
@@ -745,10 +744,10 @@ import ReactDOM from "react-dom";
                         }}
                     />
                 </div>
-                <div className="handnotes-embed-section border-2  w-full  h-[78vh] ">
-                    <iframe className="handnote-iframe w-full h-full" src="https://www.tldraw.com/ro/lcF91nmhhXZ9h46fKwRzG?d=v-151.0.1415.764.MQCGWNmOMJrPu5Z2uV5e3" frameborder="0" allowfullscreen></iframe>
+                <div className="handnotes-embed-section border-2  w-full  h-[80vh] ">
+                    <iframe className="handnote-iframe w-full h-full" src="https://www.tldraw.com/s/v2_c_MomGMMpUXtgECoQ6oY34q?d=v-374.-2588.2205.1449.page" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <div className="bottom-section flex justify-center items-center gap-2 p-2 h-[40px] ">
+                <div className="bottom-section flex justify-center items-center gap-2 p-2 h-[40px] mb-7 ">
                     <div
                         className="flex justify-center items-center gap-2 px-3 py-2  border-2 border-gray-400 rounded-md cursor-pointer"
                         onClick={() => {
@@ -1834,7 +1833,6 @@ import ReactDOM from "react-dom";
             data = JSON.parse(local_data_string);
         }
         let is_online = navigator.onLine;
-        debugger;
         if (is_online) {
             let user_ref = database.ref(`esa_data/${exam}/data_last_update_time`);
             let snapshot = await user_ref.once("value");
@@ -1844,7 +1842,6 @@ import ReactDOM from "react-dom";
                 let user_ref = database.ref(`esa_data/${exam}/data`);
                 let snapshot = await user_ref.once("value");
                 data = snapshot.val() || {};
-                debugger;
                 console.log(`esa: data retrieved from firebase for ${exam}`);
                 // store the update locale data here in the app
                 let last_update_time = data_last_update_time_firebase;
@@ -3192,7 +3189,7 @@ import ReactDOM from "react-dom";
     //start app
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
-        let cache_id = "2024_10_06_021_00_07";
+        let cache_id = "2024_10_06_021_009_07";
         if (local_cache_id != cache_id) {
             clearCache();
             localStorage.setItem("esa_cache_id", cache_id);
@@ -3565,7 +3562,6 @@ import ReactDOM from "react-dom";
         const response = await fetch(filename);
 
         const data = await response.json();
-        debugger;
         let ques_data = data[0].ques ? data[0].ques : [];
         let notes_data = data[0].notes ? data[0].notes : [];
         let mocks_data = data[0].mocks ? data[0].mocks : [];
@@ -3597,10 +3593,11 @@ import ReactDOM from "react-dom";
             var inputValue = input.value.trim().toLowerCase();
             //const matchingNames = [];
             //try {
+            let matchingNames;
             if (type == "handnotes") {
-                const matchingNames = arr.filter((name) => name.text.toLowerCase().includes(inputValue));
+                matchingNames = arr.filter((name) => name.text.toLowerCase().includes(inputValue));
             } else {
-                const matchingNames = arr.filter((name) => name.toLowerCase().includes(inputValue));
+                matchingNames = arr.filter((name) => name.toLowerCase().includes(inputValue));
             }
             //} catch (e) {}
             if (!matchingNames.length && !create_new_tags) {
@@ -3641,7 +3638,7 @@ import ReactDOM from "react-dom";
                     input.focus();
                     autocompleteList.classList.remove("active");
                     if (type == "handnotes") {
-                        id = event.target.id;
+                        let id = event.target.id;
                         //let handnote = handnotes.find((handnote) => handnote.id == id);
                         openHandnotesItem(id);
                         return;
