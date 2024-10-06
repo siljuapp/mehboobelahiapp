@@ -433,8 +433,6 @@ import ReactDOM from "react-dom";
                         </select>
                     </div>
 
-                    <iframe className="hide rm-iframe-component w-[100%] h-[100vh]" src="https://www.tldraw.com/s/v2_c_-MrH5W7gj_8Ooyp2uzPGY?d=v-34.-101.1288.847.8TdHWmDP0G89hPNKpJsdA" frameborder="0" height="100%" width="100%"></iframe>
-
                     <div className="app-features flex flex-col justify-start items-start gap-2 m-2 p-2">
                         <h1 className="text-xl font-bold text-gray-800">Features:</h1>
                         <div className="flex justify-start mcq items-center gap-2">
@@ -674,12 +672,122 @@ import ReactDOM from "react-dom";
                         <i className="fa-regular fa-list text-sm"></i>
                         <span className="text-sm text-no-wrap opacity-70">{is_mobile ? "Chapters list" : "Chapter list"}</span>
                     </div>
+
+                    <div
+                        className="handnotes-list  hide flex justify-center items-center gap-2 border rounded-md px-2 py-1 cursor-pointer link"
+                        onClick={() => {
+                            let overlay_name = "handnotes-list-overlay";
+                            let overlay_div = document.querySelector(`.${overlay_name}`);
+                            if (!overlay_div) {
+                                overlay_div = document.createElement("div");
+                                overlay_div.className = `me-overlay ${overlay_name}`;
+                                document.querySelector(".me-overlays").appendChild(overlay_div);
+                                ReactDOM.render(<HandnotesListOverlayHTML />, overlay_div);
+                            }
+                            openOverlay(overlay_name);
+                        }}
+                    >
+                        <i class="fa-solid fa-pen-swirl"></i>
+                        <span className="text-sm text-no-wrap opacity-70">{is_mobile ? "Handnotes" : "Handnotes"}</span>
+                    </div>
                 </div>
                 <div className="chapter h-full w-full  flex flex-col" id="dwd">
                     <div className="title page-title me-bold text-xl px-2 py-3" id="dwd"></div>
                     <div className="me-iframe-div"></div>
                     <div className="children block  min-h-[calc(100vh-150px)] max-h-[calc(100vh-150px)] p-2 overflow-y-scroll">
                         <span className="text-gray-700 p-3 text-md align-middle"> Open a note from the chapter list or search in notes... </span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    let handnotes_index = 0;
+    function openHandnotesItem(id) {
+        debugger;
+        id = id ? id : handnotes_data[handnotes_index].id;
+        let handnote = handnotes_data.find((item) => item.id == id);
+        let link = handnote.link;
+        let texts = handnote.texts;
+        let title = texts.join(" - ");
+        /* document.querySelector(".handnotes-embed-section").innerHTML = `
+    <iframe class="rm-iframe-component w-full h-full" 
+            src="https://www.tldraw.com/ro/${link}" 
+            frameborder="0" 
+            allowfullscreen>
+    </iframe>`; */
+        let srcc = `https://www.tldraw.com/ro/${link}`;
+        document.querySelector(".handnotes-embed-section iframe").src = srcc;
+    }
+    function HandnotesListOverlayHTML() {
+        setTimeout(() => {
+            handnotes_index = 0;
+            //openHandnotesItem(handnotes_data[handnotes_index].id);
+        }, 1000);
+        return (
+            <div className="container handnotes-list-overlay-inner flex flex-col justify-center items-start gap-2 p-0 h-90vh w-90vw">
+                <div className="search-div flex justify-center items-center gap-2   rounded-md px-2 py-1 border-2 border-gray-400 w-[80%] h-[40px] mx-auto my-3">
+                    <i className="fa-regular fa-magnifying-glass"></i>
+                    <input
+                        type="text"
+                        className="p-1 align-middle focus:outline-none text-sm"
+                        placeholder="Search handnotes topic"
+                        onKeyUp={(event) => {
+                            let arr = [];
+                            handnotes_data.forEach((item) => {
+                                item.texts.forEach((text) => {
+                                    if (text.toLowerCase().includes(event.target.value.toLowerCase())) {
+                                        arr.push({ text: text, id: item.id });
+                                    }
+                                });
+                            });
+                            setAutoComplete(event, arr, "handnotes");
+                        }}
+                    />
+                </div>
+                <div className="handnotes-embed-section border-2  w-full  h-[78vh] ">
+                    <iframe className="handnote-iframe w-full h-full" src="https://www.tldraw.com/ro/lcF91nmhhXZ9h46fKwRzG?d=v-151.0.1415.764.MQCGWNmOMJrPu5Z2uV5e3" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div className="bottom-section flex justify-center items-center gap-2 p-2 h-[40px] ">
+                    <div
+                        className="flex justify-center items-center gap-2 px-3 py-2  border-2 border-gray-400 rounded-md cursor-pointer"
+                        onClick={() => {
+                            --handnotes_index;
+                            if (handnotes_index < 0) handnotes_index = handnotes_data.length - 1;
+                            openHandnotesItem(handnotes_data[handnotes_index].id);
+                        }}
+                    >
+                        <i class="fa-regular fa-chevron-left "></i>
+                        <span className="text-sm">Prev</span>
+                    </div>
+                    <div
+                        className="flex justify-center items-center gap-2 px-3 py-2  border-2 border-gray-400 rounded-md cursor-pointer"
+                        onClick={() => {
+                            ++handnotes_index;
+                            if (handnotes_index >= handnotes_data.length) handnotes_index = 0;
+                            openHandnotesItem(handnotes_data[handnotes_index].id);
+                        }}
+                    >
+                        <i class="fa-regular fa-chevron-right "></i>
+                        <span className="text-sm">Next</span>
+                    </div>
+                    <div
+                        className="flex justify-center  items-center gap-2 px-3 py-2   border-2 border-gray-400 rounded-md cursor-pointer"
+                        onClick={() => {
+                            handnotes_index = Math.floor(Math.random() * handnotes_data.length);
+                            openHandnotesItem(handnotes_data[handnotes_index].id);
+                        }}
+                    >
+                        <i class="fa-regular  fa-random "></i>
+                        <span className="text-sm">Random</span>
+                    </div>
+                    <div className="flex justify-center items-center gap-2 px-3 py-2 ">
+                        <i
+                            class="fa-regular   fa-xmark-circle text-red-500 cursor-pointer"
+                            onClick={(event) => {
+                                event.target.closest(".me-overlay").remove();
+                            }}
+                        ></i>
                     </div>
                 </div>
             </div>
@@ -815,7 +923,98 @@ import ReactDOM from "react-dom";
             });
         }
     }
+
     function NotesBlockHTML({ block, level }) {
+        let containsPDF = false;
+        let pdfLabel = "";
+        let pdfLink = "";
+
+        // Regex to extract markdown links and check if label contains "PDF"
+        block.text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, link) => {
+            if (label.includes("PDF")) {
+                containsPDF = true;
+                pdfLabel = label;
+                pdfLink = link;
+            }
+        });
+
+        if (containsPDF) {
+            // Return this if the text contains "PDF"
+            return (
+                <div className={`block level-${level} flex flex-col gap-2`}>
+                    <div className={`block-main ${block.heading ? "heading" : ""}`} id={block.id}>
+                        <div className="block-text flex justify-start items-start gap-2">
+                            <span className={`bullet ${block.heading ? "hide" : ""}`}></span>
+                            <div
+                                className="pdf-link flex justify-center items-center gap-2 border border-blue-300 rounded-md p-2 cursor-pointer"
+                                onClick={(event) => {
+                                    let pdf_overlay_div = document.querySelector(".pdf-overlay-div");
+                                    if (pdf_overlay_div) {
+                                        openOverlay("pdf-overlay-div");
+                                    } else {
+                                        pdf_overlay_div = document.createElement("div");
+                                        pdf_overlay_div.className = "pdf-overlay-div me-overlay";
+                                        document.querySelector(".me-overlays").appendChild(pdf_overlay_div);
+                                        ReactDOM.render(<PdfOverlayHTML link={pdfLink} label={pdfLabel} />, pdf_overlay_div);
+                                        openOverlay("pdf-overlay-div");
+                                    }
+                                }}
+                            >
+                                <i className="fa-regular fa-file-pdf" style={{ color: "#cb1010" }}></i>
+                                <span className="text-sm text-blue-500">{pdfLabel}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="children"></div>
+                </div>
+            );
+        } else {
+            return (
+                <div className={`block level-${level} flex flex-col gap-2`}>
+                    <div className={`block-main ${block.heading ? "heading" : ""}`} id={block.id}>
+                        <div className="block-text flex justify-start items-start gap-2">
+                            <span className={`bullet ${block.heading ? "hide" : ""} `}></span>
+                            <span className="text flex-1" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(block.text) }}></span>
+                        </div>
+                    </div>
+                    <div className="children"></div>
+                </div>
+            );
+        }
+    }
+
+    function PdfOverlayHTML({ link, label }) {
+        link = link.replace("/view?usp=sharing", "/preview");
+        return (
+            <div className="pdf-overlay-div-inner w-[100vw] h-[100vh] bg-white">
+                <div className="top-section flex justify-center items-center gap-2 p-3">
+                    <span className="text-lg font-bold flex-1">{label}</span>
+                    <i
+                        className="fa-regular fa-xmark-circle w-[20px] h-[20px]  cursor-pointer text-xl align-right ml-auto"
+                        onClick={(event) => {
+                            event.target.closest(".me-overlay").remove();
+                        }}
+                    ></i>
+                </div>
+                <iframe src={link} className="w-full h-full"></iframe>
+                <div className="close-btn">
+                    <i className="fa-regular fa-xmark-circle cursor-pointer text-xl align-right ml-auto" onClick={(event) => closeOverlay(event)}></i>
+                </div>
+            </div>
+        );
+    }
+
+    function NotesBlockHTML__({ block, level }) {
+        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, label, link) {
+            if (label.includes("PDF")) {
+                // Check if the link or label contains "PDF"
+                return `<div class="pdf-link flex justify-center items-center gap-2 border border-blue-300 rounded-md p-2 cursor-pointer" 
+                    onclick="openPdf('${link}')">
+                    <i class="fa-regular fa-file-pdf" style="color: #cb1010;"></i>
+                    <span class="text-sm text-blue-500">${label}</span>
+                </div>`;
+            }
+        });
         return (
             <div className={`block level-${level} flex flex-col gap-2`}>
                 <div className={`block-main ${block.heading ? "heading" : ""}`} id={block.id}>
@@ -1616,6 +1815,7 @@ import ReactDOM from "react-dom";
     var que_data = null,
         shared_ques = null,
         esa_ques = null,
+        handnotes_data = null,
         all_ques = null,
         follower_ques = null,
         all_users_info = null,
@@ -1634,15 +1834,17 @@ import ReactDOM from "react-dom";
             data = JSON.parse(local_data_string);
         }
         let is_online = navigator.onLine;
+        debugger;
         if (is_online) {
             let user_ref = database.ref(`esa_data/${exam}/data_last_update_time`);
             let snapshot = await user_ref.once("value");
             let data_last_update_time_firebase = snapshot.val() || "nothing";
-            if (last_data_update_time_local != data_last_update_time_firebase || !data.ques_data) {
+            if (true || last_data_update_time_local != data_last_update_time_firebase || !data.ques_data) {
                 await getAllUsersInfo();
                 let user_ref = database.ref(`esa_data/${exam}/data`);
                 let snapshot = await user_ref.once("value");
                 data = snapshot.val() || {};
+                debugger;
                 console.log(`esa: data retrieved from firebase for ${exam}`);
                 // store the update locale data here in the app
                 let last_update_time = data_last_update_time_firebase;
@@ -1661,6 +1863,7 @@ import ReactDOM from "react-dom";
         notes_data = data.notes_data ? data.notes_data : [];
         tags_list = data.tags_list ? data.tags_list : [];
         static_mocks = data.mocks_data ? data.mocks_data : [];
+        handnotes_data = data.handnotes ? data.handnotes : [];
         console.log(`data retrieved from firebase for ${exam}`);
         //alert(`data retrieved from firebase for ${exam}`);
         await getAllUsersInfo();
@@ -1695,6 +1898,9 @@ import ReactDOM from "react-dom";
         return text;
     }
 
+    function openPdf({ link }) {
+        popupAlert(`Opening PDF: ${link}`, 10, "bg-blue-500");
+    }
     function setFilterMcqsMessage(message) {
         document.querySelector(".filter-mcq-message").textContent = message;
         if (message == "") {
@@ -2956,7 +3162,6 @@ import ReactDOM from "react-dom";
             </div>
         );
     }
-    //start app
 
     async function clearCache() {
         // Store user data in a variable
@@ -2983,9 +3188,11 @@ import ReactDOM from "react-dom";
     let user_login_data = {};
 
     let load_url = null;
+
+    //start app
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
-        let cache_id = "2024_10_03_021_00_00";
+        let cache_id = "2024_10_06_021_00_07";
         if (local_cache_id != cache_id) {
             clearCache();
             localStorage.setItem("esa_cache_id", cache_id);
@@ -2995,13 +3202,13 @@ import ReactDOM from "react-dom";
         load_url = window.location.href;
         user_login_data = localStorage.getItem("esa_user_login_data");
         /*user_login_data = {
-        display_name: "Mehboob Elahi",
-        email: "mehboob4ias@gmail.com",
-        photo_url: "https://lh3.googleusercontent.com/a/ACg8ocKW5Wsgjwx6AGuJxEon1lvuwCGJ_eoW64nRUneHBVjzadW_T7F9Iw=s96-c",
-        userid: "UarmygN6ei7Kjo1",
-        username: "mehboob4ias",
-    };*/
-        //localStorage.setItem("esa_user_login_data", JSON.stringify(user_login_data));
+            display_name: "Mehboob Elahi",
+            email: "mehboob4ias@gmail.com",
+            photo_url: "https://lh3.googleusercontent.com/a/ACg8ocKW5Wsgjwx6AGuJxEon1lvuwCGJ_eoW64nRUneHBVjzadW_T7F9Iw=s96-c",
+            userid: "UarmygN6ei7Kjo1",
+            username: "mehboob4ias",
+        };
+        localStorage.setItem("esa_user_login_data", JSON.stringify(user_login_data)); */
         if (user_login_data) {
             user_login_data = JSON.parse(user_login_data);
         } else {
@@ -3351,4 +3558,150 @@ import ReactDOM from "react-dom";
     document.addEventListener("touchstart", (event) => handleTouchStart(event), false);
     document.addEventListener("touchmove", (event) => handleTouchMove(event), false);
     document.addEventListener("touchend", (event) => handleTouchEnd(event), false);
+
+    async function addESADataIntoFirebase() {
+        let filename = `my_data_${exam}.json`;
+
+        const response = await fetch(filename);
+
+        const data = await response.json();
+        debugger;
+        let ques_data = data[0].ques ? data[0].ques : [];
+        let notes_data = data[0].notes ? data[0].notes : [];
+        let mocks_data = data[0].mocks ? data[0].mocks : [];
+        let tags_list = data[0].tags_list ? data[0].tags_list : [];
+        let handnotes = data[0].handnotes ? data[0].handnotes : [];
+
+        if (exam == "neet") notes_data = [];
+
+        database.ref(`esa_data/${exam}/data/ques_data`).set(ques_data);
+        database.ref(`esa_data/${exam}/data/notes_data`).set(notes_data);
+        database.ref(`esa_data/${exam}/data/mocks_data`).set(mocks_data);
+        database.ref(`esa_data/${exam}/data/tags_list`).set(tags_list);
+        database.ref(`esa_data/${exam}/data/handnotes`).set(handnotes);
+        database.ref(`esa_data/${exam}/data_last_update_time`).set(new Date().toISOString());
+        popupAlert("Data added to firebase");
+    }
+
+    var autocompleteList = "";
+    autocompleteList = document.createElement("div");
+    autocompleteList.className = "me-autocomplete-list";
+    document.body.append(autocompleteList);
+
+    function setAutoComplete(event, arr, type, target) {
+        var input = event.target;
+
+        input.addEventListener("input", function () {
+            let create_new_tags = false;
+            if (type == "add-new-que-tags") create_new_tags = true;
+            var inputValue = input.value.trim().toLowerCase();
+            //const matchingNames = [];
+            //try {
+            if (type == "handnotes") {
+                const matchingNames = arr.filter((name) => name.text.toLowerCase().includes(inputValue));
+            } else {
+                const matchingNames = arr.filter((name) => name.toLowerCase().includes(inputValue));
+            }
+            //} catch (e) {}
+            if (!matchingNames.length && !create_new_tags) {
+                autocompleteList.classList.remove("active");
+                return null;
+            }
+            autocompleteList.innerHTML = "";
+
+            if (create_new_tags) {
+                const inputItem = document.createElement("div");
+                inputItem.textContent = 'new: "' + inputValue + '"';
+
+                inputItem.addEventListener("click", (event) => {
+                    var tar = input.parentElement;
+                    var tag = event.target.textContent.match(/"([^"]*)"/)[1].trim();
+                    new_add_ques_tags.push(tag);
+                    input.value = "";
+                    input.focus();
+                    autocompleteList.classList.remove("active");
+                    addTagElementInTarget(type, tag, target);
+                });
+                autocompleteList.appendChild(inputItem);
+            }
+
+            matchingNames.forEach((name) => {
+                const item = document.createElement("div");
+                if (type == "handnotes") {
+                    item.textContent = name.text;
+                    item.id = name.id;
+                } else {
+                    item.textContent = name;
+                }
+
+                item.addEventListener("click", (event) => {
+                    var tar = input.parentElement;
+                    var tag = event.target.textContent.trim();
+                    input.value = "";
+                    input.focus();
+                    autocompleteList.classList.remove("active");
+                    if (type == "handnotes") {
+                        id = event.target.id;
+                        //let handnote = handnotes.find((handnote) => handnote.id == id);
+                        openHandnotesItem(id);
+                        return;
+                    }
+
+                    if (type == "search-users") {
+                        let username = tag.split("@")[1];
+                        for (let i = 0; i < all_users_info.length; i++) {
+                            let user_info = all_users_info[i];
+                            if (!user_info) continue;
+                            if (user_info.username == username) {
+                                displayUserPage(user_info);
+                                autocompleteList.classList.remove("active");
+                                return;
+                            }
+                        }
+                    }
+
+                    addTagElementInTarget(type, tag, target);
+                    return;
+
+                    if (type == "search-filter-tag") tar = document.querySelector(".filtered-tags .tags");
+                    if (type == "new-mock-select-chapter") {
+                        let span = document.createElement("span");
+                        span.className = "link chapter";
+                        span.textContent = tag;
+                        var tar_ele = input.closest(".select-chapter").querySelector(".chapter-list");
+                        tar_ele.appendChild(span);
+                    } else if (type == "explanation") {
+                        input.value = tag;
+                        autocompleteList.classList.remove("active");
+                        return;
+                    }
+
+                    input.value = "";
+                    input.focus();
+                    autocompleteList.classList.remove("active");
+                    addTagInTheFilterTagList(tag);
+                });
+
+                autocompleteList.appendChild(item);
+            });
+
+            if (matchingNames.length > 0 || inputValue !== "") {
+                autocompleteList.classList.add("active");
+            } else {
+                autocompleteList.classList.remove("active");
+            }
+
+            var inputRect = input.getBoundingClientRect();
+            autocompleteList.style.width = inputRect.width + "px";
+            autocompleteList.style.top = inputRect.bottom + window.scrollY + "px";
+            autocompleteList.style.left = inputRect.left + window.scrollX + "px";
+            if (input.classList.contains("filter-tag")) autocompleteList.style.width = "300px";
+        });
+
+        window.addEventListener("mousedown", function (event) {
+            if (!input.contains(event.target) && !autocompleteList.contains(event.target)) {
+                autocompleteList.classList.remove("active");
+            }
+        });
+    }
 })();
