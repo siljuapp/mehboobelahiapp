@@ -704,6 +704,7 @@ import ReactDOM from "react-dom";
 
     let handnotes_index = 0;
     function openHandnotesItem(id) {
+        debugger;
         id = id ? id : handnotes_data[handnotes_index].id;
         let handnote = handnotes_data.find((item) => item.id == id);
         let link = handnote.link;
@@ -725,27 +726,70 @@ import ReactDOM from "react-dom";
         }, 1000);
         return (
             <div className="container handnotes-list-overlay-inner flex flex-col justify-center items-center gap-2 p-0 h-90vh w-90vw">
-                <div className="search-div flex justify-center items-center gap-2   rounded-md px-2 py-1 border-2 border-gray-400 w-[80%] h-[40px] mx-auto my-3">
-                    <i className="fa-regular fa-magnifying-glass"></i>
-                    <input
-                        type="text"
-                        className="p-1 align-middle focus:outline-none text-sm"
-                        placeholder="Search handnotes topic"
-                        onKeyUp={(event) => {
-                            let arr = [];
-                            handnotes_data.forEach((item) => {
-                                item.texts.forEach((text) => {
-                                    if (text.toLowerCase().includes(event.target.value.toLowerCase())) {
-                                        arr.push({ text: text, id: item.id });
-                                    }
+                <div className="flex justify-center items-center gap-2">
+                    <div className="search-div flex justify-center items-center gap-2   rounded-md px-2 py-1 border-2 border-gray-400 w-[80%] h-[40px] mx-auto my-3">
+                        <i className="fa-regular fa-magnifying-glass"></i>
+                        <input
+                            type="search"
+                            className="p-1 align-middle focus:outline-none text-sm"
+                            placeholder="Search handnotes topic"
+                            onKeyUp={(event) => {
+                                let arr = [];
+                                handnotes_data.forEach((item) => {
+                                    item.texts.forEach((text) => {
+                                        if (text.toLowerCase().includes(event.target.value.toLowerCase())) {
+                                            arr.push({ text: text, id: item.id });
+                                        }
+                                    });
+                                });
+                                setAutoComplete(event, arr, "handnotes");
+                            }}
+                        />
+                    </div>
+                    <i
+                        class="fa-solid fa-list text-gray-400 "
+                        onClick={(event) => {
+                            const overlay = document.createElement("div");
+                            overlay.className = "handnotes-list-overlay fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50";
+                            overlay.innerHTML = `
+                                <div class="bg-white rounded-lg p-6 max-w-3xl max-h-[90vh] overflow-y-auto">
+                                    <div class="flex justify-start items-center gap-2">
+                                        <h2 class="text-2xl font-bold mb-4">Handnotes List</h2>
+                                        <button class="mx-2 bg-red-500 text-white px-4 py-2 rounded" 
+                                                onclick="this.closest('.handnotes-list-overlay').remove()">
+                                            X
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        ${handnotes_data
+                                            .map(
+                                                (note) => `
+                                    <div class="border link p-3 rounded hover:bg-gray-100 cursor-pointer" id="${note.id}"
+                                    
+                                         >
+                                        ${note.texts.map((text) => `<p class="text-sm">${text}</p>`).join("")}
+                                    </div>
+                                `
+                                            )
+                                            .join("")}
+                                    </div>
+                                </div>
+                                    `;
+
+                            overlay.querySelectorAll(".link").forEach((link) => {
+                                link.addEventListener("click", (event) => {
+                                    debugger;
+                                    let link_ele = event.target.closest(".link");
+                                    openHandnotesItem(link_ele.id);
+                                    overlay.remove();
                                 });
                             });
-                            setAutoComplete(event, arr, "handnotes");
+                            document.body.appendChild(overlay);
                         }}
-                    />
+                    ></i>
                 </div>
                 <div className="handnotes-embed-section border-2  w-full  h-[80vh] ">
-                    <iframe className="handnote-iframe w-full h-full" src="https://www.tldraw.com/s/v2_c_MomGMMpUXtgECoQ6oY34q?d=v-374.-2588.2205.1449.page" frameborder="0" allowfullscreen></iframe>
+                    <iframe className="handnote-iframe w-full h-full" src="https://www.tldraw.com/s/v2_c_MomGMMpUXtgECoQ6oY34q?d=v-374.-2588.2205.1449.page" frameborder="0" allowFullScreen></iframe>
                 </div>
                 <div className="bottom-section flex justify-center items-center gap-2 p-2 h-[40px] mb-7 ">
                     <div
@@ -2516,6 +2560,7 @@ import ReactDOM from "react-dom";
         }
     }
     function StaticMockTestItemHTML({ mock }) {
+        return <div>Static Mock Test Item ERROR OCCURED</div>;
         let sub_wise_ques = [];
         subjects[exam].forEach((subject) => {
             let sub_que_ids = mock.que_ids.filter((id) => que_data.find((que) => que.id == id && que.tags.includes(subject)));
@@ -3194,7 +3239,7 @@ import ReactDOM from "react-dom";
     //start app
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
-        let cache_id = "2024_10_096_021_009_007";
+        let cache_id = "2024_910_0986_0821_009_007";
         if (local_cache_id != cache_id) {
             clearCache();
             localStorage.setItem("esa_cache_id", cache_id);
