@@ -327,8 +327,8 @@ import ReactDOM from "react-dom";
                         <h1 className="text-2xl font-bold app-title text-center p-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Elahi Study App</h1>
                     </div>
 
-                    <span className="text-sm text-gray-500 py-3 ">Build with ❤️ by Mehboob Elahi</span>
-                    <div className="social-media flex justify-center items-center gap-4 opacity-70">
+                    <span className="hide text-sm text-gray-500 py-3 ">Build with ❤️ by Mehboob Elahi</span>
+                    <div className="hide social-media flex justify-center items-center gap-4 opacity-70">
                         <a href="https://facebook.com/mehboobelahi05" target="_blank">
                             <i className="fa-brands fa-facebook"></i>
                         </a>
@@ -3239,7 +3239,7 @@ import ReactDOM from "react-dom";
     //start app
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
-        let cache_id = "2024_910_0986_0821_009_007";
+        let cache_id = "2024_9100_0986_0821_009_007";
         if (local_cache_id != cache_id) {
             clearCache();
             localStorage.setItem("esa_cache_id", cache_id);
