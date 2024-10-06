@@ -3162,24 +3162,29 @@ import ReactDOM from "react-dom";
 
     async function clearCache() {
         // Store user data in a variable
+        const user_data = getUserData();
 
         // Unregister all service workers
-        try {
-            if ("serviceWorker" in navigator) {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for (let registration of registrations) {
-                    await registration.unregister();
-                }
+        if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+                await registration.unregister();
             }
-
-            // Clear all caches
-            const cacheNames = await caches.keys();
-            for (let name of cacheNames) {
-                await caches.delete(name);
-            }
-        } catch (error) {
-            console.error("Error clearing cache:", error);
         }
+
+        // Clear all caches
+        const cacheNames = await caches.keys();
+        for (let name of cacheNames) {
+            await caches.delete(name);
+        }
+
+        // Save the user data back in local storage
+        if (user_data) {
+            localStorage.setItem(`esa_userdata_${exam}`, JSON.stringify(user_data));
+        }
+
+        // Optionally reload the page to apply changes
+        // window.location.reload();
     }
 
     let user_login_data = {};
@@ -3189,7 +3194,7 @@ import ReactDOM from "react-dom";
     //start app
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
-        let cache_id = "2024_10_06_021_009_07";
+        let cache_id = "2024_10_096_021_009_007";
         if (local_cache_id != cache_id) {
             clearCache();
             localStorage.setItem("esa_cache_id", cache_id);
