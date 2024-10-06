@@ -1,7 +1,12 @@
 (function () {
+    /*import React from "react";
+import { Tldraw } from "tldraw";
+import "tldraw/tldraw.css"; // Import tldraw styles
+
     /* import React from "react";
 import ReactDOM from "react-dom";
 */
+
     const firebaseConfig = {
         apiKey: "AIzaSyBJA35C49-PGhTYOLq6M2WCogPrAf4N1Xo",
         authDomain: "siljuapp-4c428.firebaseapp.com",
@@ -318,6 +323,7 @@ import ReactDOM from "react-dom";
                         <h1 className="text-2xl font-bold app-title text-center p-2  hide bg-gradient-to-r from-red-600 to-purple-700 bg-clip-text text-transparent ">Elahi Study App</h1>
                         <h1 className="text-2xl font-bold app-title text-center p-2 text-gray-800">Elahi Study App</h1>
                     </div>
+
                     <div className="flex flex-col justify-center items-center gap-2">
                         <div className="hide w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
                             <span className="text-3xl font-bold text-white transform -rotate-12" style={{ fontFamily: "Arial, sans-serif" }}>
@@ -568,94 +574,113 @@ import ReactDOM from "react-dom";
     function downloadMcqsAsPdf(ques, name) {
         if (!name) {
             let message = document.querySelector(".filter-mcq-message").textContent;
-
-            // Use a regular expression to extract the text inside square brackets
-            let tag_name = message.match(/\[(.*?)\]/)[1]; // Extracts text inside [ ]
-
-            // Replace spaces with underscores
+            let tag_name = message.match(/\[(.*?)\]/)[1];
             name = tag_name.replace(/ /g, "_");
         }
-
-        // Create a string using the modified tag name
 
         name = `elahistudyapp_mcqs_${name}`;
         let all_ques = ques ? ques : filtered_ques;
 
-        // Check if there are filtered questions
         if (!all_ques || all_ques.length === 0) {
             alert("No questions to download. Please filter some questions first.");
             return;
         }
 
-        // Initialize jsPDF
         const doc = new jsPDF();
         const url = `https://elahistudyapp.in//#/${exam}/home`;
         const mcqUrl = `https://elahistudyapp.in//#/${exam}/mcq/`;
 
-        // Set initial y position for content
-        let y = 20; // Adjusted to leave space for the top header link
-        const lineHeight = 10;
-        const pageHeight = doc.internal.pageSize.height; // Get the height of the page
-        const marginBottom = 20; // Margin at the bottom
+        let y = 20;
+        const lineHeight = 5;
+        const pageHeight = doc.internal.pageSize.height;
+        const marginBottom = 10;
+        const marginX = 15;
+        const boxPadding = 7;
+        const boxWidth = doc.internal.pageSize.width - marginX * 2;
 
         // Function to calculate the height needed for a question and its options
         function calculateQuestionHeight(que) {
-            let questionHeight = lineHeight; // For the question text itself
-            questionHeight += que.options.length * lineHeight; // For each option
-            questionHeight += lineHeight; // For the "open in app" link
+            let questionLines = doc.splitTextToSize(que.question, boxWidth - boxPadding * 2);
+            let questionHeight = questionLines.length * lineHeight; // Correctly calculate height for multi-line questions
+            questionHeight += que.options.length * lineHeight; // Height for options
+            questionHeight += lineHeight; // Height for the link
             return questionHeight;
         }
 
-        // Function to add the top center link
         function addTopLink() {
-            doc.setTextColor(0, 0, 255); // Set text color to blue
+            doc.setTextColor(0, 0, 255);
             doc.textWithLink("MCQs Downloaded from Elahi Study App", doc.internal.pageSize.width / 2, 10, { url: url, align: "center" });
-            doc.setTextColor(0, 0, 0); // Reset text color to black
+            doc.setTextColor(0, 0, 0);
         }
 
-        // Loop through filtered questions and add to PDF
-
         all_ques.forEach((que, index) => {
-            const questionHeight = calculateQuestionHeight(que);
+            const questionHeight = calculateQuestionHeight(que) + boxPadding * 2;
+
+            // Adjust margin for question boxes (for gap between questions)
+            const questionMargin = 10; // You can set this to any value for the desired gap
 
             // Check if the question fits in the remaining space on the current page
             if (y + questionHeight > pageHeight - marginBottom) {
-                doc.addPage(); // Add a new page
-                y = 20; // Reset y-position for the new page and account for the header
-                addTopLink(); // Add the link to the top of each new page
+                doc.addPage();
+                y = 20;
+                addTopLink();
             }
 
-            // Add top link on the first page
             if (index === 0) {
                 addTopLink();
             }
 
-            // Add question number and text
-            doc.text(`Q${index + 1}: ${que.question}`, 10, y);
-            y += lineHeight;
+            // Set background and border for MCQ box
+            doc.setFillColor(240, 240, 240);
+            doc.setDrawColor(250, 250, 250);
+            doc.roundedRect(marginX, y, boxWidth, questionHeight, 2, 2, "FD");
 
-            // Add options
+            y += boxPadding;
+
+            // Ensure font size is consistent for all questions
+            doc.setFontSize(12); // Make sure the font size is uniform
+            doc.setFont("helvetica", "bold");
+            const questionLines = doc.splitTextToSize(`Q${index + 1}: ${que.question}`, boxWidth - boxPadding * 2);
+            doc.text(questionLines, marginX + boxPadding, y);
+            y += questionLines.length * lineHeight;
+
+            doc.setFont("helvetica", "normal");
+            let correctOption = "";
             que.options.forEach((option, optIndex) => {
-                doc.text(`(${String.fromCharCode(65 + optIndex)}) ${option.text}`, 15, y);
-                y += lineHeight;
+                let optionText = option.text.replace("#ans", "");
+                if (option.text.includes("#ans")) {
+                    correctOption = String.fromCharCode(65 + optIndex);
+                }
+                const optionLines = doc.splitTextToSize(`(${String.fromCharCode(65 + optIndex)}) ${optionText}`, boxWidth - boxPadding * 2);
+                doc.text(optionLines, marginX + boxPadding + 5, y);
+                y += optionLines.length * lineHeight;
             });
 
-            // Add "open in app" link
-            const queLink = mcqUrl + que.id; // Assuming `que.id` is the unique identifier for the question
-            doc.setTextColor(0, 0, 255); // Set text color to blue
-            doc.textWithLink("Open the MCQ in app", 10, y, { url: queLink });
-            doc.setTextColor(0, 0, 0); // Reset text color to black
-            y += lineHeight + 5; // Add space between questions
+            y += 5;
+            if (correctOption) {
+                doc.setFontSize(8); // Set smaller font size for the correct answer
+                doc.text(`Correct Answer: (${correctOption})`, marginX + boxPadding, y);
+                y += lineHeight; // Add a small gap after the correct answer
+            }
 
-            // If y exceeds the page height after each question, add a new page
+            // Add "open mcq in app" link
+            const queLink = mcqUrl + que.id;
+            doc.setTextColor(0, 0, 255);
+            doc.setFontSize(8);
+            doc.textWithLink("open mcq in app", marginX + boxPadding, y, { url: queLink });
+            doc.setTextColor(0, 0, 0);
+            y += lineHeight + 5;
+
+            // Add space between questions
+            y += questionMargin; // Adding the margin between questions
+
             if (y > pageHeight - marginBottom) {
                 doc.addPage();
-                y = 20; // Reset y-position for the new page
-                addTopLink(); // Add the link to the top of each new page
+                y = 20;
+                addTopLink();
             }
         });
 
-        // Save the PDF
         doc.save(name);
     }
 
@@ -3239,12 +3264,13 @@ import ReactDOM from "react-dom";
     //start app
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
-        let cache_id = "2024_9100_0986_0821_009_007";
+        let cache_id = "2024_910099_0986_0821_009_007";
         if (local_cache_id != cache_id) {
-            clearCache();
-            localStorage.setItem("esa_cache_id", cache_id);
+            //clearCache();
+            //localStorage.setItem("esa_cache_id", cache_id);
             //window.location.reload();
         }
+        clearCache();
         loadHTML("loading");
         load_url = window.location.href;
         user_login_data = localStorage.getItem("esa_user_login_data");
