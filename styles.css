@@ -354,3 +354,12 @@
 .me-autocomplete-list div:hover {
     background-color: rgb(212, 201, 201);
 }
+
+.telegram-link a {
+    background-color: #219CD7;
+    color: white;
+}
+
+.telegram-link img {
+    border-radius: 50%;
+}
