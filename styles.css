@@ -1,3 +1,5 @@
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
 :root {
     --text-link: #2463EB;
 }
@@ -320,7 +322,7 @@
 }
 
 .mobile * {
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .handnotes-embed-section iframe {
@@ -362,4 +364,22 @@
 
 .telegram-link img {
     border-radius: 50%;
+}
+
+.me-overlay {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    overflow-y: scroll;
+}
+
+.akaya-kanadaka-regular {
+    font-family: "Akaya Kanadaka", system-ui;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.page.notes .me-iframe-div:has(iframe) {
+    height: 720px !important;
+    border-bottom: 1px solid #e0e0e0;
 }
