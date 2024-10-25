@@ -315,11 +315,11 @@ import ReactDOM from "react-dom";
         loadDailyPractiseQuestions();
         curr_que_index = 0;
         filtered_ques = sortArrayRandomly(que_data);
-        openMcq(filtered_ques[curr_que_index]);
+        //openMcq(filtered_ques[curr_que_index]);
 
         loadNotesPage();
         loadMockTestPage();
-        loadUserPage();
+        //loadUserPage();
     }
 
     function OverlayHTML() {
@@ -578,10 +578,13 @@ import ReactDOM from "react-dom";
     }
     function LoadMcqPageHTML() {
         const maxWidth = Math.min(700, window.innerWidth * 0.95);
+        setTimeout(() => {
+            loadMCQList();
+        }, 1000);
         return (
-            <div className={`mcq-page-inner flex flex-col gap-2  w-[${maxWidth}px] mx-auto overflow-y-scroll`}>
+            <div className={`mcq-page-inner flex flex-col gap-2  w-full overflow-y-scroll`}>
                 <span className="hide text-transparent text-center bg-gradient-to-r from-blue-500 to-red-500 bg-clip-text text-xl p-2 font-bold">Practice Random MCQs</span>
-                <div className="today-practised-questions flex flex-col gap-2 justify-center items-center border-b "></div>
+                <div className="hide today-practised-questions flex flex-col gap-2 justify-center items-center border-b "></div>
 
                 <div class="hide block max-w-full overflow-x-auto py-2">
                     <div class="flex space-x-4 text-blue-500 text-sm">
@@ -614,7 +617,7 @@ import ReactDOM from "react-dom";
                     </div>
                 </div>
 
-                <div class="block subject-div max-w-full overflow-x-auto py-2">
+                <div class="hide block subject-div max-w-full overflow-x-auto py-2">
                     <div class="flex space-x-4 ">
                         {subjects[exam].map((subject, index) => (
                             <span
@@ -641,7 +644,7 @@ import ReactDOM from "react-dom";
                         ))}
                     </div>
                 </div>
-                <div className="filter-message-div flex flex-col justify-start items-start flex-wrap gap-2 py-2 px-3 bg-blue-100   rounded-md">
+                <div className=" hide filter-message-div flex flex-col justify-start items-start flex-wrap gap-2 py-2 px-3 bg-blue-100   rounded-md">
                     <div className="flex justify-start items-center gap-2">
                         <span className="text-sm flex  flex-wrap flex-1 filter-mcq-message text-gray-700 "></span>
                         <i className="fa-regular fa-circle-xmark clear-filter ml-auto cursor-pointer text-red-600 mt-1 hide" onClick={() => clearFilter()}></i>
@@ -650,8 +653,11 @@ import ReactDOM from "react-dom";
                         Download filtered mcqs as pdf
                     </span>
                 </div>
-                <div className="que-text"></div>
-                <div className="bottom flex justify-center items-center ">
+                <div className="que-text border-t-2"></div>
+                <div className="show-more-mcqs link px-auto py-2 link px-auto text-center cursor-pointer" onClick={() => showMoreMcqs()}>
+                    show more
+                </div>
+                <div className="hide bottom flex justify-center items-center ">
                     <button className="bg-gray-200 w-[300px] text-gray-700 px-4 py-2  rounded-md" onClick={() => nextQuestion()}>
                         Next Question
                     </button>
@@ -660,7 +666,215 @@ import ReactDOM from "react-dom";
         );
     }
 
+    function showMoreMcqs() {
+        for (let i = mcq_list_index; i < 30; i++) {
+            if (filtered_ques.length <= mcq_list_index) {
+                document.querySelector(".show-more-mcqs").classList.add("hide");
+                return;
+            }
+            ++mcq_list_index;
+            let que = filtered_ques[mcq_list_index];
+            let div = document.querySelector(".mcq-list-inner");
+            div.appendChild(document.createElement("div"));
+            ReactDOM.render(<GetMCQHTML que={que} index={mcq_list_index} type="random" is_show_icons={true} is_show_tags={true} />, div.lastChild);
+        }
+    }
+    function loadMCQList() {
+        let div = document.querySelector(".page.mcq .que-text");
+        ReactDOM.unmountComponentAtNode(div); // ele.innerHTML = "";
+        mcq_list_index = 0;
+        //div.innerHTML = "";
+        ReactDOM.render(<LoadMCQListHTML />, div);
+        setTimeout(() => {
+            //document.querySelector(".page.mcq .que-text .mcq-div").scrollIntoView({ behavior: "auto" });
+        }, 1000);
+    }
+
+    let mcq_list_index = 0;
+    function LoadMCQListHTML() {
+        let fil_ques = filtered_ques.length > 30 ? filtered_ques.slice(0, 30) : filtered_ques;
+        setTimeout(() => {
+            if (fil_ques.length == filtered_ques.length) {
+                document.querySelector(".show-more-mcqs").classList.add("hide");
+            }
+        }, 1000);
+        return (
+            <div className="mcq-list-inner block">
+                {fil_ques.map((que, index) => (
+                    <GetMCQHTML que={que} index={index} type="random" is_show_icons={true} is_show_tags={true} />
+                ))}
+            </div>
+        );
+    }
+
     const { jsPDF } = window.jspdf;
+
+    function GetMCQHTML({ que, index, type, is_show_icons, is_show_tags, selected_option_id, search_text }) {
+        que = que.id ? que : getQuestionById(que);
+        userdata.bookmarked_questions = userdata.bookmarked_questions ? userdata.bookmarked_questions : [];
+
+        let is_bookmarked = userdata.bookmarked_questions.includes(que.id);
+        document.querySelector(".show-more-mcqs").classList.remove("hide");
+        return (
+            <div className="mcq-div block" key={index}>
+                <div className="mcq-item  que-div border-b-2 border-gray-300 py-2 px-3" id={que.id}>
+                    <div className="question py-2 text-md flex justify-start items-baseline gap-2">
+                        <span className="text-md font-bold que-num w-[30px] hide"> {index ? `Q${index}.` : "Q."} </span>
+                        <div className="text-md font-bold flex-1 flex flex-wrap" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
+                    </div>
+                    <div className="options flex flex-col gap-2">
+                        {que.options.map((option, index) => (
+                            <div
+                                id={`${option.id}`}
+                                className={`flex justify-start  items-start gap-2  cursor-pointer option border bg-gray-100 rounded-md p-2  
+                        ${option.text.indexOf("#ans") !== -1 ? "answer" : ""}  
+                        ${selected_option_id == option.id ? "selected" : ""} 
+                        ${selected_option_id == option.id && option.text.indexOf("#ans") !== -1 ? "correct" : ""}    
+                        ${selected_option_id == option.id && option.text.indexOf("#ans") === -1 ? "wrong " : ""} 
+                        ${selected_option_id != undefined && selected_option_id != option.id && option.text.indexOf("#ans") !== -1 ? "correct " : ""}  
+                        ${selected_option_id ? "disabled" : ""} `}
+                                key={index}
+                                onClick={(event) => checkAnswer(event, que, type)}
+                            >
+                                <span className="text-sm option-index opacity-25 ">{index + 1}.</span>
+                                <span className="text-sm option-text">{option.text.replace("#ans", "")}</span>
+                                <span className="text-sm percentage-attempted"></span>
+                            </div>
+                        ))}
+                    </div>
+                    <div class={`block ${is_show_tags ? "" : "hide"} tags items-center whitespace-nowrap py-2 w-full border-t-2 mt-4`}>
+                        {que.tags.map((tag, index) => (
+                            <span key={index} className="mx-1 text-[0.9em]  border border-blue-500 rounded-md  text-blue-500 px-2 py-1 text-sm cursor-pointer" onClick={(event) => filterMcqsByTag(tag, event)}>
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                    <div className={` hide tags flex justify-start items-start gap-3 py-3 border-t-2 mt-2  link ${is_show_tags ? "" : "hide"} `}>
+                        <div class="block max-w-full overflow-x-auto py-2">
+                            <div class="flex space-x-4 text-blue-500 text-sm"></div>
+                        </div>
+                    </div>
+
+                    <div className={` icons flex justify-center items-center gap-4 py-2 border-t-0 mt-1  link ${is_show_icons ? "" : "hide"} `}>
+                        <i class="bi bi-heart hide text-[1.2em] cursor-pointer"></i>
+                        <i className={`bi ${userdata.bookmarked_questions.includes(que.id) ? "bi-bookmark-fill bookmarked" : "bi-bookmark"}  text-[1.2em] cursor-pointer`} onClick={(event) => bookmarkMcq(que, event)}></i>
+                        <i class="bi bi-share text-[1.2em] cursor-pointer" onClick={(event) => shareMCQ(que, event)}></i>
+                        <i class="bi bi-flag text-[1.2em] cursor-pointer"></i>
+                        <i class="bi bi-fullscreen ml-auto font-bold text-[1.2em] cursor-pointer" onClick={(event) => openMCQInFullScreen(que)}></i>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    function shareMCQ(que, event) {
+        let que_id = event.target.closest(".que-div").id;
+        const currentUrl = window.location.href;
+        const url = `${currentUrl}/${que_id}`;
+
+        if (is_mobile && navigator.share) {
+            copyToClipboard(url); // Fallback to copy URL to clipboard
+            popupAlert("Link copied to clipboard");
+            navigator
+                .share({
+                    title: "Share Current Question",
+                    url: url,
+                })
+                .then(() => {
+                    console.log("Link shared successfully");
+                    popupAlert("Link shared successfully");
+                })
+                .catch((error) => {
+                    console.error("Error sharing link:", error);
+                    copyToClipboard(url); // Fallback to copy URL to clipboard
+                    popupAlert("Link copied to clipboard");
+                });
+            //takeScreenshot(que_div);
+        } else {
+            // Fallback for browsers that do not support Web Share API
+            copyToClipboard(currentUrl); // Copy URL to clipboard
+            popupAlert("Question Link copied");
+        }
+    }
+    function bookmarkMcq(que, event) {
+        let is_bookmarked = event.target.classList.contains("bookmarked");
+        if (is_bookmarked) {
+            event.target.classList.remove("bookmarked", "bi-bookmark-fill");
+            removeItemFromArray(userdata.bookmarked_questions, que.id);
+            event.target.classList.add("bi-bookmark");
+            popupAlert("Removed from bookmarked questions");
+        } else {
+            event.target.classList.remove("bi-bookmark");
+            event.target.classList.add("bookmarked", "bi-bookmark-fill");
+            userdata.bookmarked_questions.unshift(que.id);
+            popupAlert("Added to bookmarked questions");
+        }
+        saveUserData();
+    }
+
+    function removeItemFromArray(array, item) {
+        const index = array.indexOf(item);
+        if (index > -1) {
+            array.splice(index, 1);
+        }
+        return array;
+    }
+    function openMCQInFullScreen(que) {
+        let div = document.createElement("div");
+        div.className = "mcq-full-screen-overlay me-overlay bg-white";
+        document.querySelector(".me-overlays").appendChild(div);
+        ReactDOM.render(<LoadMCQFullScreenHtml que={que} />, div);
+    }
+
+    function LoadMCQFullScreenHtml({ que }) {
+        setTimeout(() => {
+            let type = undefined;
+            let target = document.querySelector(".mcq-full-screen-inner");
+            let tags_div = target.querySelector(" .tags");
+            tags_div.classList.add("hide");
+            if (!type || type != "mock") {
+                tags_div.classList.remove("hide");
+                ReactDOM.render(<McqTagsHTML que={que} />, tags_div);
+            }
+
+            let exam_info_div = target.querySelector(".exam-info");
+            exam_info_div.classList.add("hide");
+            if ((!type || type != "mock") && que.exams && que.exams.length > 0) {
+                exam_info_div.classList.remove("hide");
+                ReactDOM.render(<McqExamsHTML que={que} />, exam_info_div);
+            }
+
+            let question_action_items_div = target.querySelector(".question-action-items");
+            question_action_items_div.classList.add("hide");
+            if (!type || type != "mock") {
+                question_action_items_div.classList.remove("hide");
+                ReactDOM.render(<McqQuestionActionItemsHTML que={que} />, question_action_items_div);
+            }
+
+            if (!type) {
+                let url = window.location.href; // Get the current URL
+                let ind = url.indexOf("#"); // Find the position of '#'
+
+                if (url.includes("mcq")) {
+                    let abc = url.substring(0, ind !== -1 ? ind : url.length);
+                    window.location.href = abc + `#/${exam}/mcq/${que.id}`;
+                }
+            }
+        }, 1000);
+        return (
+            <div className="mcq-full-screen-inner w-full h-full">
+                <i
+                    class="bi bi-arrow-left-circle text-xl cursor-pointer px-4 py-3"
+                    onClick={(event) => {
+                        let url = window.location.href;
+                        window.location.href = url.substring(0, url.lastIndexOf("/"));
+                        event.target.closest(".me-overlay").remove();
+                    }}
+                ></i>
+                {GetMcqDiv({ que: que, index: 0, type: "full-screen", is_show_icons: false, is_show_tags: false })}
+            </div>
+        );
+    }
 
     function downloadMcqsAsPdf(ques, name) {
         if (!name) {
@@ -777,7 +991,7 @@ import ReactDOM from "react-dom";
 
     function NotesPageHTML() {
         return (
-            <div className="notes-page-inner flex flex-col h-full">
+            <div className="notes-page-inner flex flex-col h-full w-full">
                 <div class="hide block max-w-full overflow-x-auto px-1 py-1 border-b-2">
                     <div class="flex space-x-4 text-blue-500  py-2 px-2 text-sm">
                         <div class="inline-flex items-center whitespace-nowrap border border-blue-500 rounded-md p-2 min-w-[fit-content] cursor-pointer" onClick={() => searchInNotesLoadOverlay()}>
@@ -837,11 +1051,42 @@ import ReactDOM from "react-dom";
                         <span className="text-sm text-no-wrap opacity-70">{is_mobile ? "Handnotes" : "Handnotes"}</span>
                     </div>
                 </div>
-                <div className="chapter h-full w-full  flex flex-col" id="dwd">
-                    <div className="title page-title me-bold text-xl px-2 py-3" id="dwd"></div>
-                    <div className="me-iframe-div"></div>
-                    <div className="children block  h-[calc(100vh-200px)]  p-2 overflow-y-scroll">
-                        <span className="text-gray-700 p-3 text-md align-middle"> Open a note from the chapter list or search in notes... </span>
+                <div className="main-notes-page w-full h-full">
+                    <div className="chapter h-full w-full  flex flex-col" id="dwd">
+                        <div className="title page-title me-bold text-xl px-2 py-3" id="dwd"></div>
+                        <div className="me-iframe-div"></div>
+                        <div className="children block  h-[calc(100vh-200px)]  p-2 overflow-y-scroll">
+                            <span className="text-gray-700 p-3 text-md align-middle"> Open a note from the chapter list or search in notes... </span>
+                        </div>
+                    </div>
+                    <div className="pdf h-full w-full h-ful flex flex-col hide">
+                        <div className="search-pdf-div mx-4 my-2 px-4 py-2 border rounded-md flex justify-center items-center gap-2">
+                            <i class="bi bi-search"></i>
+                            <input type="search" className="p-1 align-middle focus:outline-none text-sm" placeholder="Search pdf by title" />
+                        </div>
+                        <div className="pdf-list-div border-t-2 w-full h-full p-2 ">
+                            {pdf_data.map((pdf) => {
+                                return (
+                                    <div className="pdf-item block border px-4 py-1 m-2 rounded-md w-[90%] " id={pdf.id}>
+                                        <div className="flex justify-start items-start gap-2 cursor-pointer" onClick={() => openPdfFile(pdf.url, pdf.title)}>
+                                            <i class="bi bi-file-earmark-pdf text-[3em] text-red-500 w-10 h-[45px]"></i>
+                                            <div className="flex flex-col justify-start items-start">
+                                                <span className="text-xl text-gray-700 title">{pdf.title}</span>
+                                                <span className="text-xs border border-gray-500 rounded-md px-1 py-0.5 text-gray-500">{pdf.subject}</span>
+                                            </div>
+                                            <span className=" hide pdf-name text-xs text-gray-500">
+                                                {pdf.title} {pdf.subject}
+                                            </span>
+                                        </div>
+                                        <div className="icons flex justify-start items-start gap-3 pt-1">
+                                            <i class="bi bi-bookmark text-[1.2em] text-gray-500"></i>
+                                            <i class="bi bi-share text-[1.2em] text-gray-500"></i>
+                                            <i class="bi bi-download text-[1.2em] text-gray-500"></i>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -850,7 +1095,6 @@ import ReactDOM from "react-dom";
 
     let handnotes_index = 0;
     function openHandnotesItem(id) {
-        debugger;
         id = id ? id : handnotes_data[handnotes_index].id;
         let handnote = handnotes_data.find((item) => item.id == id);
         let link = handnote.link;
@@ -924,7 +1168,6 @@ import ReactDOM from "react-dom";
 
                             overlay.querySelectorAll(".link").forEach((link) => {
                                 link.addEventListener("click", (event) => {
-                                    debugger;
                                     let link_ele = event.target.closest(".link");
                                     openHandnotesItem(link_ele.id);
                                     overlay.remove();
@@ -1058,12 +1301,13 @@ import ReactDOM from "react-dom";
             return;
         }
         openTab("notes");
+        openInMainNotesPage("chapter");
 
         let page = pages_data.find((page) => page.id == page_id);
 
         userdata.recent_opened_notes = userdata.recent_opened_notes ? userdata.recent_opened_notes : [];
         let recent_note_pages = userdata.recent_opened_notes;
-        debugger;
+
         let obj = {
             title: page.title,
             page_id: page_id,
@@ -1148,13 +1392,15 @@ import ReactDOM from "react-dom";
         if (containsPDF) {
             // Return this if the text contains "PDF"
             return (
-                <div className={`hide level-${level} flex flex-col flex-grow gap-2`}>
+                <div className={`level-${level} flex flex-col flex-grow gap-2`}>
                     <div className={`block-main ${block.heading ? "heading" : ""}`} id={block.id}>
                         <div className="block-text flex justify-start items-start gap-2">
                             <span className={`bullet ${block.heading ? "hide" : ""}`}></span>
                             <div
                                 className="pdf-link flex justify-center items-center gap-2 border border-blue-300 rounded-md p-2 cursor-pointer"
                                 onClick={(event) => {
+                                    openPdfFile(pdfLink, pdfLabel);
+                                    return;
                                     let pdf_overlay_div = document.querySelector(".pdf-overlay-div");
                                     if (pdf_overlay_div) {
                                         openOverlay("pdf-overlay-div");
@@ -1190,6 +1436,14 @@ import ReactDOM from "react-dom";
         }
     }
 
+    function openPdfFile(link, label) {
+        let pdf_overlay_div = document.createElement("div");
+        pdf_overlay_div.className = "open-pdf-file-overlay-div me-overlay";
+        document.querySelector(".me-overlays").appendChild(pdf_overlay_div);
+        ReactDOM.render(<PdfOverlayHTML link={link} label={label} />, pdf_overlay_div);
+        openOverlay("open-pdf-file-overlay-div");
+    }
+
     function PdfOverlayHTML({ link, label }) {
         link = link.replace("/view?usp=sharing", "/preview");
         return (
@@ -1203,10 +1457,7 @@ import ReactDOM from "react-dom";
                         }}
                     ></i>
                 </div>
-                <iframe src={link} className="w-full h-full"></iframe>
-                <div className="close-btn">
-                    <i className="fa-regular fa-xmark-circle cursor-pointer text-xl align-right ml-auto" onClick={(event) => closeOverlay(event)}></i>
-                </div>
+                <iframe src={link} className="w-full h-[calc(100vh-45px)]"></iframe>
             </div>
         );
     }
@@ -1514,7 +1765,7 @@ import ReactDOM from "react-dom";
 
                 <span className="text-sm text-gray-500 w-full text-center my-1 searched-mcq-filter-message"></span>
                 <span className="text-sm link w-full text-right open-searched-mcqs-in-mcq-page hide px-2 cursor-pointer">Open mcqs in main page</span>
-                <div className="search-results p-3 max-h-[calc(100vh-150px)] border-t-2  overflow-y-scroll  bg-white">
+                <div className="search-mcq-by-text-results max-h-[calc(100vh-150px)] border-t-2  overflow-y-scroll  bg-white">
                     <div className="no-searched-mcqs flex justify-center items-center w-full h-full py-5">No searched MCQs</div>
                 </div>
             </div>
@@ -1578,15 +1829,31 @@ import ReactDOM from "react-dom";
     }
 
     function findMCQsByText(input_value) {
-        let searh_result_div = document.querySelector(".search-mcq-overlay-inner .search-results");
+        let searh_result_div = document.querySelector(".search-mcq-overlay-inner .search-mcq-by-text-results");
         searh_result_div.innerHTML = "";
         let searched_ques = que_data.filter((que) => que.question.toLowerCase().includes(input_value.toLowerCase()) || que.options.some((option) => option.text.toLowerCase().includes(input_value.toLowerCase())));
+
+        ReactDOM.render(<LoadSearchByTextMCQsItemHTML searched_ques={searched_ques} input_value={input_value} />, searh_result_div);
+        setTimeout(() => {
+            //searh_result_div.scrollTop = searh_result_div.scrollHeight;
+
+            let search_mcq_array = document.querySelectorAll(".search-mcq-by-text-results .mcq-div");
+            search_mcq_array = search_mcq_array ? search_mcq_array : [];
+            search_mcq_array.forEach((que_div) => {
+                que_div.querySelector(".question").innerHTML = que_div.querySelector(".question").innerHTML.replace(new RegExp(input_value, "gi"), (match) => `<span class=" inline-flex bg-yellow-200 mx-1 px-1 me-search ">${match}</span>`);
+                que_div.querySelectorAll(".option-text").forEach((option) => {
+                    option.innerHTML = option.innerHTML.replace(new RegExp(input_value, "gi"), (match) => `<span class=" inline-flex bg-yellow-200 mx-1 px-1 me-search">${match}</span>`);
+                });
+            });
+        }, 1000);
+        return;
         searched_ques.forEach((que) => {
             let que_div = document.createElement("div");
             searh_result_div.appendChild(que_div);
 
             //que_div.innerHTML = GetMcqDiv(que);
             ReactDOM.render(<GetMcqDiv que={que} search_text={input_value} />, que_div);
+            ReactDOM.render(<GetMCQHTML que={que} search_text={input_value} />, que_div);
 
             //que_div.querySelector(".question .font-bold").className = "text-md font-bold inline-block  whitespace-nowrap";
             que_div.querySelector(".question").innerHTML = que_div.querySelector(".question").innerHTML.replace(new RegExp(input_value, "gi"), (match) => `<span class=" bg-green-300 me-search ">${match}</span>`);
@@ -1623,6 +1890,18 @@ import ReactDOM from "react-dom";
             searh_result_div.innerHTML = "No questions found";
         }
     }
+
+    function LoadSearchByTextMCQsItemHTML({ searched_ques, input_value }) {
+        return (
+            <div className="search-mcq-by-text-results-inner block">
+                {searched_ques.map((que, index) => (
+                    <div key={index} className="mcq-div">
+                        <GetMCQHTML que={que} search_text={input_value} index={index + 1} type="search-by-text" is_show_icons={true} is_show_tags={false} />
+                    </div>
+                ))}
+            </div>
+        );
+    }
     function openOverlay(overlay_name) {
         let overlay = document.querySelector(`.${overlay_name}`);
         if (overlay) overlay.classList.remove("hide");
@@ -1632,6 +1911,13 @@ import ReactDOM from "react-dom";
         if (ele) ele.classList.add("hide");
     }
 
+    function reloadMCQs() {
+        let ele = document.querySelector(".page.mcq .que-text");
+        if (ele) ReactDOM.unmountComponentAtNode(ele); // ele.innerHTML = "";
+        filtered_ques = sortArrayRandomly(filtered_ques);
+        //document.querySelector(".page.mcq .que-text .mcq-item").scrollIntoView({ behavior: "auto", block: "center" });
+        loadMCQList();
+    }
     function createMCQs() {
         let div = document.createElement("div");
         div.className = "create-mcq-overlay me-overlay";
@@ -1740,7 +2026,6 @@ import ReactDOM from "react-dom";
                                 options_text.push(option.value);
                                 if (option.closest(".option").querySelector("input[type='radio']").checked) correct_option_index = index;
                             });
-                            debugger;
 
                             if (correct_option_index == undefined) {
                                 popupAlert("Please select correct option");
@@ -1949,9 +2234,9 @@ import ReactDOM from "react-dom";
         que = que.id ? que : getQuestionById(que);
         return (
             <div>
-                <div id={que.id} className="que-div min-w-320 max-w-90 my-2 w-[min(400px, 90%)] flex flex-col gap-2 box-border border-2 rounded-md p-5">
+                <div id={que.id} className="que-div w-full flex flex-col gap-2 px-3 py-2">
                     <div className="question py-2 text-md flex justify-start items-baseline gap-2">
-                        <span className="text-md font-bold que-num w-[30px]"> {index ? `Q${index}.` : "Q."} </span>
+                        <span className="text-md font-bold que-num w-[30px] hide"> {index ? `Q${index}.` : "Q."} </span>
                         <div className="text-md font-bold flex-1 flex flex-wrap" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
                     </div>
 
@@ -2048,7 +2333,12 @@ import ReactDOM from "react-dom";
     }
 
     function openMcq(que, target, type, selected_option_id, index) {
+        let ele = document.querySelector(".mcq-full-screen-overlay");
+        if (ele) ele.remove();
         que = que.id ? que : getQuestionById(que);
+        openMCQInFullScreen(que);
+        return;
+
         target = target ? target : document.querySelector(".page.mcq .que-text");
         ReactDOM.render(<GetMcqDiv que={que} type={type} index={index} selected_option_id={selected_option_id} />, target);
 
@@ -2105,7 +2395,7 @@ import ReactDOM from "react-dom";
     function McqTagsHTML({ que }) {
         return (
             <div className={`tags-inner  que-tags inline-block p-2 items-center ${is_mobile ? "max-w-[80vw]" : "max-w-full"} overflow-x-scroll whitespace-nowrap`}>
-                <span className="text-sm inline-block px-2 py-1">Category:</span>
+                <span className="text-sm inline-block px-2 py-1 hide">Category:</span>
                 {que.tags.map((tag, index) => {
                     let ignore_tags = [exam].concat(subjects[exam]); //["ssc", "general studies", "english", "aptitude", "reasoning"];
                     if (ignore_tags.includes(tag.toLocaleLowerCase())) return;
@@ -2173,6 +2463,10 @@ import ReactDOM from "react-dom";
         });
 
         setURL(tabName);
+        if (tabName == "mock") {
+            let ele = document.querySelector(".mock-overlay.hide");
+            if (ele) openOverlay("mock-overlay");
+        }
     }
 
     function loadTabsTopSection(tabName) {
@@ -2202,14 +2496,20 @@ import ReactDOM from "react-dom";
                         <i
                             class="bi bi-bookmark-check text-xl flex justify-center items-center mr-[5px] cursor-pointer"
                             onClick={(event) => {
-                                let overlay_name = "bookmarked-questions-overlay";
-                                let overlay_div = document.querySelector(`.${overlay_name}`);
-                                overlay_div = document.createElement("div");
-                                overlay_div.className = `me-overlay ${overlay_name}`;
+                                userdata.bookmarked_questions = userdata.bookmarked_questions ? userdata.bookmarked_questions : [];
+                                if (userdata.bookmarked_questions.length == 0) {
+                                    popupAlert("No bookmarked questions");
+                                    return;
+                                }
+
+                                let overlay_div = document.createElement("div");
+                                overlay_div.className = `me-overlay bookmarked-questions-overlay h-screen`;
                                 document.querySelector(".me-overlays").appendChild(overlay_div);
                                 ReactDOM.render(<BookmarkedQuestionsOverlayHTML />, overlay_div);
                             }}
                         ></i>
+                        <i class="bi bi-calendar-date text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => openDailyPractiseMcqs("")}></i>
+                        <i class="bi bi-shuffle text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => reloadMCQs()}></i>
                     </div>
                 </div>
             );
@@ -2221,8 +2521,21 @@ import ReactDOM from "react-dom";
                     <span className="text-xl font-bold">Notes</span>
                     <div className="icons flex justify-end items-center gap-2">
                         <i class="bi bi-search text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => searchInNotesLoadOverlay()}></i>
-                        <i class="bi bi-list text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => openOverlay("note-chapter-list-overlay")}></i>
-                        <i class="hide bi bi-pencil text-xl ml-auto flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => searchInNotesLoadOverlay()}></i>
+                        <i class="bi bi-list text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => openNotesChapterPageOrChapterListOverlay()}></i>
+                        <i class="hide bi bi-play-btn text-xl flex justify-center items-center mr-[5px] cursor-pointer"></i>
+                        <i class="hide bi bi-file-earmark-pdf text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => openPDFPage()}></i>
+                        <i
+                            class="hide bi bi-bookmark-check text-xl flex justify-center items-center mr-[5px] cursor-pointer"
+                            onClick={() => {
+                                popupAlert("Bookmarked Note Items");
+                            }}
+                        ></i>
+                        <i
+                            class="hide bi bi-pencil text-xl ml-auto flex justify-center items-center mr-[5px] cursor-pointer"
+                            onClick={() => {
+                                popupAlert("Handwritten Notes Items");
+                            }}
+                        ></i>
                         <i class="hide bi bi-plus-circle text-xl flex justify-center items-center mr-[5px] cursor-pointer"></i>
                     </div>
                 </div>
@@ -2233,7 +2546,11 @@ import ReactDOM from "react-dom";
             return (
                 <div className="flex justify-between items-center w-full">
                     <span className="text-xl font-bold">Mocks</span>
-                    <div className="icons flex justify-end items-center gap-2"></div>
+                    <div className="icons flex justify-end items-center gap-2">
+                        <i class="new-mock bi bi-plus-circle-dotted text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => switchMockTabs("new-mock", event)}></i>
+                        <i class="static-mocks bi bi-list-task text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => switchMockTabs("static-mocks", event)}></i>
+                        <i class="mock-history bi bi-clock-history text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => switchMockTabs("mock-history", event)}></i>
+                    </div>
                 </div>
             );
         }
@@ -2241,6 +2558,17 @@ import ReactDOM from "react-dom";
             document.querySelector(".main.tabs.top").classList.add("hide");
             return <div className="flex justify-between items-center w-full"></div>;
         }
+    }
+
+    function openPDFPage() {
+        openInMainNotesPage("pdf");
+    }
+
+    function openInMainNotesPage(type) {
+        document.querySelectorAll(".main-notes-page > div").forEach((div) => {
+            div.classList.add("hide");
+        });
+        document.querySelector(`.main-notes-page > div.${type}`).classList.remove("hide");
     }
 
     function setURL(tabName) {
@@ -2254,6 +2582,15 @@ import ReactDOM from "react-dom";
 
     //loadHomePage();
 
+    function openNotesChapterPageOrChapterListOverlay() {
+        let ele = document.querySelector(".main-notes-page > div.chapter.hide");
+        if (ele) {
+            openInMainNotesPage("chapter");
+        } else {
+            openOverlay("note-chapter-list-overlay");
+        }
+    }
+
     function parseURL(url) {
         let hashIndex = url.indexOf("#");
         if (hashIndex !== -1) {
@@ -2262,6 +2599,205 @@ import ReactDOM from "react-dom";
             return items;
         }
         return [];
+    }
+
+    function openDailyPractiseMcqs(url) {
+        let overlay = document.querySelector(".me-overlay.daily-practise-mcqs-overlay");
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.className = `me-overlay daily-practise-mcqs-overlay`;
+            document.querySelector(".me-overlays").appendChild(overlay);
+            ReactDOM.render(<DailyPractiseMcqsOverlayHTML />, overlay);
+        }
+        openOverlay("daily-practise-mcqs-overlay");
+    }
+
+    function DailyPractiseMcqsOverlayHTML__() {
+        userdata.daily_practise_questions = userdata.daily_practise_questions ? userdata.daily_practise_questions : [];
+        return (
+            <div className="daily-practise-mcqs-overlay-inner max-h-screen w-full bg-white">
+                <div className="header flex justify-between items-center gap-2 px-4 py-2">
+                    <span className="text-[1.3em] font-bold">Daily Practise MCQs</span>
+                    <i className="bi bi-x-circle text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => closeOverlay(event)}></i>
+                </div>
+                <div className="block max-w-full overflow-x-auto px-1 py-1 border-b-2">
+                    <div className="flex space-x-4 text-blue-500 py-2 px-2 text-sm">
+                        {userdata.daily_practise_questions.map((item, index) => {
+                            return (
+                                <div
+                                    key={index} // or use a unique identifier from your item
+                                    className="inline-flex items-center whitespace-nowrap bg-gray-100 rounded-md p-2 min-w-[fit-content] cursor-pointer"
+                                    onClick={() => {
+                                        popupAlert(`Opening Daily Practise MCQs for ${item.date}`, 5, "bg-blue-500");
+                                    }}
+                                >
+                                    {item.date}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    function DailyPractiseMcqsOverlayHTML() {
+        userdata.daily_practise_questions = userdata.daily_practise_questions ? userdata.daily_practise_questions : [];
+        setTimeout(() => {
+            return;
+            let item = userdata.daily_practise_questions[0];
+            let total_questions = item.questions.length;
+            let total_correct = 0;
+            let total_wrong = 0;
+            item.questions.forEach((que) => {
+                if (que.correct_option_id == que.selected_option_id) total_correct++;
+                else total_wrong++;
+            });
+            loadDailyPractiseMcqs(item, total_questions, total_correct, total_wrong);
+        }, 1000);
+        return (
+            <div className="daily-practise-mcqs-overlay-inner h-screen w-full bg-white">
+                <div className="header flex justify-between items-center gap-2 px-4 py-2">
+                    <span className="text-[1.3em] font-bold">Daily Practised MCQs</span>
+                    <i
+                        className="bi bi-x-circle text-xl flex justify-center items-center mr-[5px] cursor-pointer"
+                        onClick={(event) => {
+                            event.target.closest(".me-overlay").remove();
+                        }}
+                    ></i>
+                </div>
+                <div className="block max-w-full overflow-x-auto px-1 py-1 border-b-2">
+                    <div className="flex space-x-4 text-blue-500 py-2 px-2 text-sm">
+                        {userdata.daily_practise_questions.map((item, index) => {
+                            let date = convertDateTo_Aug_10_2024_Format(item.date);
+                            let total_questions = item.questions.length;
+                            let total_correct = 0;
+                            let total_wrong = 0;
+
+                            item.questions.forEach((que) => {
+                                if (que.correct_option_id === que.selected_option_id) total_correct++;
+                                else total_wrong++;
+                            });
+
+                            return (
+                                <div
+                                    key={index} // or use a unique identifier from your item
+                                    className="inline-flex items-center whitespace-nowrap border border-gray-200  bg-gray-100 rounded-md p-2 min-w-[fit-content] cursor-pointer"
+                                    onClick={(event) => loadDailyPractiseMcqs(event, item, total_questions, total_correct, total_wrong)}
+                                >
+                                    <div className="flex flex-col justify-center items-center gap-2">
+                                        <span className="text-gray-700 font-bold">{date}</span>
+                                        <div className="flex justify-center items-center gap-2">
+                                            <span className="bg-gray-300 text-gray-500 px-2 rounded-md text-[0.9em]">{total_questions}</span>
+                                            <span className="bg-red-200 text-red-500 px-2 rounded-md text-[0.9em]">{total_correct}</span>
+                                            <span className="bg-green-200 text-green-500 px-2 rounded-md text-[0.9em]">{total_wrong}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="que-section"></div>
+            </div>
+        );
+    }
+
+    function loadDailyPractiseMcqs(event, item, total_questions, total_correct, total_wrong) {
+        let div = document.querySelector(".daily-practise-mcqs-overlay-inner").querySelector(".que-section");
+        ReactDOM.render(<LoadDailyPractiseMcqsHTML item={item} total_questions={total_questions} total_correct={total_correct} total_wrong={total_wrong} />, div);
+    }
+
+    function LoadDailyPractiseMcqsHTML({ item, total_questions, total_correct, total_wrong }) {
+        return (
+            <div className="load-daily-practise-mcqs-html flex flex-col justify-center items-center gap-2">
+                <div className="header flex justify-center items-center gap-2 py-2 w-full px-4">
+                    <span className="text-gray-700 font-bold text-[1.3em] ">{convertDateTo_Aug_10_2024_Format(item.date)}</span>
+
+                    <div className="flex justify-center items-center gap-2 ml-auto">
+                        <span className="bg-gray-200 text-gray-500 font-bold ml-auto p-1 rounded-md cursor-pointer" onClick={(event) => filterDailyPractiseMcqs(event, "all")}>
+                            {total_questions < 10 ? "0" + total_questions : total_questions}
+                        </span>
+                        <span className="bg-green-200 text-green-500 font-bold p-1 rounded-md cursor-pointer" onClick={(event) => filterDailyPractiseMcqs(event, "correct")}>
+                            {total_correct < 10 ? "0" + total_correct : total_correct}
+                        </span>
+                        <span className="bg-red-200 text-red-500 font-bold p-1 rounded-md cursor-pointer" onClick={(event) => filterDailyPractiseMcqs(event, "wrong")}>
+                            {total_wrong < 10 ? "0" + total_wrong : total_wrong}
+                        </span>
+                    </div>
+                </div>
+                <div className="que-list h-[calc(100vh-170px)] overflow-y-scroll w-full">
+                    {item.questions.map((que, index) => {
+                        let quess = getQuestionById(que.id);
+                        return (
+                            <div className={`question-div ${que.selected_option_id == que.correct_option_id ? "correct" : "wrong"}`} key={index} id={index}>
+                                {GetMCQHTML({ que: quess, type: "pre-mock-test", index: index + 1, selected_option_id: que.selected_option_id, is_show_icons: true })}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    }
+
+    function filterDailyPractiseMcqs(event, type) {
+        let questions = event.target.closest(".daily-practise-mcqs-overlay-inner").querySelectorAll(".question-div");
+        if (type == "all") {
+            questions.forEach((que) => {
+                que.classList.remove("hide");
+            });
+            return;
+        }
+        if (type == "correct") {
+            questions.forEach((que) => {
+                que.classList.add("hide");
+                if (que.classList.contains("correct")) que.classList.remove("hide");
+            });
+        }
+        if (type == "wrong") {
+            questions.forEach((que) => {
+                que.classList.add("hide");
+                if (que.classList.contains("wrong")) que.classList.remove("hide");
+            });
+        }
+        event.target.closest(".daily-practise-mcqs-overlay-inner").querySelector(".que-list .question-div").scrollIntoView({ behavior: "auto" });
+    }
+
+    function DailyPractiseMcqsOverlayHTML_1() {
+        return (
+            <div className="daily-practise-mcqs-overlay-inner max-h-screen w-full bg-white">
+                <div className="header flex justify-between items-center gap-2 px-4 py-2">
+                    <span className="text-[1.3em] font-bold">Daily Practise MCQs</span>
+                    <i class="bi bi-x-circle text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => closeOverlay(event)}></i>
+                </div>
+                <div class="block max-w-full overflow-x-auto px-1 py-1 border-b-2">
+                    <div class="flex space-x-4 text-blue-500  py-2 px-2 text-sm">
+                        {userdata.daily_practise_mcqs.map((item, index) => {
+                            let date = convertDateTo_Aug_10_2024_Format(item.date);
+                            let total_questions = item.total_questions;
+                            let total_correct = 0;
+                            let total_wrong = 0;
+                            item.questions.forEach((que) => {
+                                if (que.correct_option_id == que.selected_option_id) total_correct++;
+                                else total_wrong++;
+                            });
+                            return (
+                                <div class="inline-flex items-center whitespace-nowrap border border-blue-500 rounded-md p-2 min-w-[fit-content] cursor-pointer" onClick={() => searchInNotesLoadOverlay()}>
+                                    <div className="flex flex-col justify-center items-center gap-2">
+                                        <span>{date}</span>
+                                        <div className="flex justify-center items-center gap-2">
+                                            <span>{total_questions}</span>
+                                            <span>{total_correct}</span>
+                                            <span>{total_wrong}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     async function openPageBasedOnURL(url) {
@@ -2278,11 +2814,13 @@ import ReactDOM from "react-dom";
             if (page == "mcq") {
                 let que_id = url_items[2];
                 let que = null;
-                if (que_id) que = getQuestionById(que_id);
-                curr_que_index = 0;
-                filtered_ques = sortArrayRandomly(que_data);
-                que = que ? que : filtered_ques[curr_que_index];
-                openMcq(que);
+                if (que_id) {
+                    que = getQuestionById(que_id);
+                    curr_que_index = 0;
+                    filtered_ques = sortArrayRandomly(que_data);
+                    que = que ? que : filtered_ques[curr_que_index];
+                    openMcq(que);
+                }
             }
             //openPage(page);
         } else {
@@ -2312,6 +2850,7 @@ import ReactDOM from "react-dom";
     var que_data = null,
         shared_ques = null,
         esa_ques = null,
+        pdf_data = null,
         handnotes_data = null,
         all_ques = null,
         follower_ques = null,
@@ -2359,6 +2898,7 @@ import ReactDOM from "react-dom";
         tags_list = data.tags_list ? data.tags_list : [];
         static_mocks = data.mocks_data ? data.mocks_data : [];
         handnotes_data = data.handnotes ? data.handnotes : [];
+        pdf_data = data.pdfs ? data.pdfs : [];
         console.log(`data retrieved from firebase for ${exam}`);
         //alert(`data retrieved from firebase for ${exam}`);
         await getAllUsersInfo();
@@ -2427,7 +2967,7 @@ import ReactDOM from "react-dom";
         all_tags = sortItems(all_tags);
         all_tags.forEach((tag) => {
             let span = document.createElement("span");
-            span.className = "tag flex justify-center items-center text-sm text-blue-700 border-2 border-blue-700 rounded-md px-2 py-1 cursor-pointer";
+            span.className = "tag flex justify-center items-center text-sm text-blue-500 border-2 border-blue-500 rounded-md px-2 py-1 cursor-pointer";
             span.textContent = capitalFirstLetterOfEachWord(tag);
             span.onclick = (event) => filterMcqsByTag(tag, event);
             div.querySelector(".filter-mcq-overlay .tab-container.all-tags").appendChild(span);
@@ -2482,33 +3022,51 @@ import ReactDOM from "react-dom";
         return (
             <div className=" container filter-mcq-overlay-inner flex flex-col  h-full w-full ">
                 <div className="filter-mcq-header p-4 flex justify-center items-center gap-2">
-                    <span className="text-[15px] font-bold">Filter MCQs by tags</span>
+                    <span className="text-[15px] font-bold">Filter MCQs</span>
                     <i className="fa-regular fa-xmark-circle cursor-pointer text-xl align-right ml-auto" onClick={(event) => closeOverlay(event)}></i>
                 </div>
-
-                <div className="flex justify-center items-center gap-2   p-2  w-full">
-                    <div className="flex justify-center items-center gap-2  rounded-md px-2 py-1 border border-gray-700 ">
-                        <i className="fa-regular fa-filter"></i>
-                        <input type="text" className="filter-mcq-input p-1 align-middle focus:outline-none text-sm" placeholder="Filter mcqs by tags" onKeyUp={(event) => filterMcqTagItems(event)} />
+                <div class="block subject-div h-[75px] w-full overflow-x-auto py-2 px-3">
+                    <span>Filter by subject:</span>
+                    <div class="flex space-x-4 py-2 ">
+                        {subjects[exam].map((subject, index) => (
+                            <span
+                                key={index} // Add a key for each child in the list
+                                className=" subject inline-flex items-center whitespace-nowrap border text-gray-500 h-[22px] rounded-md px-2 py-1 min-w-[fit-content] cursor-pointer"
+                                onClick={(event) => filterMcqsByTag(subject, event)}
+                            >
+                                {capitalFirstLetterOfEachWord(subject)}
+                            </span>
+                        ))}
                     </div>
                 </div>
+
+                <div className="flex flex-col justify-start items-start w-full pt-3 px-3 ">
+                    <span className="block h-auto py-2">Filter by tags:</span>
+                    <div className="flex justify-center items-center gap-2  h-auto py-2  w-full">
+                        <div className="flex justify-center items-center gap-2  w-full rounded-md px-2 py-1 my-3  border border-gray-500 ">
+                            <i className="fa-regular fa-filter"></i>
+                            <input type="text" className="filter-mcq-input p-1 align-middle focus:outline-none text-sm" placeholder="Filter mcqs by tags" onKeyUp={(event) => filterMcqTagItems(event)} />
+                        </div>
+                    </div>
+                </div>
+
                 <div className=" hide flex justify-center items-center gap-2  text-gray-700 border-2 rounded-md">
                     <i className="fa-regular fa-filter w-[15px]"></i>
                     <input type="text" className="filter-mcq-input py-2 px-3 flex-1 align-middle focus:outline-none text-sm" placeholder="Filter mcqs by tags" onKeyUp={(event) => filterMcqsByTag(event)} />
                 </div>
 
                 <div className="tab-section h-full w-full">
-                    <div className="tabs flex justify-center align-middle gap-4 p3 border-b-2 w-full">
-                        <div className="tab flex justify-center  flex-1 p-2 subject-wise cursor-pointer active text-sm text-no-wrap" onClick={(event) => switchTabs("subject-wise", event)}>
+                    <div className="tabs flex justify-center align-middle gap-4 p-3 w-full">
+                        <div className="tab flex justify-center flex-1 py-1 px-2 subject-wise cursor-pointer bg-blue-400 text-white rounded-md text-sm text-no-wrap mx-2 h-[25px]" onClick={(event) => switchFilterMCQsTabs("subject-wise", event)}>
                             Subject Wise
                         </div>
-                        <div className="tab all-tags flex justify-center flex-1 p-2 cursor-pointer text-sm" onClick={(event) => switchTabs("all-tags", event)}>
+                        <div className="tab flex justify-center flex-1 py-1 px-2 all-tags cursor-pointer  text-gray-500 rounded-md text-sm text-no-wrap mx-2 h-[25px]" onClick={(event) => switchFilterMCQsTabs("all-tags", event)}>
                             All Tags
                         </div>
                     </div>
-                    <div className="tab-containers p-3 flex ">
-                        <div className="tab-container  subject-wise  ml-4  w-full  max-h-[calc(100vh-220px)] overflow-y-scroll mb-20px "> </div>
-                        <div className="tab-container all-tags  w-full   hide gap-2 flex justify-start flex-wrap  max-h-[calc(100vh-220px)] overflow-y-scroll mb-20px"></div>
+                    <div className="tab-containers flex  border-t-2 p-2 ">
+                        <div className="tab-container  subject-wise  ml-4  w-full  max-h-[calc(100vh-250px)] overflow-y-scroll mb-20px "> </div>
+                        <div className="tab-container all-tags  w-full   hide gap-2 flex justify-start flex-wrap  max-h-[calc(100vh-250px)] overflow-y-scroll mb-20px"></div>
                     </div>
                 </div>
                 <div className=" hide search-mcq-footer p-4 flex justify-center items-center gap-2">
@@ -2519,7 +3077,26 @@ import ReactDOM from "react-dom";
             </div>
         );
     }
+    function switchFilterMCQsTabs(tab_name, event) {
+        event.target
+            .closest(".tab-section")
+            .querySelectorAll(".tab")
+            .forEach((tab) => {
+                tab.classList.remove("bg-blue-400");
+                tab.classList.replace("text-white", "text-gray-500");
+            });
+        event.target.classList.add("bg-blue-400");
+        event.target.classList.replace("text-gray-500", "text-white");
+
+        let tab_containers = event.target.closest(".tab-section").querySelectorAll(".tab-container");
+        tab_containers.forEach((container) => {
+            container.classList.add("hide");
+        });
+        let selected_tab_container = event.target.closest(".tab-section").querySelector(`.tab-container.${tab_name}`);
+        selected_tab_container.classList.remove("hide");
+    }
     function filterMcqsByTag(tag, event) {
+        openTab("mcq");
         tag = tag ? tag.toLowerCase() : event.target.textContent.trim().toLowerCase();
         //tag = tag.textContent.trim().toLowerCase();
         let tag_array = [tag];
@@ -2533,6 +3110,7 @@ import ReactDOM from "react-dom";
                 });
             }
         });
+
         /*
     filtered_ques = que_data.filter((que) => {
         //let que_tags = que.tags.map((tag) => tag.toLowerCase());
@@ -2546,10 +3124,12 @@ import ReactDOM from "react-dom";
                 filtered_ques.push(que);
             }
         });
-
-        curr_que_index = 0;
-        openMcq(filtered_ques[0]);
+        loadMCQList();
+        popupAlert(`Filtered:  ${filtered_ques.length} mcqs found for #[${capitalFirstLetterOfEachWord(tag)}]`, 5, "bg-blue-500");
         closeOverlay(event);
+        return;
+        //curr_que_index = 0;
+        //openMcq(filtered_ques[0]);
 
         let filter_message = `Filtered:  ${filtered_ques.length} mcqs found for #[${capitalFirstLetterOfEachWord(tag)}]`;
         setFilterMcqsMessage(filter_message);
@@ -2781,7 +3361,18 @@ import ReactDOM from "react-dom";
     }
 
     function switchMockTabs(tab_name, event) {
-        let tab_section = event.target.closest(".tab-section");
+        let tab_section = document.querySelector(".page.mock .tab-section");
+        let tab_containers = tab_section.querySelectorAll(".tab-container");
+        tab_containers.forEach((container) => {
+            container.classList.add("hide");
+        });
+        let selected_tab_container = tab_section.querySelector(`.tab-container.${tab_name}`);
+        selected_tab_container.classList.remove("hide");
+        if (tab_name == "new-mock") {
+            document.querySelector(".new-mock .tab.subject-wise").click();
+        }
+        return;
+
         let tabs = tab_section.querySelectorAll(".page-tab");
         tabs.forEach((tab) => {
             tab.classList.remove("font-bold");
@@ -2800,20 +3391,44 @@ import ReactDOM from "react-dom";
             //selected_tab.classList.replace("text-blue-500", "text-gray-400");
         }
         event.target.classList.replace("text-gray-400", "text-blue-500");
+    }
 
-        let tab_containers = tab_section.querySelectorAll(".tab-container");
-        tab_containers.forEach((container) => {
-            container.classList.add("hide");
+    function filterMockResultMCQs(type) {
+        let all_questions = document.querySelectorAll(".mock-overlay .questions-list .question-div");
+
+        all_questions.forEach((question) => {
+            question.classList.add("hide");
         });
-        let selected_tab_container = tab_section.querySelector(`.tab-container.${tab_name}`);
-        selected_tab_container.classList.remove("hide");
+        if (type == "all") {
+            all_questions.forEach((question) => {
+                question.classList.remove("hide");
+            });
+        } else if (type == "attempted") {
+            all_questions.forEach((question) => {
+                if (question.classList.contains("correct") || question.classList.contains("wrong")) {
+                    question.classList.remove("hide");
+                }
+            });
+        } else if (type == "correct") {
+            all_questions.forEach((question) => {
+                if (question.classList.contains("correct")) {
+                    question.classList.remove("hide");
+                }
+            });
+        } else if (type == "wrong") {
+            all_questions.forEach((question) => {
+                if (question.classList.contains("wrong")) {
+                    question.classList.remove("hide");
+                }
+            });
+        }
     }
 
     function MockTestPageHTML() {
         return (
             <div>
                 <div className="tab-section flex flex-col gap-2">
-                    <div className="page-tabs h-[40px] p-2 tabs flex gap-2 border-b-2">
+                    <div className="page-tabs hide h-[40px] p-2 tabs flex gap-2 border-b-2">
                         <div
                             className="page-tab tab cursor-pointer new-mock  flex-1 flex justify-center items-center font-bold text-blue-700 bg-blue-100 rounded-md"
                             onClick={(event) => {
@@ -2832,7 +3447,7 @@ import ReactDOM from "react-dom";
                                 switchMockTabs("mock-history", event);
                                 userdata.mock_tests.forEach((mock) => {
                                     let div = document.createElement("div");
-                                    div.className = "mock-history-item min-w-[300px] my-2 p-2";
+                                    div.className = "mock-history-item w-full";
                                     document.querySelector(".tab-container .mock-history-list").appendChild(div);
                                     ReactDOM.render(<MockTestHistoryItemHTML mock={mock} />, div);
                                 });
@@ -2899,7 +3514,7 @@ import ReactDOM from "react-dom";
                                                 {all_tags.map((tag) => (
                                                     <span
                                                         key={tag} // Use a unique key for each item
-                                                        className="tag flex justify-center items-center text-sm text-blue-700 border-2 border-blue-700 rounded-md px-2 py-1 cursor-pointer"
+                                                        className="tag flex justify-center items-center text-sm text-blue-500 border-2 border-blue-500 rounded-md px-2 py-1 cursor-pointer"
                                                         onClick={(event) => {
                                                             //Remove all the selected subjects..
                                                             let eles = document.querySelectorAll(".customise-mock .subject-wise .selected");
@@ -3088,7 +3703,7 @@ import ReactDOM from "react-dom";
 
     function MockTestHistoryItemHTML({ mock }) {
         return (
-            <div className="mock-history-item-inner flex flex-col justify-start items-start gap-2 flex-wrap border border-gray-300 rounded-md py-2 px-7 w-[fit-content]">
+            <div className="mock-history-item-inner w-auto flex flex-col justify-start items-start gap-2 flex-wrap border border-gray-300 rounded-md mx-3 py-3 px-2 ">
                 <span className="text-xl font-bold text-gray-500 text-center mock-name">{mock.name}</span>
                 <span className="text-md text-gray-400">
                     Date: {mock.date.date} at {mock.date.time}
@@ -3157,16 +3772,16 @@ import ReactDOM from "react-dom";
     }
 
     function popupAlert(message, time_in_sec, color) {
+        let ele = document.querySelector(".me-popup-alert");
+        if (ele) {
+            ele.remove();
+        }
+
         var div = document.createElement("div");
-        div.className = ` me-popup-alert flex fixed top-5 left-1/2 transform -translate-x-1/2 ${color ? color : "bg-blue-700"} p-2.5 px-3.5 rounded text-white z-50 min-w-[min(300px,70vw)] flex items-baseline`;
-        div.innerHTML = `
-        <span class="message flex-1">${message}</span>
-        <span class="close ml-auto w-5 h-5 flex justify-center items-center cursor-pointer">x</span>
-    `;
         document.body.append(div);
-        div.querySelector(".close").addEventListener("click", () => {
-            div.remove();
-        });
+        div.className = `w-full fixed top-5 left-0 right-0 flex justify-center z-50`;
+        ReactDOM.render(<PopupAlertHTMLMessage message={message} color={color} time_in_sec={time_in_sec} />, div);
+
         if (time_in_sec) {
             setTimeout(function () {
                 div.remove();
@@ -3174,8 +3789,29 @@ import ReactDOM from "react-dom";
         } else {
             setTimeout(function () {
                 div.remove();
-            }, 5000);
+            }, 3000);
         }
+    }
+
+    function PopupAlertHTMLMessage({ message, color, time_in_sec }) {
+        let arr = message.split(";");
+        return (
+            <div className={`me-popup-alert ${color ? color : "bg-blue-800"} px-3 py-2 rounded text-white w-[90%] `}>
+                <div className="flex justify-start items-baseline gap-2">
+                    <div className="message flex-1 flex flex-col gap-1 justify-start items-start">
+                        {arr.map((msg) => (
+                            <div className="text-sm">{msg}</div>
+                        ))}
+                    </div>
+                    <i
+                        className="bi bi-x-circle text-xl cursor-pointer"
+                        onClick={(event) => {
+                            event.target.closest(".me-popup-alert").remove();
+                        }}
+                    ></i>
+                </div>
+            </div>
+        );
     }
 
     function removePopupAlert() {
@@ -3337,10 +3973,10 @@ import ReactDOM from "react-dom";
                             </span>
                         ))}
                     </div>
-                    <div className="question-list  block max-h-[calc(100vh-170px)] overflow-y-auto py-2 px-4">
+                    <div className="question-list  block max-h-[calc(100vh-170px)] overflow-y-auto py-2">
                         {fil_ques.map((ques, index) => (
                             <div className="question-div" key={index} id={index}>
-                                {GetMcqDiv({ que: ques, type: "mock", index: index + 1 })}
+                                {GetMCQHTML({ que: ques, type: "mock", index: index + 1, is_icse: false, is_show_tags: false })}
                             </div>
                         ))}
                     </div>
@@ -3472,14 +4108,29 @@ import ReactDOM from "react-dom";
                         }}
                     ></i>
                 </div>
-                <div className="result-details flex flex-col gap-2 bg-gray-100 p-2 m-2 rounded-md">
+
+                <div className="hide result-details flex flex-col gap-2 bg-gray-100 p-2 m-2 rounded-md">
                     <span className="text-md ">Total Questions: {mock_obj.questions.length}</span>
                     <span className="text-md ">Total Attempeted: {mock_obj.total_attempeted}</span>
                     <span className="text-md text-green-500">Total Correct: {mock_obj.total_correct}</span>
                     <span className="text-md text-red-500">Total Wrong: {mock_obj.total_wrong}</span>
                 </div>
-                <div className="marks-details flex flex-col gap-2 bg-blue-100 p-2 m-2 rounded-md">
-                    <div className="flex justify-between items-center gap-2">
+                <div className="marks-details flex flex-col gap-2 bg-gray-50 p-2 m-2 rounded-md border-b-2">
+                    <div className="flex justify-start items-start gap-2">
+                        <span className="text-md border border-gray-300 rounded-md px-2 py-1 cursor-pointer" onClick={(event) => filterMockResultMCQs("all")}>
+                            {mock_obj.questions.length}
+                        </span>
+                        <span className="text-md border bg-gray-100 border-gray-300 rounded-md px-2 py-1 cursor-pointer" onClick={(event) => filterMockResultMCQs("attempted")}>
+                            {mock_obj.total_attempeted}
+                        </span>
+                        <span className="text-md border bg-green-100 border-green-300 rounded-md px-2 py-1 cursor-pointer" onClick={(event) => filterMockResultMCQs("correct")}>
+                            {mock_obj.total_correct}
+                        </span>
+                        <span className="text-md border bg-red-100 border-red-300 rounded-md px-2 py-1 cursor-pointer" onClick={(event) => filterMockResultMCQs("wrong")}>
+                            {mock_obj.total_wrong}
+                        </span>
+                    </div>
+                    <div className="flex flex-col justify-start items-start gap-2">
                         <span className="text-md">Marks: {`${(mock_obj.total_correct * 2 - mock_obj.total_wrong * 0.6).toFixed(2).replace(/\.0+$/, "").replace(/\.00$/, "")} out of ${mock_obj.questions.length * 2}`}</span>
                         <span className="text-md">Percentage: {`${((mock_obj.total_correct / mock_obj.questions.length) * 100).toFixed(1)}%`}</span>
                     </div>
@@ -3498,8 +4149,8 @@ import ReactDOM from "react-dom";
                 <span className="text-xl m-2 p-2 font-bold text-gray-400">Questions:</span>
                 <div className="questions-list block max-h-[70vh] overflow-y-auto">
                     {mock_obj.questions.map((que, index) => (
-                        <div className="question-div m-2" key={index}>
-                            {GetMcqDiv({ que: que.id, type: "mock-result", index: index + 1, selected_option_id: que.selected_option_id })}
+                        <div className={`question-div m-2 ${que.selected_option_id ? (que.selected_option_id == que.answer_option_id ? "correct" : "wrong") : ""}`} key={index}>
+                            {GetMCQHTML({ que: que.id, type: "mock-result", index: index + 1, selected_option_id: que.selected_option_id, is_show_icons: true, is_show_tags: true })}
                         </div>
                     ))}
                 </div>
@@ -3707,7 +4358,7 @@ import ReactDOM from "react-dom";
     async function startApp() {
         let local_cache_id = localStorage.getItem("esa_cache_id");
         let cache_id = "2024_910099_0986_0821_009_0088";
-        debugger;
+
         if (local_cache_id != cache_id) {
             //clearCache();
             //localStorage.setItem("esa_cache_id", cache_id);
@@ -3748,7 +4399,7 @@ import ReactDOM from "react-dom";
 
     async function postSignIn() {
         loadHTML("loading");
-        popupAlert(`Signed in as "${user_login_data.display_name}" & Exam: "${exam.toUpperCase()}"`);
+        popupAlert(`Signed in as "${user_login_data.display_name}";Exam: "${exam.toUpperCase()}"`);
         let url = window.location.href;
         let url_items = parseURL(url);
         exam = url_items.length ? url_items[0] : "ssc";
@@ -3772,10 +4423,9 @@ import ReactDOM from "react-dom";
     }
 
     function BookmarkedQuestionsOverlayHTML() {
-        let bookmarked_questions = userdata.bookmarked_questions;
         return (
-            <div className="container">
-                <div className="header flex justify-start items-center gap-2 text-gray-600">
+            <div className="container bookmarked-questions-overlay-inner">
+                <div className="header flex justify-start items-center gap-2 px-4 py-2 text-gray-600">
                     <span className="text-xl font-bold">Bookmarked Questions</span>
                     <i
                         className="fa-regular fa-circle-xmark text-xl cursor-pointer"
@@ -3784,10 +4434,10 @@ import ReactDOM from "react-dom";
                         }}
                     ></i>
                 </div>
-                <div className="content">
-                    {userdata.bookmarked_questions.map((question, index) => (
+                <div className="content question-list h-[calc(100vh-50px)] overflow-y-scroll border-t-2">
+                    {userdata.bookmarked_questions.map((que_id, index) => (
                         <div key={index} className="question-div">
-                            {GetMcqDiv({ que: question.id, type: "bookmarked", index: index + 1 })}
+                            {GetMCQHTML({ que: que_id, type: "bookmarked", index: index + 1, is_show_icons: true, is_show_tags: true })}
                         </div>
                     ))}
                 </div>
@@ -4087,6 +4737,7 @@ import ReactDOM from "react-dom";
         let mocks_data = data[0].mocks ? data[0].mocks : [];
         let tags_list = data[0].tags_list ? data[0].tags_list : [];
         let handnotes = data[0].handnotes ? data[0].handnotes : [];
+        let pdfs = data[0].pdfs ? data[0].pdfs : [];
 
         if (exam == "neet") notes_data = [];
 
@@ -4095,6 +4746,7 @@ import ReactDOM from "react-dom";
         database.ref(`esa_data/${exam}/data/mocks_data`).set(mocks_data);
         database.ref(`esa_data/${exam}/data/tags_list`).set(tags_list);
         database.ref(`esa_data/${exam}/data/handnotes`).set(handnotes);
+        database.ref(`esa_data/${exam}/data/pdfs`).set(pdfs);
         database.ref(`esa_data/${exam}/data_last_update_time`).set(new Date().toISOString());
         popupAlert("Data added to firebase");
     }
@@ -4252,5 +4904,19 @@ import ReactDOM from "react-dom";
         const seconds = String(now.getSeconds()).padStart(2, "0");
 
         return `${year}${month}${day}${hours}${minutes}${seconds}`;
+    }
+
+    function convertDateTo_Aug_10_2024_Format(inputDate) {
+        // Split the input date into its components
+        const [year, month, day] = inputDate.split("-");
+
+        // Create a new Date object
+        const date = new Date(year, month - 1, day); // month is 0-indexed
+
+        // Define options for formatting
+        const options = { year: "numeric", month: "short", day: "numeric" };
+
+        // Return the formatted date
+        return date.toLocaleDateString("en-US", options);
     }
 })();

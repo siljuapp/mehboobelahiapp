@@ -19,7 +19,8 @@
     display: none !important;
 }
 
-.link {
+.link,
+.link * {
     color: var(--text-link);
 }
 
@@ -368,6 +369,7 @@
 
 .me-overlay {
     position: fixed;
+    background-color: white;
     height: 100vh;
     width: 100vw;
     overflow-y: scroll;
