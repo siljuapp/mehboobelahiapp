@@ -5721,7 +5721,7 @@ if (match) {
     async function startApp() {
         //let local_cache_id = localStorage.getItem("esa_cache_id");
         //let cache_id = "2024_910099_0986_0821_009_0088";
-        //clearCache();
+        clearCache();
         loadHTML("loading");
 
         // Get exam from the url
