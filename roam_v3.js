@@ -17,6 +17,8 @@ var page_uid = {
     ssc_tags_index_page: "djETWEtPT", //"w7PIAT54m",
     ssc_videos_index_page: "w7PIAT54m",
     ssc_handnotes_block_uid: "_leVKMccs",
+    ssc_pdfs_block_uid: "etXLOLg4E",
+    ssc_vocab_block_uid: "jN68AIg-d",
 
     upsc_notes_chapter_index_page: "jHHHvmaku",
     upsc_tags_index_page: "NZjOnoCjB",
@@ -73,6 +75,8 @@ async function updateNotesData(uid) {
     getAllUnlinkedQuestions();
 
     loadHandnotesData();
+    loadPDFsData();
+    loadVocabData();
 
     let combined_ques = new_ques.concat(unlinked_ques);
     my_data[0] = {};
@@ -81,7 +85,81 @@ async function updateNotesData(uid) {
     my_data[0].tags_list = tags_index;
     my_data[0].mocks = mocks;
     my_data[0].handnotes = handnotes_data;
+    my_data[0].pdfs = pdf_data;
+    my_data[0].vocab = vocab_data;
     downloadJSON(my_data);
+}
+
+let vocab_data = [];
+function loadVocabData() {
+    var block = getBlockInfo(page_uid[`${exam}_vocab_block_uid`]);
+    if (!block) return;
+    var children = block.children;
+    if (children.length > 0) {
+        children = sortBasedOnOrder(children);
+        children.forEach((child) => {
+            loadVocabDataFromEachBlock(child);
+        });
+    }
+}
+function loadVocabDataFromEachBlock(block) {
+    var str = block.string;
+    var id = block.uid;
+    let words = str.split("\n");
+    let vocab_obj = {
+        id: block.uid,
+        word: words[0],
+        meaning: words[1],
+        example: words[2],
+    };
+    vocab_data.push(vocab_obj);
+    var children = block.children;
+    if (children.length > 0) {
+        children = sortBasedOnOrder(children);
+        children.forEach((child) => {
+            loadVocabDataFromEachBlock(child);
+        });
+    }
+}
+
+let pdf_data = [];
+function loadPDFsData() {
+    var block = getBlockInfo(page_uid[`${exam}_pdfs_block_uid`]);
+    if (!block) return;
+    var children = block.children;
+    if (children.length > 0) {
+        children = sortBasedOnOrder(children);
+        children.forEach((child) => {
+            loadPdfDataFromEachBlock(child);
+        });
+    }
+}
+function loadPdfDataFromEachBlock(block, subject) {
+    var str = block.string;
+    // Extract the link between the backticks
+    if (str.indexOf("url:") != -1) {
+        const titleMatch = str.match(/title:\s+"([^"]+)"/);
+        const urlMatch = str.match(/url:\s+"([^"]+)"/);
+
+        const title = titleMatch ? titleMatch[1] : null;
+        const url = urlMatch ? urlMatch[1] : null;
+
+        obj = {
+            id: block.uid,
+            subject: subject,
+            title: title,
+            url: url,
+        };
+        pdf_data.push(obj);
+    } else {
+        let children = block.children ? block.children : [];
+        if (children.length) {
+            children = sortBasedOnOrder(children);
+            children.forEach((child) => {
+                loadPdfDataFromEachBlock(child, block.string);
+            });
+        }
+    }
 }
 
 let handnotes_data = [];

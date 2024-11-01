@@ -206,7 +206,7 @@
 
 .mobile .me-iframe-div iframe {
     width: min(450px, 98vw);
-    height: 250px;
+    height: 200px;
 }
 
 
@@ -249,8 +249,7 @@
     border: 4px solid transparent;
     /*background-color: #394B59;*/
     background-color: #b2b2b2;
-    margin: 0px 5px;
-
+    margin: 0px 2px;
     margin-top: 6px;
 }
 
@@ -384,4 +383,16 @@
 .page.notes .me-iframe-div:has(iframe) {
     height: 720px !important;
     border-bottom: 1px solid #e0e0e0;
+}
+
+.div-mcq_ * {
+    font-family: "Special Elite", sans-serif;
+}
+
+.que-div_ * {
+    font-family: 'Special Elite', monospace;
+}
+
+.user-page .shared-user-info {
+    display: none;
 }
