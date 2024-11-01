@@ -101,37 +101,14 @@ import ReactDOM from "react-dom";
     function LoadSignInPageHTML() {
         return (
             <div className="container-inner flex flex-col justify-center items-center h-[100vh] w-full">
-                <div className="hide mt-10 transform -translate-y-1/2">
-                    <div className="hide w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="mt-10 transform -translate-y-1/2">
+                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
                         <span className="text-3xl font-bold text-white transform -rotate-12" style={{ fontFamily: "Arial, sans-serif" }}>
                             E
                         </span>
-                        <h1 className="text-xl font-bold text-gray-800">ELAHI</h1>
                     </div>
                 </div>
-                <div className="flex flex-col justify-center items-center gap-2 w-full px-1">
-                    <h1 className="text-[2.5em] font-bold text-gray-800">ELAHI</h1>
-                    <span className="text-[1.4em] text-gray-500">A Social Study App</span>
-                    <span className="text-md text-gray-500">Learn, Share, and Succeed Together</span>
-                    <span className="text-gray-500 text-center ">First ever digital educational product from Ladakh</span>
-                </div>
-                <div className="exam block w-full h-auto">
-                    <div className="flex justify-center items-center gap-2 my-2">
-                        <h1 className="text-xl font-bold text-gray-400">Exam:</h1>
-                        <select
-                            className="w-[fit-content] p-2 rounded-md border-2 border-gray-300"
-                            onChange={(event) => {
-                                exam = event.target.value.toLowerCase();
-                            }}
-                        >
-                            <option value="ssc">SSC</option>
-                            <option value="neet">NEET</option>
-                            <option value="upsc">UPSC</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className="hide app-features flex flex-col justify-start items-start gap-2 m-2 p-2">
+                <div className="app-features flex flex-col justify-start items-start gap-2 m-2 p-2">
                     <h1 className="text-xl font-bold text-gray-800">Features:</h1>
                     <div className="flex justify-start mcq items-center gap-2">
                         <i className="fa-regular fa-circle-check text-green-500"></i>
@@ -178,7 +155,12 @@ import ReactDOM from "react-dom";
                                         username: user.email.substring(0, user.email.indexOf("@")),
                                         userid: getUniqueId(),
                                     };
-                                    checkIsUserExist(user.email);
+
+                                    //checkIsUserExist(user.email);
+
+                                    //saveDataInLocale("user_login_data", user_login_data);
+                                    localStorage.setItem("esa_user_login_data", JSON.stringify(user_login_data));
+                                    postSignIn();
                                 })
                                 .catch((error) => {
                                     // Handle Errors here.
@@ -198,15 +180,6 @@ import ReactDOM from "react-dom";
                 </div>
             </div>
         );
-    }
-
-    function getUserLoginDataFromFirebase(email) {
-        all_users_info.forEach((user_info) => {
-            if (user_info.email == email) {
-                return user_info;
-            }
-        });
-        return null;
     }
 
     function LoadHTML() {
@@ -264,11 +237,6 @@ import ReactDOM from "react-dom";
                         <i class="bi bi-card-checklist"></i>
                         <span className="">Mock</span>
                     </div>
-
-                    <div className="tab user flex flex-col justify-center items-center   cursor-pointer  transition duration-300 ease-in-out mb-2 py-1 px-2 rounded-md" onClick={(event) => openTab(event, "user")}>
-                        <i class="bi bi-person"></i>
-                        <span className="">User</span>
-                    </div>
                 </div>
 
                 <div className=" main tab-containers flex justify-center items-center gap-4 h-full pt-[50px] pb-[70px]">
@@ -282,9 +250,6 @@ import ReactDOM from "react-dom";
                     </div>
                     <div className="tab-container page mock max-h-[calc(100vh - 120px)] overflow-y-scroll hide">
                         <h1>Mock</h1>
-                    </div>
-                    <div className="tab-container page vocab max-h-[calc(100vh - 120px)] overflow-y-scroll hide">
-                        <h1>Vocab</h1>
                     </div>
                     <div className="tab-container page user max-h-[calc(100vh - 120px)] overflow-y-scroll hide">
                         <h1>User</h1>
@@ -340,7 +305,7 @@ import ReactDOM from "react-dom";
         if (is_mobile) {
             document.body.classList.add("mobile");
         }
-        //if (!userdata) getUserData();
+        if (!userdata) getUserData();
         loadHomePage();
         //document.querySelector(".app-loading").classList.add("hide");
         openTab("home");
@@ -354,17 +319,7 @@ import ReactDOM from "react-dom";
 
         loadNotesPage();
         loadMockTestPage();
-        loadUserPage();
-        loadVocabPage();
-    }
-
-    function loadVocabPage() {
-        return;
-    }
-
-    function openVocabWord(obj) {
-        //let vocab_word_div = document.querySelector(".vocab-word-div");
-        //vocab_word_div.innerHTML = LoadVocabWord(obj);
+        //loadUserPage();
     }
 
     function OverlayHTML() {
@@ -376,218 +331,49 @@ import ReactDOM from "react-dom";
     }
 
     function loadUserPage() {
+        return;
         let container = document.querySelector(".tab-container.page.user");
         ReactDOM.render(<LoadUserPageHTML />, container);
     }
-    async function checkIsUserExist(email) {
-        //await getAllUsersInfo();
-        exam = exam.toLowerCase();
-        let data_ref = database.ref(`esa_data/${exam}/users_login_info`);
-        let all_users_info = await getDataFromFirebaseUsingRef(data_ref);
-
-        all_users_info = all_users_info ? all_users_info : [];
-
-        let user_info = null;
-        for (const userId in all_users_info) {
-            if (all_users_info[userId].email === email) {
-                user_info = all_users_info[userId];
-                break;
-            }
-        }
-
-        if (user_info) {
-            user_login_data = user_info;
-            popupAlert("User already exists");
-        } else {
-            await database.ref(`esa_data/${exam}/users_login_info/${user_login_data.userid}`).set(user_login_data);
-            console.log(`esa: New user created: ${user_login_data.userid}`);
-        }
-        esa_local_data[`user_login_data`] = user_login_data;
-        saveESALocalData();
-        postSignIn();
-    }
-
-    function saveESALocalData() {
-        console.log("Saving data with exam:", exam); // Debugging line
-        localStorage.setItem(`esa_local_data_${exam}`, JSON.stringify(esa_local_data));
-        console.log("esa: esa_local_data saved");
-    }
-
-    function getESALocalData() {
-        console.log("Getting data with exam:", exam); // Debugging line
-        let data = localStorage.getItem(`esa_local_data_${exam}`);
-        esa_local_data = data ? JSON.parse(data) : {};
-        console.log("esa: esa_local_data loaded", esa_local_data);
-    }
 
     function LoadUserPageHTML() {
-        setTimeout(() => {
-            loadUserMCQs();
-        }, 1000);
         return (
-            <div className="user-page">
+            <div>
                 <div className="user-page-container-inner flex flex-col justify-start items-start max-h-[100vh] w-full">
-                    <div className="hide search-div flex justify-center items-center gap-2 w-full p-2 m-2 text-gray-500 border-2 rounded-full">
+                    <div className="search-div flex justify-center items-center gap-2 w-full p-2 m-2 text-gray-500 border-2 rounded-full">
                         <i className="fa-regular fa-user"></i>
                         <input type="text" className="search-input" placeholder="Search users" />
                     </div>
                 </div>
-                <div className="user-info-div name-dp flex justify-start items-start gap-2 w-full p-2 m-2 text-sm ">{LoadLoginUserProfileHeader()}</div>
-
-                <div className="hide flex justify-center items-center w-full text-sm text-gray-500 gap-2 py-2">
-                    <span className="text-blue-500  flex-1 text-center  cursor-pointer  ">Edit Profile</span>
-                    <span className="text-blue-500 flex-1   text-sm  text-center cursor-pointer">100 Followers</span>
-                    <span className="text-blue-500 flex-1   text-sm  text-center cursor-pointer"> 200 Followers</span>
-                </div>
-                <div className="user-mcqs-div flex flex-col justify-start items-start gap-2 w-full  text-sm border-t">
-                    <div className="flex justify-start items-center gap-2 w-full p-2">
-                        <h1 className="text-gray-500 text-[1.2em] p-2 w-[fit-content]">Your Created MCQs</h1>
-                        <div className="ml-auto mr-[10px] flex-1  flex justify-end items-center gap-2 w-full">
-                            <i className="bi bi-plus-circle text-xl text-gray-500 cursor-pointer ml-auto" onClick={() => createMCQs()}></i>
-                            <i className="bi bi-arrow-clockwise refresh-btn text-xl text-gray-500 cursor-pointer" onClick={() => loadUserMCQs()}></i>
-                            <i
-                                className="bi bi-shuffle text-xl text-gray-500 cursor-pointer"
-                                onClick={() => {
-                                    user_mcqs = sortArrayRandomly(user_mcqs);
-                                    loadUserMCQs();
-                                }}
-                            ></i>
-                        </div>
+                <div className="user-info-div flex justify-start items-start gap-2 w-full p-2 m-2 text-sm border-t">
+                    <img src={user_login_data.photo_url} alt="user" className="w-10 h-10 rounded-full" />
+                    <div className="flex flex-col justify-start items-start gap-2">
+                        <span className="text-gray-500">{user_login_data.display_name}</span>
+                        <span className="text-gray-500">@{user_login_data.username}</span>
                     </div>
-                    <div className="user-mcqs-list w-full"></div>
+                    <span className="sign-out-btn cursor-pointer link ml-auto">Sign Out</span>
+                </div>
+
+                <div className="flex justify-center items-center w-full text-sm text-gray-500 gap-2">
+                    <span className="text-blue-500  text-center   ">Edit Profile</span>
+                    <div className="flex flex-col justify-center items-center">
+                        <span className="text-blue-500   text-sm  text-center">200 </span>
+                        <span className="text-blue-500   text-sm  text-center">Followers</span>
+                    </div>
+                    <div className="flex flex-col justify-center items-center">
+                        <span className="text-blue-500   text-sm  text-center">200 </span>
+                        <span className="text-blue-500   text-sm  text-center">Followers</span>
+                    </div>
                 </div>
             </div>
         );
     }
 
-    function LoadLoginUserProfileHeader() {
-        let div = document.querySelector(".user-info-div.name-dp");
-
-        // Get latest Followers data of the login user
-        followers_data = null;
-        getFollowersData(user_login_data.userid);
-
-        let interval = setInterval(() => {
-            if (div && followers_data) {
-                // Update followers and followings of the login user
-                userdata.followers = followers_data.followers ? followers_data.followers : [];
-                userdata.followings = followers_data.followings ? followers_data.followings : [];
-
-                clearInterval(interval);
-                ReactDOM.unmountComponentAtNode(div);
-                ReactDOM.render(
-                    <div className="block w-full">
-                        <div className="flex justify-start items-start gap-2">
-                            <img src={user_login_data.photo_url} alt="user" className="w-10 h-10 rounded-full" />
-                            <div className="flex flex-col justify-start items-start">
-                                <span className="text-gray-500">{user_login_data.display_name}</span>
-                                <span className="text-gray-500">@{user_login_data.username}</span>
-                            </div>
-                            <span
-                                className="sign-out-btn cursor-pointer link ml-auto mr-[10px]"
-                                onClick={() => {
-                                    onSignOut();
-                                }}
-                            >
-                                Sign Out
-                            </span>
-                        </div>
-
-                        <div className=" flex justify-center items-center w-full text-sm text-gray-500 gap-2 py-2">
-                            <span className="text-blue-500  flex-1 text-center  cursor-pointer  ">Edit Profile</span>
-                            <span className="text-blue-500 flex-1   text-sm  text-center cursor-pointer" onClick={() => loadLoginUserFollowers()}>
-                                {" "}
-                                {userdata.followers.length} Followers
-                            </span>
-                            <span className="text-blue-500 flex-1   text-sm  text-center cursor-pointer" onClick={() => loadLoginUserFollowings()}>
-                                {" "}
-                                {userdata.followings.length} Followings
-                            </span>
-                        </div>
-                    </div>,
-                    div
-                );
-            }
-        }, 100);
-    }
-    function loadLoginUserFollowers() {
-        popupAlert("Followers");
-    }
-    function loadLoginUserFollowings() {
-        popupAlert("Followings");
-    }
-
-    function loadUserMCQs(userid) {
-        // to get shared mcqs of the login_user or shared_
-        userid = userid ? userid : user_login_data.userid;
-        shared_mcqs = shared_mcqs ? shared_mcqs : [];
-        user_mcqs = shared_mcqs.filter((que) => que.userid == userid);
-
-        let container = document.querySelector(".page.user .user-mcqs-list");
-        if (user_login_data.userid !== userid) container = document.querySelector(".me-overlay .shared-user-mcqs-list");
-
-        ReactDOM.unmountComponentAtNode(container);
-        ReactDOM.render(<LoadUserMCQsHTML userid={userid} />, container);
-    }
-    function LoadUserMCQsHTML({ userid }) {
-        return (
-            <div className="user-mcqs-list-inner block h-[calc(100vh-170px)] overflow-y-scroll w-full">
-                {user_mcqs.length > 0 ? (
-                    user_mcqs.map((que, index) => {
-                        return (
-                            <div className={`question-div block h-auto w-full `} key={index}>
-                                {GetMCQHTML({ que: que, type: "user-mcq", index: index + 1, is_show_icons: true, is_show_tags: true })}
-                            </div>
-                        );
-                    })
-                ) : (
-                    <span className="text-gray-500 text-center w-full">No User MCQs</span>
-                )}
-            </div>
-        );
-    }
-
-    let timeline_data = [
-        {
-            date: "2024",
-            events: [
-                {
-                    order: 0,
-                    event: "This is a new world oi asd a sd asdasda adsdasda sdasdasdasd asd",
-                },
-                {
-                    order: 1,
-                    event: "This is a new ",
-                },
-                {
-                    order: 2,
-                    event: "This is a new world oi asd a sd asdasda adsdasda sdasdasdasd asd",
-                },
-            ],
-        },
-        {
-            date: "2023",
-            events: [
-                {
-                    order: 0,
-                    event: "This is a new world oi asd a sd asdasda adsdasda sdasdasdasd asd",
-                },
-                {
-                    order: 1,
-                    event: "This is a new ",
-                },
-                {
-                    order: 2,
-                    event: "This is a new world oi asd a sd asdasda adsdasda sdasdasdasd asd",
-                },
-            ],
-        },
-    ];
     function LoadHomePageHTML() {
         return (
             <div>
                 <div className="page-container flex flex-col justify-center items-center w-full h-full">
-                    <div className="hide user-info p-2  flex flex-col justify-start items-start gap-2 w-full">
+                    <div className="user-info p-2  flex flex-col justify-start items-start gap-2 w-full">
                         <div className="flex gap-2 justify-start items-start w-full py-2">
                             <div className="flex flex-col md:flex-row justify-start items-start">
                                 <span className=" text-gray-500 ">Signed in as "{user_login_data.display_name}"</span>
@@ -665,99 +451,21 @@ import ReactDOM from "react-dom";
                             </div>
                         </div>
                     </div>
-                    <div className="hide flex flex-col justify-center items-center gap-2 w-full py-2">
-                        <span className="text-[3em] font-bold text-[#335ACF]">ELAHI</span>
-                        <div className="flex flex-col justify-center bg-[#335ACF]  items-center w-[90%] mx-5 py-5 rounded-md px-3 ">
-                            <span className="text-[2em] font-bold text-white">Social Study App</span>
-                        </div>
-                    </div>
 
-                    <div className="exam-div dropdown-div ml-auto mt-10">
-                        <button
-                            id="dropßdownHoverButton"
-                            data-dropdown-toggle="dropdownHover"
-                            data-dropdown-trigger="hover"
-                            class="text-gray-500 bg-white font-medium rounded-lg text-sm px-3 py-2 text-center inline-flex items-center"
-                            type="button"
-                            onClick={(event) => {
-                                let exam_div = event.target.closest(".dropdown-div");
-                                exam_div.querySelector(".dropdown-options").classList.toggle("hidden");
-                            }}
-                        >
-                            Exam: {exam.toUpperCase()}
-                            <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
-                            </svg>
-                        </button>
-                        <div id="dropdownHover" class=" dropdown-options z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-30 dark:bg-gray-700">
-                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200 dropdown-option" aria-labelledby="dropdownHoverButton">
-                                <li className="dropdown-option-item" onClick={(event) => changeExam("ssc")}>
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                        SSC
-                                    </a>
-                                </li>
-                                <li className="dropdown-option-item" onClick={(event) => changeExam("neet")}>
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                        NEET
-                                    </a>
-                                </li>
-                                <li className="dropdown-option-item" onClick={(event) => changeExam("upsc")}>
-                                    <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                        USPC
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <select
-                            className="block hide  w-full text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2"
-                            onChange={(event) => {
-                                let exam = event.target.value;
-                                let url = window.location.href;
-                                url = url.substring(0, url.indexOf("/#/"));
-                                url = url + "/#/" + exam + "/home";
-                                window.location.href = url;
-                                location.reload(true);
-                            }}
-                        >
-                            <option value="ssc">SSC</option>
-                            <option value="neet">NEET</option>
-                            <option value="upsc">UPSC</option>
-                        </select>
-                    </div>
-
-                    <div className="hide block w-full py-2 ">
-                        <div className="flex flex-col justify-center items-center gap-2">
-                            <div className="hide w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-                                <span className="text-3xl font-bold text-white transform -rotate-12" style={{ fontFamily: "Arial, sans-serif" }}>
-                                    E
-                                </span>
-                            </div>
-
-                            <h1 className="text-[2.5em] font-bold text-gray-800">ELAHI</h1>
-                        </div>
-                    </div>
-                    <div className="flex flex-col justify-center items-center gap-2 w-full px-1">
-                        <h1 className="text-[2.5em] font-bold text-gray-800">ELAHI</h1>
-                        <span className="text-[1.4em] text-gray-500">A Social Study App</span>
-                        <span className="text-md text-gray-500">Learn, Share, and Succeed Together</span>
-                        <span className="text-gray-500 text-center text-gray-500">First ever digital educational product from Ladakh</span>
-                    </div>
-
-                    <div className="me-footer flex flex-col justify-center items-center gap-2 w-full py-2 mt-4">
-                        <span className=" text-sm text-gray-500 ">Build with ❤️ by Mehboob Elahi</span>
+                    <div className="me-footer bg-gradient-to-r from-violet-100 to-blue-100 flex flex-col justify-center items-center gap-2 w-full py-2">
+                        <span className=" text-sm text-gray-500 py-3 ">Build with ❤️ by Mehboob Elahi</span>
                         <div className=" social-media flex justify-center items-center gap-4 opacity-70">
                             <a href="https://facebook.com/mehboobelahi05" target="_blank">
-                                <i className="fa-brands fa-facebook px-2 py-1 bg-gray-200 rounded-md"></i>
+                                <i className="fa-brands fa-facebook"></i>
                             </a>
                             <a href="https://instagram.com/mehboobelahi05" target="_blank">
-                                <i className="fa-brands fa-instagram px-2 py-1 bg-gray-200 rounded-md"></i>
+                                <i className="fa-brands fa-instagram"></i>
                             </a>
                             <a href="https://youtube.com/@mehboobelahi05/featured" target="_blank">
-                                <i className="fa-brands fa-youtube px-2 py-1 bg-gray-200 rounded-md"></i>
+                                <i className="fa-brands fa-youtube"></i>
                             </a>
                             <a href="https://twitter.com/mehboobelahi05" target="_blank">
-                                <i className="fa-brands fa-twitter px-2 py-1 bg-gray-200 rounded-md"></i>
+                                <i className="fa-brands fa-twitter"></i>
                             </a>
                         </div>
                     </div>
@@ -869,14 +577,10 @@ import ReactDOM from "react-dom";
         ReactDOM.render(<LoadMcqPageHTML />, div);
     }
     function LoadMcqPageHTML() {
-        let interval = setInterval(() => {
-            let div = document.querySelector(".page.mcq .que-text");
-            if (div) {
-                clearInterval(interval);
-                loadMCQList();
-            }
-        }, 200);
-
+        const maxWidth = Math.min(700, window.innerWidth * 0.95);
+        setTimeout(() => {
+            loadMCQList();
+        }, 1000);
         return (
             <div className={`mcq-page-inner flex flex-col gap-2  w-full overflow-y-scroll`}>
                 <span className="hide text-transparent text-center bg-gradient-to-r from-blue-500 to-red-500 bg-clip-text text-xl p-2 font-bold">Practice Random MCQs</span>
@@ -981,6 +685,9 @@ import ReactDOM from "react-dom";
         mcq_list_index = 0;
         //div.innerHTML = "";
         ReactDOM.render(<LoadMCQListHTML />, div);
+        setTimeout(() => {
+            //document.querySelector(".page.mcq .que-text .mcq-div").scrollIntoView({ behavior: "auto" });
+        }, 1000);
     }
 
     let mcq_list_index = 0;
@@ -1003,48 +710,17 @@ import ReactDOM from "react-dom";
     const { jsPDF } = window.jspdf;
 
     function GetMCQHTML({ que, index, type, is_show_icons, is_show_tags, selected_option_id, search_text }) {
-        //r
-        if (!que) {
-            //popupAlert("MCQ not found", 3, "red");
-            return;
-        }
         que = que.id ? que : getQuestionById(que);
-        if (!que) {
-            //popupAlert("MCQ not found", 3, "red");
-            return;
-        }
-
-        let user_info = null;
-
-        if (que.userid)
-            if (!que) {
-                popupAlert("MCQ not found", 3, "red");
-                return;
-            }
         userdata.bookmarked_questions = userdata.bookmarked_questions ? userdata.bookmarked_questions : [];
 
         let is_bookmarked = userdata.bookmarked_questions.includes(que.id);
         document.querySelector(".show-more-mcqs").classList.remove("hide");
-
-        // When mcq is a shared mcq
-
-        let is_followed;
-        if (que.userid) {
-            //get user info
-
-            user_info = users_login_info[que.userid]; //getUserInfoById(que.userid); //all_users_info.find((user_info) => user_info.userid === que.userid);
-
-            //check if user is followed
-            userdata.followings = userdata.followings ? userdata.followings : [];
-            is_followed = userdata.followings.find((id) => id == user_info.userid);
-        }
-
         return (
             <div className="mcq-div block" key={index}>
                 <div className="mcq-item  que-div border-b-2 border-gray-300 py-2 px-3" id={que.id}>
                     <div className="question py-2 text-md flex justify-start items-baseline gap-2">
                         <span className="text-md font-bold que-num w-[30px] hide"> {index ? `Q${index}.` : "Q."} </span>
-                        <div className="text-[1.2em] font-bold flex-1 flex flex-wrap" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
+                        <div className="text-md font-bold flex-1 flex flex-wrap" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
                     </div>
                     <div className="options flex flex-col gap-2">
                         {que.options.map((option, index) => (
@@ -1055,15 +731,14 @@ import ReactDOM from "react-dom";
                         ${selected_option_id == option.id ? "selected" : ""} 
                         ${selected_option_id == option.id && option.text.indexOf("#ans") !== -1 ? "correct" : ""}    
                         ${selected_option_id == option.id && option.text.indexOf("#ans") === -1 ? "wrong " : ""} 
-                        ${que.correct_option_index == index ? "answer " : ""}
                         ${selected_option_id != undefined && selected_option_id != option.id && option.text.indexOf("#ans") !== -1 ? "correct " : ""}  
                         ${selected_option_id ? "disabled" : ""} `}
                                 key={index}
                                 onClick={(event) => checkAnswer(event, que, type)}
                             >
-                                <span className="text-sm option-index text-gray-400 ">{index + 1}.</span>
+                                <span className="text-sm option-index opacity-25 ">{index + 1}.</span>
                                 <span className="text-sm option-text">{option.text.replace("#ans", "")}</span>
-                                <span className="text-sm percentage-attempted ml-auto"></span>
+                                <span className="text-sm percentage-attempted"></span>
                             </div>
                         ))}
                     </div>
@@ -1083,413 +758,15 @@ import ReactDOM from "react-dom";
                     <div className={` icons flex justify-center items-center gap-4 py-2 border-t-0 mt-1  link ${is_show_icons ? "" : "hide"} `}>
                         <i class="bi bi-heart hide text-[1.2em] cursor-pointer"></i>
                         <i className={`bi ${userdata.bookmarked_questions.includes(que.id) ? "bi-bookmark-fill bookmarked" : "bi-bookmark"}  text-[1.2em] cursor-pointer`} onClick={(event) => bookmarkMcq(que, event)}></i>
-                        <i className="bi bi-share text-[1.2em] cursor-pointer" onClick={(event) => shareMCQ(que, event)}></i>
-                        <i className="bi bi-flag text-[1.2em] cursor-pointer"></i>
-                        <i className="hide bi bi-file-text text-[1.2em] cursor-pointer" onClick={(event) => showMCQExplanation(que, event)}></i>
-                        <i className="hide bi bi-bullseye text-[1.2em] linked-block-icon cursor-pointer" onClick={(event) => openNotesPage(que.linked_blocks[0].page_id, que.linked_blocks[0].block_id, null)}></i>
-                        {que.linked_videos && que.linked_videos.length > 0 && <i className="hide bi bi-youtube video-icon cursor-pointer  text-xl text-red-500" onClick={(event) => openMCQYoutubeVideo(que.linked_videos[0].video_id, que.linked_videos[0].time_in_sec, event)}></i>}
-                        {que.external_link != "" && (
-                            <i
-                                className="bi bi-box-arrow-up-right text-[1.2em] text-blue-500 cursor-pointer"
-                                onClick={(event) => {
-                                    let a = document.createElement("a");
-                                    a.href = que.external_link;
-                                    a.target = "_blank";
-                                    a.click();
-                                }}
-                            ></i>
-                        )}
+                        <i class="bi bi-share text-[1.2em] cursor-pointer" onClick={(event) => shareMCQ(que, event)}></i>
+                        <i class="bi bi-flag text-[1.2em] cursor-pointer"></i>
                         <i class="bi bi-fullscreen ml-auto font-bold text-[1.2em] cursor-pointer" onClick={(event) => openMCQInFullScreen(que)}></i>
-                        {que.userid && que.userid == user_login_data.userid && <i className="bi bi-trash text-[1.2em] text-red-400 cursor-pointer" onClick={(event) => deleteUserMCQ(que, event)}></i>}
-                    </div>
-
-                    {user_info && <div className={`block shared-user-info  w-100`}>{UserInfoInMCQ({ user_info })}</div>}
-                </div>
-            </div>
-        );
-    }
-    //UserInfoInMCQ({ user_info }
-    async function ABCD(userid, this_div) {
-        let user_info = await getUserInfoById(userid);
-        ReactDOM.render(<UserInfoInMCQ user_info={user_info} />, this_div);
-    }
-
-    function UserInfoInMCQ({ user_info }) {
-        //user_info = user_info.id ? user_info : await getUserInfoById(user_info.userid);
-        let is_followed = isFollowed(user_info.userid);
-        return (
-            <div className="flex justify-start items-start gap-2">
-                <span>Shared by: </span>
-                {user_info.userid === user_login_data.userid && (
-                    <span
-                        className="text-blue-500 cursor-pointer"
-                        onClick={(event) => {
-                            openTab("user");
-                        }}
-                    >
-                        You
-                    </span>
-                )}
-                {user_info.userid !== user_login_data.userid && (
-                    <span className="text-blue-500 cursor-pointer" onClick={(event) => openSharedUserProfile(user_info.userid)}>
-                        {user_info.display_name}
-                    </span>
-                )}
-
-                {false && user_info.userid !== user_login_data.userid ? (
-                    is_followed ? (
-                        <span className="text-gray-500">Following</span>
-                    ) : (
-                        <span className={`follow border border-blue-500 rounded-md px-2 text-[0.9em]  text-blue-500  cursor-pointer`} onClick={(event) => followUser(user_info.userid, event)}>
-                            Follow
-                        </span>
-                    )
-                ) : (
-                    ""
-                )}
-            </div>
-        );
-    }
-
-    function isFollowed(userid) {
-        userdata.followings = userdata.followings ? userdata.followings : [];
-        return userdata.followings.includes(userid);
-    }
-
-    function openMCQYoutubeVideo(video_id, time, event) {
-        let is_video_already_open = event.target.closest(".mcq-item").querySelector(".mcq-video-div");
-        if (is_video_already_open) {
-            is_video_already_open.remove();
-            return;
-        }
-        let div = document.createElement("div");
-        div.className = "mcq-video-div border-t mt-1 pt-1 ";
-        event.target.closest(".mcq-item").appendChild(div);
-
-        ReactDOM.render(<LoadMCQYoutubeVideoHtml video_id={video_id} time={time} event={event} />, div);
-    }
-
-    function LoadMCQYoutubeVideoHtml({ video_id, time, event }) {
-        let interval = setInterval(() => {
-            let target = event.target.closest(".mcq-div").querySelector(".mcq-video-div-inner");
-            if (target) {
-                initializeYouTubePlayer(time, video_id, target);
-                clearInterval(interval);
-            }
-        }, 200);
-
-        var url = window.location.href; // Get the current URL
-        url = url.substring(0, url.indexOf("//#", 8));
-
-        return (
-            <div className="mcq-video-div-inner">
-                <div className="flex justify-end items-end gap-2 hide">
-                    <i
-                        className="bi bi-x-circle close-video text-red-500 cursor-pointer"
-                        onClick={(event) => {
-                            //me_video_player.pauseVideo();
-                            me_video_player = null;
-                            event.target.closest(".mcq-video-div").remove();
-                        }}
-                    ></i>
-                </div>
-                <div className="me-iframe-div">
-                    <iframe id={video_id} class="rm-iframe rm-video-player m-[0px] w-[100%] h-[200px]" frameborder="0" allowfullscreen="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" title="THE LIVING WORLD in 1 Shot: FULL CHAPTER COVERAGE (Theory+PYQs) ||  Prachand NEET 2024" width="640" height="360" src={`https://www.youtube.com/embed/${video_id}?enablejsapi=1&amp;origin=${url}&amp;widgetid=5`}></iframe>
-                </div>
-            </div>
-        );
-    }
-
-    async function followUser(user_info, event) {
-        let userid = user_info.userid;
-        //add userid to followings
-        userdata.followings = userdata.followings ? userdata.followings : [];
-        if (!userdata.followings.includes(user_info.userid)) {
-            userdata.followings.push(user_info.userid);
-        }
-        saveUserData();
-
-        //add userif to followers of other one
-        let data_ref = database.ref(`esa_data/${exam}/users_data/${userid}/followers`);
-        let data = await getDataFromFirebaseUsingRef(data_ref);
-        data = data ? data : [];
-        if (!data.includes(user_login_data.userid)) {
-            data.push(user_login_data.userid);
-        }
-        await data_ref.set(data);
-
-        popupAlert(`You are now following "${user_info.display_name}"`);
-
-        let is_mcq = event.target.closest(".mcq-div");
-        if (is_mcq) {
-            let div = is_mcq.querySelector(".shared-user-info");
-            if (div) {
-                ReactDOM.unmountComponentAtNode(div);
-                let user_info = await getUserInfoById(userid); //all_users_info.find((user_info) => user_info.userid === userid);
-                ReactDOM.render(<UserInfoInMCQ user_info={user_info} />, div);
-            }
-        }
-        let is_user_profile_page = event.target.closest(".shared-user-profile-overlay");
-        if (is_user_profile_page) {
-            LoadSharedUserProfileFollowerSection({ user_info });
-        }
-    }
-
-    async function unfollowUser(user_info, event) {
-        let userid = user_info.userid;
-        //add userid to followings
-        let index = userdata.followings.findIndex((id) => id == userid);
-        if (index != -1) {
-            userdata.followings.splice(index, 1);
-        }
-        saveUserData();
-        console.log(`user removed from userdata.followings[]`);
-
-        //add userif to followers of other one
-        let data_ref = database.ref(`esa_data/${exam}/users_data/${userid}/followers`);
-        let data = await getDataFromFirebaseUsingRef(data_ref);
-        data = data ? data : [];
-        index = data.findIndex((id) => id == user_login_data.userid);
-        if (index != -1) {
-            data.splice(index, 1);
-        }
-        await data_ref.set(data);
-        console.log(`user removed from  others.followers[]`);
-        popupAlert(`You have unfollowed "${user_info.display_name}"`);
-
-        let is_mcq = event.target.closest(".mcq-div");
-        if (is_mcq) {
-            let div = is_mcq.querySelector(".shared-user-info");
-            if (div) {
-                ReactDOM.unmountComponentAtNode(div);
-                let user_info = await getUserInfoById(userid); //all_users_info.find((user_info) => user_info.userid === userid);
-                ReactDOM.render(<UserInfoInMCQ user_info={user_info} />, div);
-            }
-        }
-        let is_user_profile_page = event.target.closest(".shared-user-profile-overlay");
-        if (is_user_profile_page) {
-            LoadSharedUserProfileFollowerSection({ user_info });
-        }
-    }
-
-    async function openSharedUserProfile(userid) {
-        let user_info = await getUserInfoById(userid); //all_users_info.find((user_info) => user_info.userid === userid);
-
-        let div = document.createElement("div");
-        div.className = "me-overlay shared-user-profile-overlay bg-white";
-        document.querySelector(".me-overlays").appendChild(div);
-
-        ReactDOM.render(<LoadSharedUserProfileHtml user_info={user_info} />, div);
-    }
-    function LoadSharedUserProfileHtml({ user_info }) {
-        setTimeout(() => {
-            loadUserMCQs(user_info.userid);
-        }, 1000);
-
-        return (
-            <div className="user-page shared-user-profile-overlay-inner w-full h-full">
-                <div className="user-info-div name-dp flex justify-start items-start gap-2 w-full px-2 py-4 text-sm ">
-                    <img src={user_info.photo_url} alt="user" className="w-10 h-10 rounded-full" />
-                    <div className="flex flex-col justify-start items-start">
-                        <span className="text-gray-500">{user_info.display_name}</span>
-                        <span className="text-gray-500">@{user_info.username}</span>
-                    </div>
-                    <i className="bi bi-x-circle text-xl ml-auto cursor-pointer mr-[10px]" onClick={(event) => event.target.closest(".me-overlay").remove()}></i>
-                </div>
-
-                <div className="block followers-followings-div text-sm text-gray-500 gap-2 py-2">{LoadSharedUserProfileFollowerSection({ user_info })}</div>
-
-                <div className="user-mcqs-div flex flex-col justify-start items-start gap-2 w-full  text-sm border-t">
-                    <div className="flex justify-start items-center gap-2 w-full p-2">
-                        <h1 className="text-gray-500 text-[1.2em] p-2 w-[fit-content]">Shared MCQs</h1>
-                        <div className="ml-auto mr-[10px] flex-1  flex justify-end items-center gap-2 w-full">
-                            <i
-                                className="bi bi-shuffle text-xl text-gray-500 cursor-pointer"
-                                onClick={() => {
-                                    //user_mcqs = sortArrayRandomly(user_mcqs);
-                                    loadUserMCQs(user_info.userid);
-                                }}
-                            ></i>
-                        </div>
-                    </div>
-                    <div className="shared-user-mcqs-list w-full"></div>
-                </div>
-            </div>
-        );
-    }
-
-    async function getFollowersData(userid) {
-        let data_ref = database.ref(`esa_data/${exam}/data/users/${userid}/followers`);
-        let data = await getDataFromFirebaseUsingRef(data_ref);
-        let followers = data ? data : [];
-
-        data_ref = database.ref(`esa_data/${exam}/data/users/${userid}/followings`);
-        data = await getDataFromFirebaseUsingRef(data_ref);
-        let followings = data ? data : [];
-
-        followers_data = {
-            followers: followers,
-            followings: followings,
-        };
-    }
-    let followers_data = null;
-    function LoadSharedUserProfileFollowerSection({ user_info }) {
-        followers_data = null;
-        getFollowersData(user_info.userid);
-        let interval = setInterval(() => {
-            if (followers_data) {
-                let is_followed = isFollowed(user_info.userid);
-                clearInterval(interval);
-                let div = document.querySelector(".shared-user-profile-overlay-inner .followers-followings-div");
-                ReactDOM.render(
-                    <div className="flex justify-center items-center w-full text-sm text-gray-500 gap-2 py-2">
-                        <span className="text-blue-500 flex-1   text-sm  text-center cursor-pointer" onClick={(event) => showFollowers(followers_data.followers)}>
-                            {followers_data.followers.length} Followers
-                        </span>
-                        <span className="text-blue-500 flex-1   text-sm  text-center cursor-pointer" onClick={(event) => showFollowings(followers_data.followings)}>
-                            {followers_data.followings.length} Followings
-                        </span>
-                        {is_followed ? (
-                            <span className="text-blue-500 border border-blue-500 rounded-md flex-1   text-sm  text-center cursor-pointer" onClick={(event) => unfollowUser(user_info, event)}>
-                                Unfollow
-                            </span>
-                        ) : (
-                            <span className="text-blue-500 border border-blue-500 rounded-md flex-1   text-sm  text-center cursor-pointer" onClick={(event) => followUser(user_info, event)}>
-                                Follow
-                            </span>
-                        )}
-                        <span className=" text-red-500  flex-1 text-sm  text-center cursor-pointer">Block</span>
-                    </div>,
-                    div
-                );
-            }
-        }, 100);
-        return <div className="text-sm text-gray-500"></div>;
-    }
-
-    function showFollowers(followers) {
-        popupAlert(`${followers.length} Followers`);
-    }
-    function showFollowings(followings) {
-        popupAlert(`${followings.length} Followings`);
-    }
-
-    function showMCQExplanation(que, event) {
-        if (!que.explanation || que.explanation.trim() === "") {
-            return;
-        }
-        let div = event.target.closest(".mcq-item").querySelector(".mcq-explanation-div");
-        if (div) {
-            div.remove();
-            return;
-        }
-
-        div = document.createElement("div");
-        div.className = "mcq-explanation-div block w-full h-full";
-        event.target.closest(".mcq-item").appendChild(div);
-        ReactDOM.render(<LoadMCQExplanationHtml que={que} />, div);
-    }
-    function LoadMCQExplanationHtml({ que }) {
-        let is_linked_blocks = que.linked_blocks && que.linked_blocks.length > 0;
-        let page_id = null;
-        let block_id = null;
-        if (is_linked_blocks) {
-            page_id = que.linked_blocks[0].page_id;
-            block_id = que.linked_blocks[0].block_id;
-        }
-        return (
-            <div className="mcq-explanation-div-inner block w-full h-full border-t mt-1 pt-1">
-                <div className="flex justify-start items-start gap-4  py-1">
-                    <span className="text-sm font-bold text-gray-500">Explanation</span>
-                    {is_linked_blocks && (
-                        <span className="text-sm text-blue-500 cursor-pointer" onClick={(event) => openNotesPage(page_id, block_id, null)}>
-                            <i className="bi bi-box-arrow-up-right" onClick={(event) => openNotesPage(que.linked_blocks[0].page_id, que.linked_blocks[0].block_id, null)}></i>
-                        </span>
-                    )}
-                    <i
-                        className="bi bi-x-circle  cursor-pointer text-red-500"
-                        onClick={(event) => {
-                            event.target.closest(".mcq-explanation-div").remove();
-                        }}
-                    ></i>
-                </div>
-                <div className="block w-full py-2">
-                    <div className="flex justify-start items-start gap-2">
-                        <span className={`${que.explanation.trim() != "" ? "" : "hide"}`} dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.explanation.trim() != "" ? que.explanation : getBlockText(page_id, block_id)) }}></span>
-                        <div className={`${que.explanation.trim() != "" ? "hide" : ""}`}></div>
                     </div>
                 </div>
             </div>
         );
     }
 
-    function getBlockText(page_id, block_id) {
-        let page = pages_data.find((page) => page.id == page_id);
-
-        for (let i = 0; i < page.data.length; i++) {
-            let block = page.data[i];
-            let text = checkBlockText(block, block_id);
-            if (text) {
-                return text;
-            }
-        }
-        return null;
-    }
-
-    function checkBlockText(block, block_id, target) {
-        if (block.id == block_id) {
-            return block.text;
-        } else {
-            let children = block.children ? block.children : [];
-            for (let i = 0; i < children.length; i++) {
-                let child = children[i];
-                let text = checkBlockText(child, block_id, target);
-                if (text) {
-                    return text;
-                } else {
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
-
-    function deleteUserMCQ(que, event) {
-        let is_online = navigator.onLine;
-        if (!is_online) {
-            popupAlert("Question cannot be added as you are offline");
-            return;
-        }
-
-        let index = user_mcqs.findIndex((q) => q.id == que.id);
-        if (index != -1) {
-            user_mcqs.splice(index, 1);
-            event.target.closest(".question-div").remove();
-            popupAlert("Question has been deleted", 3, "red");
-        }
-
-        index = shared_mcqs.findIndex((q) => q.id == que.id);
-        if (index != -1) {
-            shared_mcqs.splice(index, 1);
-        }
-
-        let user_ref = database.ref(`esa_data/${exam}/data/shared_mcqs`);
-        user_ref.once("value").then(function (snapshot) {
-            let obj = snapshot.val();
-
-            if (!obj) {
-                obj = [];
-            }
-
-            let index = obj.findIndex((q) => q.id == que.id);
-            if (index != -1) {
-                obj.splice(index, 1);
-            }
-
-            database.ref(`esa_data/${exam}/data/shared_mcqs`).set(obj);
-            popupAlert("Question has been deleted", 3, "red");
-        });
-    }
     function shareMCQ(que, event) {
         let que_id = event.target.closest(".que-div").id;
         const currentUrl = window.location.href;
@@ -2009,7 +1286,7 @@ import ReactDOM from "react-dom";
             <div className={`chapter-item level-${level} ${paddingClass} flex flex-col gap-2`}>
                 <div className="chapter-item-main flex justify-start items-center gap-1 cursor-pointer">
                     <i className="fa-solid fa-circle link hide text-7px opacity-70"></i>
-                    <span className={`chapter-name text-no-wrap ${item.type} text-sm ${is_page_link ? "link" : ""} `} id={`${item.id ? item.id : ""}`} onClick={(event) => openNotesPage(item.id, null, event)}>
+                    <span className={`chapter-name text-no-wrap ${item.type} text-sm ${is_page_link ? "link" : ""} `} id={`${item.id ? item.id : ""}`} onClick={(event) => openNotesPage(event, item.id)}>
                         {capitalFirstLetterOfEachWord(extractedName)}
                     </span>
                 </div>
@@ -2018,8 +1295,8 @@ import ReactDOM from "react-dom";
         );
     }
 
-    function openNotesPage(page_id, block_id, event) {
-        if (event && event.target && event.target.classList.contains("heading")) {
+    function openNotesPage(event, page_id, block_id) {
+        if (event.target && event.target.classList.contains("heading")) {
             alert("heading");
             return;
         }
@@ -2068,7 +1345,7 @@ import ReactDOM from "react-dom";
             }, 3000);
         }
 
-        if (event) closeOverlay(event);
+        closeOverlay(event);
     }
     function smoothScrollToBlock(block) {
         //let block_div = block.closest(".block-div");
@@ -2112,8 +1389,6 @@ import ReactDOM from "react-dom";
             }
         });
 
-        let linked_mcqs = getBlockLinkMCQs(block);
-
         if (containsPDF) {
             // Return this if the text contains "PDF"
             return (
@@ -2150,68 +1425,9 @@ import ReactDOM from "react-dom";
             return (
                 <div className={`flex flex-col flex-grow level-${level}`}>
                     <div className={`block-main   ${block.heading ? "heading" : ""}`} id={block.id}>
-                        <div className="block-text flex justify-start items-start gap-1">
-                            <div className="bullet-div w-[15px] px-1 flex flex-col justify-center items-center">
-                                <span
-                                    className={`bullet hide ${block.heading ? "hide" : ""}`}
-                                    onClick={(event) => {
-                                        //event.target.closest(".block-main").querySelector(".block-action-icons").classList.toggle("hide");
-                                    }}
-                                ></span>
-                                <i
-                                    class="bi bi-plus-circle-fill text-gray-500"
-                                    onClick={(event) => {
-                                        event.target.closest(".block-main").querySelector(".block-action-icons").classList.toggle("hide");
-                                    }}
-                                ></i>
-                                {!block.heading && linked_mcqs.length > 0 ? (
-                                    <i
-                                        class=" text-blue-500 cursor-pointer hide"
-                                        onClick={(event) => {
-                                            popupAlert(linked_mcqs.length + " mcqs are linked");
-                                            openBlockLinkedMCQs(linked_mcqs, event);
-                                        }}
-                                    >
-                                        {linked_mcqs.length}
-                                    </i>
-                                ) : (
-                                    ""
-                                )}
-                            </div>
-
-                            <div className="flex-1 flex flex-col justify-start items-start gap-2 w-full">
-                                <span className="text flex-1" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(block.text) }}></span>
-                                <div className="block-link-icons flex justify-center items-center gap-2 ">
-                                    {linked_mcqs.length > 0 ? (
-                                        <div
-                                            className="flex justify-center items-center gap  border-blue-500 rounded-md px-0 py-1 h-[20px] cursor-pointer"
-                                            onClick={(event) => {
-                                                openBlockLinkedMCQs(linked_mcqs, event);
-                                            }}
-                                        >
-                                            <i className="hide bi bi-patch-question cursor-pointer text-blue-500"></i>
-
-                                            <span className="text-blue-500">{linked_mcqs.length} linked mcqs</span>
-                                        </div>
-                                    ) : (
-                                        ""
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="hide block-action-icons pl-5 flex justify-start items-center gap-2 flex-wrap">
-                            <i
-                                class="hide bi bi-plus-circle text-xl cursor-pointer"
-                                onClick={(event) => {
-                                    let page_uid = event.target.closest(".main-notes-page").querySelector(".page-title").id;
-                                    let block_id = event.target.closest(".block-main").id;
-                                    let ids = `${page_uid}::${block_id}`;
-                                    copyToClipboard(ids);
-                                    popupAlert("Block id copied");
-                                }}
-                            ></i>
-                            <i class="bi bi-share text-gray-500 cursor-pointer" onClick={(event) => shareBlockLink(event)}></i>
-                            <span className="bi bi-plus-circle text-gray-500 cursor-pointer" onClick={(event) => createMCQs(event, "block-mcq")}></span>
+                        <div className="block-text flex justify-start items-start gap-2">
+                            <span className={`bullet ${block.heading ? "hide" : ""}`}></span>
+                            <span className="text flex-1" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(block.text) }}></span>
                         </div>
                     </div>
                     <div className="children flex flex-col flex-grow"></div>
@@ -2220,85 +1436,6 @@ import ReactDOM from "react-dom";
         }
     }
 
-    function openBlockLinkedMCQs(linked_mcqs, event) {
-        let div = document.querySelector(".block-linked-mcqs-overlay");
-        if (div) {
-            div.remove();
-            div = null;
-        }
-        div = document.createElement("div");
-        div.className = "me-overlay block-linked-mcqs-overlay mt-[40vh] w-full border-t-4 bg-gray-50";
-        document.querySelector(".me-overlays").appendChild(div);
-        ReactDOM.render(<LinkedMCQsOverlayHTML linked_mcqs={linked_mcqs} />, div);
-        openOverlay("block-linked-mcqs-overlay");
-    }
-
-    function LinkedMCQsOverlayHTML({ linked_mcqs }) {
-        return (
-            <div className="block-linked-mcqs-overlay-inner w-full">
-                <div className="header border-b-2 flex justify-center items-center gap-2 px-5 py-2 ">
-                    <span className="text-[1.2em] font-bold">Block Linked MCQs</span>
-                    <i
-                        class="fa-regular fa-xmark-circle text-[1.2em] cursor-pointer ml-auto"
-                        onClick={(event) => {
-                            event.target.closest(".me-overlay").remove();
-                            //closeOverlay(event);
-                        }}
-                    ></i>
-                </div>
-                <div className="linked-mcqs-list max-h-[55vh] overflow-y-scroll pb-[70px]">
-                    {linked_mcqs.map((mcq, index) => (
-                        <div className="linked-mcq-item mcq-div">{GetMCQHTML({ que: mcq, index: index, type: "random", is_show_icons: true, is_show_tags: true })}</div>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
-    function getBlockLinkMCQs(block) {
-        let all_mcqs = shared_mcqs.concat(que_data);
-        let linked_mcqs = all_mcqs.filter((mcq) => mcq.linked_blocks && mcq.linked_blocks[0] && mcq.linked_blocks[0].block_id == block.id);
-        if (linked_mcqs.length != 0) {
-            let arr = [];
-            linked_mcqs.forEach((mcq) => {
-                if (!arr.includes(mcq)) arr.push(mcq);
-            });
-            linked_mcqs = arr;
-        }
-        return linked_mcqs;
-    }
-
-    function shareBlockLink(event) {
-        let page_uid = event.target.closest(".main-notes-page").querySelector(".page-title").id;
-        let block_id = event.target.closest(".block-main").id;
-        const currentUrl = window.location.href;
-        let url = `${currentUrl}/${page_uid}/${block_id}`;
-        if (is_mobile && navigator.share) {
-            copyToClipboard(url); // Fallback to copy URL to clipboard
-            popupAlert("Link copied to clipboard");
-            navigator
-                .share({
-                    title: "Share Current Question",
-                    url: url,
-                })
-                .then(() => {
-                    console.log("Link shared successfully");
-                    popupAlert("Link shared successfully");
-                })
-                .catch((error) => {
-                    console.error("Error sharing link:", error);
-                    copyToClipboard(url); // Fallback to copy URL to clipboard
-                    popupAlert("Link copied to clipboard");
-                });
-            //takeScreenshot(que_div);
-        } else {
-            // Fallback for browsers that do not support Web Share API
-            copyToClipboard(currentUrl); // Copy URL to clipboard
-            popupAlert("Question Link copied");
-        }
-
-        popupAlert("Block link copied");
-    }
     function openPdfFile(link, label) {
         let pdf_overlay_div = document.createElement("div");
         pdf_overlay_div.className = "open-pdf-file-overlay-div me-overlay";
@@ -2480,7 +1617,7 @@ import ReactDOM from "react-dom";
                                 className="path-item link cursor-pointer"
                                 page_id={item.page_id || ""}
                                 block_id={item.block_id || ""}
-                                onClick={(event) => openNotesPage(item.page_id, item.block_id, event)}
+                                onClick={(event) => openNotesPage(event, item.page_id, item.block_id)}
                                 dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(item.text) }}
                             ></span>
                         ))
@@ -2494,7 +1631,7 @@ import ReactDOM from "react-dom";
                     block_id={block.block_id}
                     dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(text) }}
                     onClick={(event) => {
-                        openNotesPage(block.page_id, block.id, event);
+                        openNotesPage(event, block.page_id, block.id);
                         closeOverlay(event);
                     }}
                 ></div>
@@ -2634,13 +1771,6 @@ import ReactDOM from "react-dom";
             </div>
         );
     }
-
-    async function getUserInfoById(userid) {
-        let data_ref = database.ref(`esa_data/${exam}/users_login_info/${userid}`);
-        let user_info = await getDataFromFirebaseUsingRef(data_ref);
-        return user_info ? user_info : {};
-    }
-
     function filterSearchedMcqs(event, filter_type) {
         event.target.parentElement.querySelectorAll("div").forEach((child) => {
             child.classList.remove("bg-blue-500");
@@ -2700,11 +1830,10 @@ import ReactDOM from "react-dom";
 
     function findMCQsByText(input_value) {
         let searh_result_div = document.querySelector(".search-mcq-overlay-inner .search-mcq-by-text-results");
-        if (searh_result_div) ReactDOM.unmountComponentAtNode(searh_result_div); //searh_result_div.innerHTML = "";
+        searh_result_div.innerHTML = "";
         let searched_ques = que_data.filter((que) => que.question.toLowerCase().includes(input_value.toLowerCase()) || que.options.some((option) => option.text.toLowerCase().includes(input_value.toLowerCase())));
 
         ReactDOM.render(<LoadSearchByTextMCQsItemHTML searched_ques={searched_ques} input_value={input_value} />, searh_result_div);
-
         setTimeout(() => {
             //searh_result_div.scrollTop = searh_result_div.scrollHeight;
 
@@ -2713,7 +1842,7 @@ import ReactDOM from "react-dom";
             search_mcq_array.forEach((que_div) => {
                 que_div.querySelector(".question").innerHTML = que_div.querySelector(".question").innerHTML.replace(new RegExp(input_value, "gi"), (match) => `<span class=" inline-flex bg-yellow-200 mx-1 px-1 me-search ">${match}</span>`);
                 que_div.querySelectorAll(".option-text").forEach((option) => {
-                    option.innerHTML = option.innerHTML.replace(new RegExp(input_value, "gi"), (match) => `<span class=" inline-flex bg-yellow-200 me-search">${match}</span>`);
+                    option.innerHTML = option.innerHTML.replace(new RegExp(input_value, "gi"), (match) => `<span class=" inline-flex bg-yellow-200 mx-1 px-1 me-search">${match}</span>`);
                 });
             });
         }, 1000);
@@ -2789,83 +1918,41 @@ import ReactDOM from "react-dom";
         //document.querySelector(".page.mcq .que-text .mcq-item").scrollIntoView({ behavior: "auto", block: "center" });
         loadMCQList();
     }
-
-    function onSignOut() {
-        localStorage.removeItem("esa_user_login_data", null);
-        popupAlert("User signed out");
-        esa_local_data = {};
-        saveESALocalData();
-        location.reload(true);
-    }
-
-    function createMCQs(event, type) {
-        let div = document.querySelector(".create-mcq-overlay.me-overlay");
-        if (div) {
-            div.remove();
-            /*openOverlay("create-mcq-overlay");
-        if (type == "block-mcq") {
-            let block_id = event.target.closest(".block-main").id;
-            let page_id = event.target.closest(".main-notes-page").querySelector(".page-title").id;
-            let linked_block_id = `${page_id}::${block_id}`;
-            document.querySelector(".create-mcq-overlay .block-link-div input").value = linked_block_id;
-        }
-        //return;*/
-        }
-        div = document.createElement("div");
+    function createMCQs() {
+        let div = document.createElement("div");
         div.className = "create-mcq-overlay me-overlay";
         document.querySelector(".me-overlays").appendChild(div);
-        ReactDOM.render(<CreateMcqOverlayHTML event={event} type={type} />, div);
+        ReactDOM.render(<CreateMcqOverlayHTML />, div);
+        openOverlay("create-mcq-overlay");
     }
     let user_questions = [];
-    function CreateMcqOverlayHTML({ event, type }) {
-        let linked_block_id = "";
-        if (type === "block-mcq") {
-            let block_id = event.target.closest(".block-main").id;
-            let page_id = event.target.closest(".main-notes-page").querySelector(".page-title").id;
-            linked_block_id = `${page_id}::${block_id}`;
-        }
-        setTimeout(() => {
-            document.querySelector(".create-mcq-overlay-inner .tags-div input").value = "  ";
-            document.querySelector(".create-mcq-overlay-inner .tags-div input").value = "";
-        }, 1000);
+    function CreateMcqOverlayHTML() {
         return (
-            <div className="create-mcq-overlay-inner block h-full w-full bg-white">
-                <div className="create-mcq-header-div fixed top-0 left-0 w-full">
-                    <div className="create-mcq-header p-2 flex justify-center items-center gap-2">
-                        <span className="text-[15px] font-bold">Create MCQs</span>
-                        <i
-                            className="fa-regular fa-xmark-circle cursor-pointer text-xl align-right ml-auto"
-                            onClick={(event) => {
-                                //closeOverlay(event);
-                                event.target.closest(".me-overlay").remove();
-                            }}
-                        ></i>
-                    </div>
+            <div className="create-mcq-overlay-inner flex flex-col h-[100vh] overflow-y-scroll w-full bg-white">
+                <div className="create-mcq-header p-4 flex justify-center items-center gap-2">
+                    <span className="text-[15px] font-bold">Create MCQs</span>
+                    <i className="fa-regular fa-xmark-circle cursor-pointer text-xl align-right ml-auto" onClick={(event) => closeOverlay(event)}></i>
                 </div>
-
-                <div className="create-mcq-body h-[calc(100vh-50px)] overflow-y-scroll py-2 mt-10  block w-full">
-                    <div className="question-div block h-auto w-100 ">
-                        <span className="text-sm font-bold text-gray-500">Question:</span>
-                        <textarea className="w-[90%] p-2 m-2 font-bold border border-gray-400 rounded-md " placeholder="Add question text here"></textarea>
-                    </div>
-
-                    <div className="question-div block h-auto w-100 ">
-                        <span className="text-sm font-bold text-gray-500">Options:</span>
-                        <div className="options w-100">
-                            {Array.from({ length: 4 }).map((_, index) => (
-                                <div key={index} className="option flex justify-start items-center gap-2 w-full p-2 my-2">
-                                    <input type="radio" name="option" className="w-[10px] p-2  border border-gray-400 rounded-md " />
-                                    <input type="text" className="flex-1 p-2 border border-gray-400 rounded-md " placeholder="Add option text here" />
-                                    <i className="w-[10px] hide fa-solid fa-trash-can text-gray-500 cursor-pointer" onClick={(event) => event.target.closest(".option").remove()}></i>
-                                </div>
-                            ))}
-                            <button
-                                className="hide btn-div w-[fit-content] mx-auto px-3 py-2 bg-gray-500 text-gray-100 rounded-md"
+                <div className="create-mcq-body h-full overflow-y-scroll p-4 flex flex-col justify-center items-center gap-2">
+                    <textarea className="w-full p-2 m-2 font-bold border border-gray-400 rounded-md " placeholder="Add question text here"></textarea>
+                    <div className="options w-full">
+                        <div className="option flex justify-start items-center gap-2 w-full p-2 my-2">
+                            <input type="radio" name="option" className="w-[10px] p-2  border border-gray-400 rounded-md " />
+                            <input type="text" className="flex-1 p-2 border border-gray-400 rounded-md " placeholder="Add option text here" />
+                            <i
+                                className="w-[10px] fa-solid fa-trash-can text-gray-500 cursor-pointer"
                                 onClick={(event) => {
-                                    let options_div = event.target.closest(".create-mcq-body").querySelector(".options");
-                                    let option_div = document.createElement("div");
-                                    option_div.className = "option flex justify-start items-center gap-2 p-2 my-2 w-full";
-                                    option_div.innerHTML = `
+                                    event.target.closest(".option").remove();
+                                }}
+                            ></i>
+                        </div>
+                        <button
+                            className="btn-div w-[fit-content] mx-auto px-3 py-2 bg-gray-500 text-gray-100 rounded-md"
+                            onClick={(event) => {
+                                let options_div = event.target.closest(".create-mcq-body").querySelector(".options");
+                                let option_div = document.createElement("div");
+                                option_div.className = "option flex justify-start items-center gap-2 p-2 my-2 w-full";
+                                option_div.innerHTML = `
                         <input type="radio" name="option"  class="w-[10px] p-2  border border-gray-400 rounded-md "/>
                         <input type="text" class="flex-1 p-2  border border-gray-400 rounded-md " placeholder="Add option text here" />
                         <i class="w-[10px] fa-solid fa-trash-can text-gray-500 cursor-pointer"
@@ -2873,42 +1960,20 @@ import ReactDOM from "react-dom";
                             ></i>
                         `;
 
-                                    options_div.insertBefore(option_div, options_div.lastElementChild);
-                                    option_div.querySelector("input[type='text']").focus();
-                                }}
-                            >
-                                Add option
-                            </button>
-                        </div>
+                                options_div.insertBefore(option_div, options_div.lastElementChild);
+                                option_div.querySelector("input[type='text']").focus();
+                            }}
+                        >
+                            Add option
+                        </button>
                     </div>
 
-                    <div className="explanation-div flex flex-col justify-start items-start gap-1 m-1 p-1 w-100">
+                    <div className="explanation-div flex flex-col justify-start items-start gap-2 my-2 w-full">
                         <span className="text-sm font-bold text-gray-500">Explanation:</span>
-                        <textarea className="w-[100%] px-2 py-1 border border-gray-400 rounded-md" placeholder="Add explanation here or link to a block"></textarea>
-                    </div>
-                    <div className="block-link-div block h-auto w-100">
-                        <div className="flex flex-col justify-start items-start gap-1 my-1 p-1 w-100">
-                            <span className="text-sm font-bold text-gray-500">Link to note block:</span>
-                            <input type="text" className="w-[100%] p-2 border border-gray-400 rounded-md  " placeholder="Paste note block id here" value={linked_block_id} />
-                        </div>
+                        <textarea className="w-full p-2 m-2 border border-gray-400 rounded-md " placeholder="Add explanation here"></textarea>
                     </div>
 
-                    <div className="video-link-div block h-auto w-100 ">
-                        <div className=" flex flex-col justify-start items-start gap-1 my-1 p-1 w-100">
-                            <span className="text-sm font-bold text-gray-500">Link to youtube video:</span>
-                            <input type="text" className="video-link w-[90%] p-2 border border-gray-400 rounded-md " placeholder="Paste youtube link here" />
-                            <input type="text" className="video-time w-[90%] p-2  border border-gray-400 rounded-md " placeholder="Add tim e.g 04:55 (hh:mm:ss)" />
-                        </div>
-                    </div>
-
-                    <div className="external-link-div block h-auto w-100 ">
-                        <div className=" flex flex-col justify-start items-start gap-1 my-1 p-1 w-100">
-                            <span className="text-sm font-bold text-gray-500">External link:</span>
-                            <input type="text" className="link w-[90%] p-2 border border-gray-400 rounded-md " placeholder="Paste external link here" />
-                        </div>
-                    </div>
-
-                    <div className="hide subject-div flex flex-col justify-start items-start gap-2 my-2 w-full">
+                    <div className="subject-div flex flex-col justify-start items-start gap-2 my-2 w-full">
                         <span className="text-sm font-bold text-gray-500">Subject:</span>
                         <div className="subjects flex justify-start items-center gap-2">
                             {subjects[exam].map((subject) => (
@@ -2934,36 +1999,7 @@ import ReactDOM from "react-dom";
                         </div>
                     </div>
 
-                    <div class="block subject-div max-w-full overflow-x-auto p-2">
-                        <span className="text-sm font-bold text-gray-500">Subject:</span>
-                        <div class="flex space-x-4 ">
-                            {subjects[exam].map((subject, index) => (
-                                <span
-                                    key={index} // Add a key for each child in the list
-                                    className=" subject inline-flex items-center whitespace-nowrap border text-gray-500 h-[22px] rounded-md px-2 py-1 min-w-[fit-content] cursor-pointer"
-                                    onClick={(event) => {
-                                        if (event.target.classList.contains("selected")) {
-                                            popupAlert("Please select any subject", 3, "red");
-                                            return;
-                                        }
-                                        let subjects = document.querySelectorAll(".create-mcq-overlay-inner .subject-div .subject");
-                                        subjects.forEach((subject) => {
-                                            subject.classList.remove("selected");
-                                            subject.classList.replace("text-white", "text-gray-500");
-                                            subject.classList.remove("bg-blue-500");
-                                        });
-                                        event.target.classList.add("selected");
-                                        event.target.classList.add("bg-blue-500");
-                                        event.target.classList.replace("text-gray-500", "text-white");
-                                    }}
-                                >
-                                    {capitalFirstLetterOfEachWord(subject)}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="tags-div block m-2  p-2 w-[90%]">
+                    <div className="tags-div flex flex-col justify-start items-start gap-2 my-2 w-full">
                         <span className="text-sm font-bold text-gray-500">Tags:</span>
                         <div className="tags w-full flex flex-col justify-start items-center gap-2">
                             <input
@@ -2979,187 +2015,80 @@ import ReactDOM from "react-dom";
                         </div>
                     </div>
 
-                    <div className="block w-full mb-10">
-                        <div className=" flex justify-start items-start gap-2">
-                            <button
-                                className="btn-div w-[80%] mx-auto m-2 px-3 py-2 bg-blue-500 text-white rounded-md"
-                                onClick={(event) => {
-                                    let is_online = navigator.onLine;
-                                    if (!is_online) {
-                                        popupAlert("Question cannot be added as you are offline");
-                                        return;
-                                    }
-                                    let question = event.target.closest(".create-mcq-body").querySelector("textarea").value;
-                                    question = question.trim();
-                                    if (!question) {
-                                        popupAlert("Please add question");
-                                        return;
-                                    }
-                                    if (!question.endsWith("?")) question = question + "?";
+                    <button
+                        className="btn-div w-[80%] mx-auto m-2 px-3 py-2 bg-blue-500 text-white rounded-md"
+                        onClick={(event) => {
+                            let question = event.target.closest(".create-mcq-body").querySelector("textarea").value;
+                            let options = event.target.closest(".create-mcq-body").querySelector(".options").querySelectorAll("input[type='text']");
+                            let options_text = [];
+                            let correct_option_index;
+                            options.forEach((option, index) => {
+                                options_text.push(option.value);
+                                if (option.closest(".option").querySelector("input[type='radio']").checked) correct_option_index = index;
+                            });
 
-                                    let options = event.target.closest(".create-mcq-body").querySelector(".options").querySelectorAll("input[type='text']");
-                                    let options_text = [];
-                                    let correct_option_index;
+                            if (correct_option_index == undefined) {
+                                popupAlert("Please select correct option");
+                                return;
+                            }
+                            let explanation = event.target.closest(".create-mcq-body").querySelector(".explanation-div textarea").value;
+                            let tags = [];
+                            let subject = event.target.closest(".create-mcq-body").querySelector(".subject-div .selected").textContent.toLowerCase();
+                            if (!subject) {
+                                popupAlert("Please select subject");
+                                return;
+                            }
+                            tags.push(subject);
+                            let new_mcq_tags = event.target.closest(".create-mcq-body").querySelector(".tags-div .tags-list").querySelectorAll(".tag-item .name");
+                            new_mcq_tags.forEach((tag) => {
+                                tags.push(tag.textContent.toLowerCase());
+                            });
+                            let que_obj = {
+                                id: getUniqueId(),
+                                question: question,
+                                options: options_text,
+                                explanation: explanation,
+                                correct_option_index: correct_option_index,
+                                tags: tags,
+                                created_on: getCurrentDateTime(),
+                                create_by: user_login_data.userid,
+                                userid: user_login_data.userid,
+                                verified: false,
+                                verfication_status: 0,
+                                linked_blocks: [],
+                                external_links: [],
+                                video_links: [],
+                            };
 
-                                    let id = getUniqueId();
-                                    options.forEach((option, index) => {
-                                        options_text.push({
-                                            id: `${id}_${index}`,
-                                            text: option.value,
-                                        });
-                                        if (option.closest(".option").querySelector("input[type='radio']").checked) correct_option_index = index;
-                                    });
+                            let is_online = navigator.onLine;
+                            if (!is_online) {
+                                popupAlert("Question cannot be added as you are offline");
+                                return;
+                            }
 
-                                    if (correct_option_index == undefined) {
-                                        popupAlert("Please select correct option");
-                                        return;
-                                    }
+                            let user_ref = database.ref(`${exam}/shared_questions/data`);
+                            user_ref.once("value").then(function (snapshot) {
+                                let obj = snapshot.val();
 
-                                    let explanation = event.target.closest(".create-mcq-body").querySelector(".explanation-div textarea").value;
-
-                                    let tags = [];
-
-                                    let subject = event.target.closest(".create-mcq-body").querySelector(".subject-div .selected").textContent.toLowerCase();
-                                    if (!subject) {
-                                        popupAlert("Please select subject");
-                                        return;
-                                    }
-                                    tags.push(subject);
-
-                                    let new_mcq_tags = event.target.closest(".create-mcq-body").querySelector(".tags-div .tags-list").querySelectorAll(".tag-item .name");
-                                    new_mcq_tags.forEach((tag) => {
-                                        tags.push(tag.textContent.toLowerCase());
-                                    });
-
-                                    //let block_ids = "JNyeAoIpm::aFBzCUkrq";
-                                    let block_ids = event.target.closest(".create-mcq-body").querySelector(".block-link-div input").value;
-                                    /*
-if (match) {
-                                    [page_id, block_id] = match.slice(1, 3);
+                                if (!obj) {
+                                    obj = [];
                                 }
-                                */
-                                    // Check if the block_ids string is in the correct format
-                                    block_ids = block_ids.split("::");
-                                    //let match = block_ids.match(/^([a-zA-Z0-9]{9})::([a-zA-Z0-9]{9})$/);
-                                    let page_id = block_ids[0]; //null;
-                                    let block_id = block_ids[1]; //null;
-
-                                    let linked_blocks = [];
-                                    if (page_id && block_id) {
-                                        linked_blocks.push({ page_id, block_id });
-                                    }
-
-                                    //Check if the youtube link is valid
-                                    let youtube_link = event.target.closest(".create-mcq-body").querySelector(".video-link-div input.video-link").value;
-                                    let youtube_time = event.target.closest(".create-mcq-body").querySelector(".video-link-div input.video-time").value;
-                                    let video_obj = parseYoutubeLink(youtube_link, youtube_time);
-
-                                    let external_link = event.target.closest(".create-mcq-body").querySelector(".external-link-div input").value.trim();
-
-                                    let que_obj = {
-                                        id: id,
-                                        question: question,
-                                        options: options_text,
-                                        explanation: explanation,
-                                        correct_option_index: correct_option_index,
-                                        tags: tags,
-                                        created_on: getCurrentDateTime(),
-                                        created_by: user_login_data.userid,
-                                        userid: user_login_data.userid,
-                                        verified: false,
-                                        linked_blocks: linked_blocks,
-                                        verfication_status: 0,
-                                        external_link: external_link,
-                                        linked_videos: video_obj ? [video_obj] : [],
-                                    };
-
-                                    saveCreatedMcq(que_obj);
-                                    // Add MCQ in the shared mcqs data
-
-                                    // Add
-                                }}
-                            >
-                                Create MCQ
-                            </button>
-                        </div>
-                    </div>
+                                obj.unshift(que_obj);
+                                // Has to add in user_questions array as the question is created by the user to show in the user timeline.
+                                user_questions.unshift(que_obj);
+                                // Add in shared_ques array as the questio
+                                //shared_ques.push(que_obj);
+                                database.ref(`${exam}/shared_questions/data`).set(obj);
+                                popupAlert("Question has been created");
+                                //loadUserQuestions();
+                            });
+                        }}
+                    >
+                        Create MCQ
+                    </button>
                 </div>
             </div>
         );
-    }
-
-    async function saveCreatedMcq(que_obj) {
-        try {
-            let data_ref = database.ref(`esa_data/${exam}/shared_mcqs`);
-            let data = await getDataFromFirebaseUsingRef(data_ref);
-
-            data = data ? data : [];
-            data.unshift(que_obj);
-            await data_ref.set(data);
-            console.log("New MCQ has been added in the shared mcqs data");
-
-            // Add MCQ in the user mcqs data
-            userdata.shared_mcqs = userdata.shared_mcqs ? userdata.shared_mcqs : [];
-            userdata.shared_mcqs.unshift(que_obj.id);
-            saveUserData();
-
-            // Add MCQ in the shared mcqs array
-            shared_mcqs = shared_mcqs ? shared_mcqs : [];
-            shared_mcqs.unshift(que_obj);
-
-            user_mcqs = user_mcqs ? user_mcqs : [];
-            user_mcqs.unshift(que_obj.id);
-            popupAlert("New MCQ has been created", 3, "green");
-        } catch (error) {
-            console.log(error);
-            popupAlert("Error in saving new MCQ", 3, "red");
-        }
-    }
-
-    function parseYoutubeLink(youtube_link, youtube_time) {
-        // Regular expression to match a valid YouTube link and extract the video ID
-        const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-        const match = youtube_link.match(youtubeRegex);
-
-        if (!match) {
-            // If the link is not valid, return null
-            return null;
-        }
-
-        // Extract video ID
-        const video_id = match[1];
-
-        // Helper function to convert time string to seconds
-        function timeToSeconds(time) {
-            const timeParts = time.split(":").reverse();
-            let seconds = 0;
-
-            // Loop through time parts (ss, mm, hh if present)
-            for (let i = 0; i < timeParts.length; i++) {
-                let part = parseInt(timeParts[i], 10);
-                if (isNaN(part)) return null; // Invalid time part
-                seconds += part * Math.pow(60, i);
-            }
-
-            return seconds;
-        }
-
-        // Check if the link has a time parameter in the URL
-        const url = new URL(youtube_link);
-        let timeParam = url.searchParams.get("t") || youtube_time;
-
-        // Validate time format if time parameter is provided
-        let time_in_sec = 0;
-        if (timeParam) {
-            const validTimeFormat = /^(\d{1,2}:)?\d{1,2}:\d{2}$/;
-            if (validTimeFormat.test(timeParam)) {
-                time_in_sec = timeToSeconds(timeParam);
-            } else {
-                time_in_sec = parseInt(timeParam, 10); // support seconds only format like "t=90"
-            }
-        }
-
-        return { video_id, time_in_sec };
     }
 
     let curr_que_index = 0;
@@ -3300,25 +2229,9 @@ if (match) {
             </div>
         );
     }
-
-    async function deleteSharedMcq(id) {
-        popupAlert("Deleting MCQ disabled for now", 3, "yellow");
-        return;
-        let user_ref = database.ref(`esa_data/${exam}/data/shared_mcqs`);
-        user_ref.once("value").then(function (snapshot) {
-            let obj = snapshot.val();
-
-            //let index = obj.findIndex((q) => q.id == id);
-            //obj.splice(index, 1);
-            obj = [];
-            database.ref(`esa_data/${exam}/data/shared_mcqs`).set(obj);
-            popupAlert("Question has been deleted", 3, "red");
-        });
-    }
     function GetMcqDiv({ que, type, index, selected_option_id }) {
         //que = que.que ? que.que : que;
         que = que.id ? que : getQuestionById(que);
-
         return (
             <div>
                 <div id={que.id} className="que-div w-full flex flex-col gap-2 px-3 py-2">
@@ -3332,11 +2245,11 @@ if (match) {
                             <div
                                 id={`${option.id}`}
                                 className={`flex justify-start  items-start gap-2  cursor-pointer option border bg-gray-100 rounded-md p-2  
-                        ${option.text.indexOf("#ans") !== -1 || que.correct_option_id == index ? "answer" : ""}  
+                        ${option.text.indexOf("#ans") !== -1 ? "answer" : ""}  
                         ${selected_option_id == option.id ? "selected" : ""} 
-                        ${selected_option_id == option.id && (option.text.indexOf("#ans") !== -1 || que.correct_option_id == index) ? "correct" : ""}    
-                        ${selected_option_id == option.id && (option.text.indexOf("#ans") === -1 || que.correct_option_id !== index) ? "wrong " : ""} 
-                        ${selected_option_id != undefined && selected_option_id != option.id && (option.text.indexOf("#ans") !== -1 || que.correct_option_id == index) ? "correct " : ""}  
+                        ${selected_option_id == option.id && option.text.indexOf("#ans") !== -1 ? "correct" : ""}    
+                        ${selected_option_id == option.id && option.text.indexOf("#ans") === -1 ? "wrong " : ""} 
+                        ${selected_option_id != undefined && selected_option_id != option.id && option.text.indexOf("#ans") !== -1 ? "correct " : ""}  
                         ${selected_option_id ? "disabled" : ""} `}
                                 key={index}
                                 onClick={(event) => checkAnswer(event, que, type)}
@@ -3373,11 +2286,11 @@ if (match) {
 
     function checkAnswer(event, que, type) {
         let question_id = event.target.closest(".que-div").id;
-        let options_div = event.target.closest(".options");
+
         let option_ele = event.target.closest(".option");
         let selected_option_id = option_ele.id;
 
-        let selected_option = event.target;
+        let options_div = event.target.closest(".options");
         let correct_option_id = options_div.querySelector(".answer").id;
 
         let options = options_div.querySelectorAll(".option");
@@ -3399,15 +2312,6 @@ if (match) {
             return;
         }
 
-        let explanation_icon = event.target.closest(".mcq-div").querySelector(".bi-file-text");
-        if (que.explanation && que.explanation.trim() != "" && explanation_icon) explanation_icon.classList.remove("hide");
-
-        let linked_block_icon = event.target.closest(".mcq-div").querySelector(".linked-block-icon");
-        if (que.linked_blocks && que.linked_blocks.length > 0 && linked_block_icon) linked_block_icon.classList.remove("hide");
-
-        let linked_video_icon = event.target.closest(".mcq-div").querySelector(".video-icon");
-        if (que.linked_videos && que.linked_videos.length > 0 && linked_video_icon) linked_video_icon.classList.remove("hide");
-
         option_ele.classList.add("selected");
 
         options.forEach((option) => {
@@ -3419,49 +2323,6 @@ if (match) {
             }
             option.classList.add("disabled");
         });
-
-        let id = que.id;
-        let user_ref = database.ref(`${exam}/questionInfo/${id}`);
-        let is_online = navigator.onLine;
-        if (is_online) {
-            user_ref.once("value").then(function (snapshot) {
-                let obj = snapshot.val();
-
-                obj = obj ? obj : { options: [] };
-
-                let option_divs = event.target.closest(".options").querySelectorAll(".option");
-                let selected_option_div = event.target.closest(".options").querySelector(".selected");
-
-                if (obj.options.length == 0) {
-                    option_divs.forEach((option_div, index) => {
-                        obj.options.push(0);
-                        if (selected_option_div == option_div) obj.options[index] = 1;
-                    });
-                } else {
-                    option_divs.forEach((option_div, index) => {
-                        if (selected_option_div == option_div) obj.options[index] = obj.options[index] + 1;
-                    });
-                }
-
-                database.ref(`${exam}/questionInfo/${id}`).set(obj);
-
-                let totalResponses = obj.options.reduce((acc, curr) => acc + curr, 0);
-
-                option_divs.forEach((option_div, index) => {
-                    let percentage_div = option_div.querySelector(".percentage-attempted");
-                    if (percentage_div) {
-                        let percentage = (obj.options[index] / totalResponses) * 100;
-                        let roundedPercentage = Math.round(percentage); // Round to nearest integer
-                        percentage_div.textContent = roundedPercentage + "%";
-                    }
-                });
-
-                let span = document.createElement("span");
-                span.className = "total-responses text-gray-500";
-                span.textContent = `Total Responses: ${totalResponses}`;
-                event.target.closest(".options").appendChild(span);
-            });
-        }
 
         let obj = {
             id: que.id,
@@ -3616,33 +2477,10 @@ if (match) {
     function TabsTopSectionHTML({ tabName }) {
         document.querySelector(".main.tabs.top").classList.remove("hide");
         if (tabName == "home") {
-            //document.querySelector(".main.tabs.top").classList.add("hide");
             return (
                 <div className="flex justify-between items-center w-full">
-                    <span className="text-xl font-bold">HOME</span>
+                    <span className="text-xl font-bold">ELAHI</span>
                     <div className="icons flex justify-end items-center gap-2"></div>
-                </div>
-            );
-
-            return (
-                <div className="flex flex-col justify-start items-start w-full gap-1">
-                    <div className="flex justify-start items-start gap-2 w-full">
-                        <span className=" text-gray-500 ">Signed in as "{user_login_data.display_name}"</span>
-                        <span
-                            className="sign-out-btn cursor-pointer link"
-                            onClick={() => {
-                                localStorage.removeItem("esa_user_login_data", null);
-                                popupAlert("User signed out");
-                                location.reload(true);
-                            }}
-                        >
-                            sign out
-                        </span>
-                    </div>
-
-                    <div className="flex  justify-start items-start gap-2 w-full">
-                        <span>Exam: {exam.toUpperCase()}</span>
-                    </div>
                 </div>
             );
         }
@@ -3672,7 +2510,6 @@ if (match) {
                         ></i>
                         <i class="bi bi-calendar-date text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => openDailyPractiseMcqs("")}></i>
                         <i class="bi bi-shuffle text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => reloadMCQs()}></i>
-                        <i class="bi bi-plus-circle text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={() => createMCQs()}></i>
                     </div>
                 </div>
             );
@@ -3718,12 +2555,8 @@ if (match) {
             );
         }
         if (tabName == "user") {
-            return (
-                <div className="search-div flex justify-center items-center gap-2 w-full  text-gray-500 border-2 rounded-full">
-                    <i className="fa-regular fa-user"></i>
-                    <input type="text" className="search-input focus-outline-none" placeholder="Search users" />
-                </div>
-            );
+            document.querySelector(".main.tabs.top").classList.add("hide");
+            return <div className="flex justify-between items-center w-full"></div>;
         }
     }
 
@@ -3988,188 +2821,95 @@ if (match) {
                     que = que ? que : filtered_ques[curr_que_index];
                     openMcq(que);
                 }
-            } else if (page == "notes") {
-                openTab("notes");
-                let page_id = url_items[2];
-                let block_id = url_items[3];
-                if (page_id && block_id) {
-                    openNotesPage(page_id, block_id, null);
-                } else {
-                    openNotesPage(page_id, null, null);
-                }
             }
-
             //openPage(page);
         } else {
             openTab("home");
         }
     }
     async function loadData() {
-        await getAllUsersInfo();
         await getUserData();
         await getDataFromFirebase();
     }
-
-    let users_login_info = null;
+    let get_all_user_info = null;
     async function getAllUsersInfo() {
-        //if (all_users_info) return;
-        exam = exam.toLowerCase();
-        let data_ref = database.ref(`esa_data/${exam}/users_login_info`);
-        users_login_info = await getDataFromFirebaseUsingRef(data_ref);
-
-        users_login_info = users_login_info ? users_login_info : [];
-
-        console.log(`esa: all_users_info fetched for ${exam} = ${users_login_info}`);
-    }
-
-    async function getDataFromFirebaseUsingRef(ref) {
-        let snapshot = await ref.once("value");
-        let obj = snapshot.val();
-        return obj;
+        let user_ref = database.ref(`esa_data/users`);
+        let snapshot = await user_ref.once("value");
+        let obj = snapshot.val() || [];
+        all_users_info = obj;
     }
 
     async function lastDataLoaded() {}
 
     //openPageBasedOnURL();
     function getQuestionById(que_id) {
-        let all_ques = que_data.concat(shared_mcqs);
-        let que = all_ques.find((que) => que.id == que_id);
+        let que = que_data.find((que) => que.id == que_id);
         return que;
     }
 
-    let que_data = null,
+    var que_data = null,
         shared_ques = null,
         esa_ques = null,
         pdf_data = null,
         handnotes_data = null,
         all_ques = null,
         follower_ques = null,
+        all_users_info = null,
         notes_data = null,
         tags_list = null,
         static_mocks = null,
         userdata = null,
-        app_level_data = null,
-        vocab_data = null,
-        user_mcqs = [],
-        shared_mcqs = [];
+        app_level_data = null;
 
-    const handler = {
-        set(target, property, value) {
-            console.log(`Setting ${property} to ${value}`);
-            target[property] = value;
-            return true; // Indicate success
-        },
-    };
-
-    shared_mcqs = new Proxy(shared_mcqs, handler);
     async function getDataFromFirebase() {
-        var is_online = navigator.onLine;
-        if (!is_online) {
-            popupAlert("You are offline, Your data may not be updated data..", 5, "bg-red-500");
-            return;
+        let data = {};
+        let last_data_update_time_local = localStorage.getItem(`esa_${exam}_data_last_update_time`);
+        let local_data_string = localStorage.getItem(`esa_${exam}_data`);
+
+        if (local_data_string) {
+            data = JSON.parse(local_data_string);
         }
-
-        // Get roam shared data from firebase
-        let data_ref = database.ref(`esa_data/${exam}/roam_data`);
-        var data = await getDataFromFirebaseUsingRef(data_ref);
-        data = data ? data : {};
-
-        /*que_data = data.ques_data ? data.ques_data : [];
-    notes_data = data.notes_data ? data.notes_data : [];
-    tags_list = data.tags_list ? data.tags_list : [];
-    static_mocks = data.mocks_data ? data.mocks_data : [];
-    handnotes_data = data.handnotes ? data.handnotes : [];
-    pdf_data = data.pdfs ? data.pdfs : [];
-    vocab_data = data.vocab_data ? data.vocab_data : [];
-    */
-        que_data = data.questions ? data.questions : [];
-        notes_data = data.notes ? data.notes : [];
-        tags_list = data.tags ? data.tags : [];
-        static_mocks = data.mocks ? data.mocks : [];
-        handnotes_data = data.handnotes ? data.handnotes : [];
-        pdf_data = data.pdfs ? data.pdfs : [];
-        vocab_data = data.vocab ? data.vocab : [];
-
-        shared_mcqs = await getDataFromFirebaseUsingRef(database.ref(`esa_data/${exam}/shared_mcqs`));
-        shared_mcqs = shared_mcqs ? shared_mcqs : [];
-
-        // Add all questions
-        que_data = shared_mcqs.concat(que_data);
-        esa_ques = que_data;
-
-        shared_mcqs.forEach((mcq) => {
-            if (mcq.userid === user_login_data.userid) {
-                if (mcq.options[0].id) {
-                    user_mcqs.push(mcq.id);
-                }
-            }
-        });
-
-        console.log(`data retrieved from firebase for ${exam}`);
-        return;
-
-        /*let data = {};
-    let last_data_update_time_local = localStorage.getItem(`esa_${exam}_data_last_update_time`);
-    let local_data_string = localStorage.getItem(`esa_${exam}_data`);
-
-    if (local_data_string) {
-        data = JSON.parse(local_data_string);
-    }
-    let is_online = navigator.onLine;
-    if (is_online) {
-        let user_ref = database.ref(`esa_data/${exam}/data_last_update_time`);
-        let snapshot = await user_ref.once("value");
-        let data_last_update_time_firebase = snapshot.val() || "nothing";
-        if (true || last_data_update_time_local != data_last_update_time_firebase || !data.ques_data) {
-            await getAllUsersInfo();
-            let user_ref = database.ref(`esa_data/${exam}/data`);
+        let is_online = navigator.onLine;
+        if (is_online) {
+            let user_ref = database.ref(`esa_data/${exam}/data_last_update_time`);
             let snapshot = await user_ref.once("value");
-            data = snapshot.val() || {};
-            console.log(`esa: data retrieved from firebase for ${exam}`);
-            // store the update locale data here in the app
-            let last_update_time = data_last_update_time_firebase;
-            localStorage.setItem(`esa_${exam}_data`, JSON.stringify(data));
-            localStorage.setItem(`esa_${exam}_data_last_update_time`, last_update_time);
+            let data_last_update_time_firebase = snapshot.val() || "nothing";
+            if (true || last_data_update_time_local != data_last_update_time_firebase || !data.ques_data) {
+                await getAllUsersInfo();
+                let user_ref = database.ref(`esa_data/${exam}/data`);
+                let snapshot = await user_ref.once("value");
+                data = snapshot.val() || {};
+                console.log(`esa: data retrieved from firebase for ${exam}`);
+                // store the update locale data here in the app
+                let last_update_time = data_last_update_time_firebase;
+                localStorage.setItem(`esa_${exam}_data`, JSON.stringify(data));
+                localStorage.setItem(`esa_${exam}_data_last_update_time`, last_update_time);
+            } else {
+                console.log(`esa:data retrieved from local storage for ${exam}`);
+            }
         } else {
+            popupAlert("You are offline, Your data may not be updated data..", 5, "bg-red-500");
             console.log(`esa:data retrieved from local storage for ${exam}`);
         }
-    } else {
-        popupAlert("You are offline, Your data may not be updated data..", 5, "bg-red-500");
-        console.log(`esa:data retrieved from local storage for ${exam}`);
+
+        esa_ques = data.ques_data ? data.ques_data : [];
+        que_data = esa_ques;
+        notes_data = data.notes_data ? data.notes_data : [];
+        tags_list = data.tags_list ? data.tags_list : [];
+        static_mocks = data.mocks_data ? data.mocks_data : [];
+        handnotes_data = data.handnotes ? data.handnotes : [];
+        pdf_data = data.pdfs ? data.pdfs : [];
+        console.log(`data retrieved from firebase for ${exam}`);
+        //alert(`data retrieved from firebase for ${exam}`);
+        await getAllUsersInfo();
+        //initialLoading();
     }
 
-    esa_ques = data.ques_data ? data.ques_data : [];
-    que_data = esa_ques;
-    notes_data = data.notes_data ? data.notes_data : [];
-    tags_list = data.tags_list ? data.tags_list : [];
-    static_mocks = data.mocks_data ? data.mocks_data : [];
-    handnotes_data = data.handnotes ? data.handnotes : [];
-    pdf_data = data.pdfs ? data.pdfs : [];
-    vocab_data = data.vocab_data ? data.vocab_data : [];
-    shared_mcqs = data.shared_mcqs ? data.shared_mcqs : [];
-    que_data = shared_mcqs.concat(que_data);
-    shared_mcqs.forEach((mcq) => {
-        if (mcq.userid === user_login_data.userid) {
-            if (mcq.options[0].id) {
-                user_mcqs.push(mcq);
-            }
-        }
-    });
-    console.log(`data retrieved from firebase for ${exam}`);
-    //alert(`data retrieved from firebase for ${exam}`);
-    await getAllUsersInfo();
-    //initialLoading();
-    */
-    }
-
-    function getHTMLFormattedText(text, search_text) {
+    function getHTMLFormattedText(text) {
         if (!text) text = "";
 
         // Replace [[ and ]] with an empty string
         text = text.replace(/\[\[|\]\]/g, "");
-        if (search_text) {
-            text = text.replace(new RegExp(search_text, "gi"), (match) => `<span class="bg-yellow-200">${match}</span>`);
-        }
 
         // Convert **hello** to bold <span>
         text = text.replace(/\*\*(.*?)\*\*/g, '<span class="me-bold">$1</span>');
@@ -4300,33 +3040,7 @@ if (match) {
                     </div>
                 </div>
 
-                <div class="block  h-[75px] w-full overflow-x-auto py-1 px-3">
-                    <div class="flex space-x-4 py-2 ">
-                        <span
-                            // Add a key for each child in the list
-                            className=" shared-mcq inline-flex items-center whitespace-nowrap border text-gray-500 h-[22px] rounded-md px-2 py-1 min-w-[fit-content] cursor-pointer"
-                            onClick={(event) => filterSharedMCQs("all", event)}
-                        >
-                            Shared MCQs
-                        </span>
-                        <span
-                            // Add a key for each child in the list
-                            className=" shared-mcq inline-flex items-center whitespace-nowrap border text-gray-500 h-[22px] rounded-md px-2 py-1 min-w-[fit-content] cursor-pointer"
-                            onClick={(event) => filterSharedMCQs("verified", event)}
-                        >
-                            Verified
-                        </span>
-                        <span
-                            // Add a key for each child in the list
-                            className=" shared-mcq inline-flex items-center whitespace-nowrap border text-gray-500 h-[22px] rounded-md px-2 py-1 min-w-[fit-content] cursor-pointer"
-                            onClick={(event) => filterSharedMCQs("unverified", event)}
-                        >
-                            Unverified
-                        </span>
-                    </div>
-                </div>
-
-                <div className="flex flex-col justify-start items-start w-full  px-3 ">
+                <div className="flex flex-col justify-start items-start w-full pt-3 px-3 ">
                     <span className="block h-auto py-2">Filter by tags:</span>
                     <div className="flex justify-center items-center gap-2  h-auto py-2  w-full">
                         <div className="flex justify-center items-center gap-2  w-full rounded-md px-2 py-1 my-3  border border-gray-500 ">
@@ -4363,25 +3077,6 @@ if (match) {
             </div>
         );
     }
-
-    async function filterSharedMCQs(status, event) {
-        //let data_ref = database.ref(`esa_data/${exam}/shared_mcqs`);
-        //let data = await getDataFromFirebaseUsingRef(data_ref);
-        //shared_mcqs = data ? data : [];
-
-        if (status == "all") {
-            filtered_ques = shared_mcqs;
-        } else if (status == "verified") {
-            filtered_ques = shared_mcqs.filter((mcq) => mcq.verified == true);
-        } else if (status == "unverified") {
-            filtered_ques = shared_mcqs.filter((mcq) => mcq.verified == false);
-        }
-        if (event) closeOverlay(event);
-        loadMCQList();
-
-        console.log(`filterSharedMCQs: ${status}`);
-    }
-
     function switchFilterMCQsTabs(tab_name, event) {
         event.target
             .closest(".tab-section")
@@ -4497,16 +3192,10 @@ if (match) {
     }
 
     var me_video_player = null;
-    function playVideoPlayer(video_id, time, event, from) {
+    function playVideoPlayer(video_id, time, event) {
         let target = "",
             iframe = "";
         target = event.target.closest(".page");
-
-        if (from == "mcq") {
-            target = event.target.closest(".mcq-item").querySelector(".mcq-video-div-inner");
-            iframe = target.querySelector("iframe");
-            //iframe = target.querySelector("iframe");
-        }
         if (target.classList.contains("mcq")) {
             openOverlay();
             target = document.querySelector(".me-overlay .content .me-iframe-div");
@@ -4553,11 +3242,11 @@ if (match) {
         var url = window.location.href; // Get the current URL
         url = url.substring(0, url.indexOf("//#", 8));
         if (!iframe) {
-            target.innerHTML = `<div class="header flex justify-end items-center w-[100%]">
+            target.innerHTML = `<div class="header flex justify-end items-center">
                                     <i class="fa-regular fa-circle-xmark text-xl cursor-pointer cross mr-3" ></i>
                                 </div>
                                 <div class="me-iframe">
-                                <iframe  id="${video_id}"class="rm-iframe rm-video-player w-[100%] h-[200px]" frameborder="0" allowfullscreen="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" title="THE LIVING WORLD in 1 Shot: FULL CHAPTER COVERAGE (Theory+PYQs) ||  Prachand NEET 2024" width="640" height="360" src="https://www.youtube.com/embed/${video_id}?enablejsapi=1&amp;origin=${url}&amp;widgetid=5" ></iframe>
+                                <iframe  id="${video_id}"class="rm-iframe rm-video-player" frameborder="0" allowfullscreen="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" title="THE LIVING WORLD in 1 Shot: FULL CHAPTER COVERAGE (Theory+PYQs) ||  Prachand NEET 2024" width="640" height="360" src="https://www.youtube.com/embed/${video_id}?enablejsapi=1&amp;origin=${url}&amp;widgetid=5" ></iframe>
                                 </div>
                             `;
             let ele = target.querySelector(".header .cross");
@@ -5107,7 +3796,7 @@ if (match) {
     function PopupAlertHTMLMessage({ message, color, time_in_sec }) {
         let arr = message.split(";");
         return (
-            <div className={`me-popup-alert ${color ? `bg-${color}-800` : "bg-blue-800"} px-3 py-2 rounded text-white w-[90%] `}>
+            <div className={`me-popup-alert ${color ? color : "bg-blue-800"} px-3 py-2 rounded text-white w-[90%] `}>
                 <div className="flex justify-start items-baseline gap-2">
                     <div className="message flex-1 flex flex-col gap-1 justify-start items-start">
                         {arr.map((msg) => (
@@ -5494,104 +4183,51 @@ if (match) {
         };
     }
 
-    async function saveUserData() {
-        is_online = navigator.onLine;
-        if (!is_online) {
-            popupAlert("You are offline, cannot save userdata", 5, "red");
-            return;
-        }
-
-        let data_ref = database.ref(`esa_data/${exam}/users_data/${user_login_data.userid}`);
-        await data_ref.set(userdata);
-        console.log(`userdata saved successfully to firebase`);
-        return;
-
-        // First save userdata to local storage
-        let storage_id = getCurrentDateAndTime();
-        esa_local_data[`userdata_last_update_time`] = storage_id;
-        saveESALocalData();
+    function saveUserData() {
         localStorage.setItem(`esa_userdata_${exam}`, JSON.stringify(userdata));
-
-        console.log(`userdata saved successfully to local storage with id: ${storate_time}`);
-
+        //console.log(`esa: userdata saved successfully to local storage`);
         let is_online = navigator.onLine;
-        //let userdata_last_update_time = getCurrentDateAndTime();
+        let userdata_last_update_time = getCurrentDateAndTime();
         if (is_online) {
-            await database.ref(`${exam}/users/${user_login_data.userid}/userdata_last_update_time`).set(last_update_time);
-            let user_ref = database.ref(`${exam}/users/${user_login_data.userid}/userdata`);
-            await user_ref.set(userdata);
-            console.log(`userdata saved successfully in firebase with id: ${last_update_time}`);
+            database.ref(`${exam}/users/${user_login_data.userid}/userdata`).set(userdata);
+
+            // set last update time..
+
+            database.ref(`${exam}/users/${user_login_data.userid}/userdata_last_update_time`).set(userdata_last_update_time);
+            localStorage.setItem(`${exam}_userdata_last_update_time`, userdata_last_update_time);
+            console.log(`esa: userdata saved successfully to both local andfirebase`);
         } else {
-            popupAlert("You are offline, Your data is stored only in Local Storage", 5, "red");
+            localStorage.setItem(`${exam}_userdata_last_update_time`, userdata_last_update_time);
         }
     }
-
-    let is_online = "";
     async function getUserData() {
-        is_online = navigator.onLine;
-        if (!is_online) {
-            popupAlert("esa: You are offline, cannot fetch userdata", 5, "red");
-            return {};
-        }
-        let data_ref = database.ref(`esa_data/${exam}/users_data/${user_login_data.userid}`);
-        let data = await getDataFromFirebaseUsingRef(data_ref);
-        userdata = data ? data : {};
-        console.log(`esa: Userdata fetched successfully from firebase`);
-        return;
-
-        let local_storage_id = localStorage.getItem(`esa_userdata_${exam}_last_update_time`);
-        is_online = navigator.onLine;
-        if (!local_storage_id) {
-            console.log(`esa: local userdata storage id not found`);
-            if (!is_online) {
-                console.log("esa: No local data found; Online data cannot be fetched as you are offline");
-                return {};
-            } else {
-                let user_ref = database.ref(`${exam}/users/${user_login_data.userid}/userdata`);
-                let data = await getDataFromFirebaseUsingRef(user_ref);
-                if (!data) {
-                    popupAlert("esa: No data found in firebase", 5, "red");
-                    return {};
-                }
-                // get userdata from loc
-
-                userdata = data;
-                console.log(`esa: userdata = data from firebase`);
-            }
-        }
-
-        // Since local storage id is found, get userdata from local storage
+        //let user_data_last_update_time = localStorage.getItem(`${exam}_userdata_last_update_time`);
         let userdata_str = localStorage.getItem(`esa_userdata_${exam}`);
         if (userdata_str) {
             userdata = JSON.parse(userdata_str);
         } else {
-            userdata = null;
+            userdata = {};
         }
 
-        let ref = database.ref(`${exam}/users/${user_login_data.userid}/userdata_last_update_time`);
-        let firebase_userdata_storage_id = await getDataFromFirebaseUsingRef(ref);
-
-        // If local and firebase userdata storage id is same and userdata is not null continue with local userdata
-        if (firebase_userdata_storage_id && firebase_userdata_storage_id === local_storage_id && userdata) {
+        let is_online = navigator.onLine;
+        if (!is_online) {
+            popupAlert("You are offline, Your data may not be updated data..", 5, "bg-red-500");
             return userdata;
         }
 
-        if (firebase_userdata_storage_id && firebase_userdata_storage_id !== local_storage_id) {
-            popupAlert("Local userdata storge id and online userdata storage id are different; Continuing with online userdata", 5, "red");
-            let ref = database.ref(`${exam}/users/${user_login_data.userid}/userdata`);
-            let data = await getDataFromFirebaseUsingRef(ref);
-            if (!data) {
-                popupAlert("No data found in firebase; continuing with local userdata", 5, "red");
-                console.log("No data found in firebase; continuing with local userdata");
-                if (userdata_str) {
-                    userdata = JSON.parse(userdata_str);
-                    console.log(`userdata = data from local storage`);
-                } else {
-                    userdata = null;
-                }
-            }
-            userdata = data;
+        let last_userdata_update_time_local = localStorage.getItem(`${exam}_userdata_last_update_time`);
+
+        let user_ref = database.ref(`${exam}/users/${user_login_data.userid}/userdata_last_update_time`);
+        let snapshot = await user_ref.once("value");
+        let userdata_last_update_time_firebase = snapshot.val() || "nothing";
+
+        if (last_userdata_update_time_local != userdata_last_update_time_firebase) {
+            //get user data from firebase
+            let user_ref = database.ref(`${exam}/users/${user_login_data.userid}/userdata`);
+            let snapshot = await user_ref.once("value");
+            userdata = snapshot.val() || {};
         }
+        return userdata;
     }
 
     function handleSelection() {
@@ -5688,9 +4324,8 @@ if (match) {
     }
 
     async function clearCache() {
-        // Get user data from local storage
-        const user_data = localStorage.getItem(`esa_userdata_${exam}`);
-        user_data = user_data ? JSON.parse(user_data) : {};
+        // Store user data in a variable
+        const user_data = getUserData();
 
         // Unregister all service workers
         if ("serviceWorker" in navigator) {
@@ -5707,49 +4342,68 @@ if (match) {
         }
 
         // Save the user data back in local storage
-        if (user_data.daily_practise_questions) {
+        if (user_data) {
             localStorage.setItem(`esa_userdata_${exam}`, JSON.stringify(user_data));
         }
+
+        // Optionally reload the page to apply changes
+        // window.location.reload();
     }
 
     let user_login_data = {};
 
-    // load url is saved so that we can open the share link items after app loading
     let load_url = null;
-    var esa_local_data = {};
+
     //start app
     async function startApp() {
-        //let local_cache_id = localStorage.getItem("esa_cache_id");
-        //let cache_id = "2024_910099_0986_0821_009_0088";
+        let local_cache_id = localStorage.getItem("esa_cache_id");
+        let cache_id = "2024_910099_0986_0821_009_0088";
+
+        if (local_cache_id != cache_id) {
+            //clearCache();
+            //localStorage.setItem("esa_cache_id", cache_id);
+            //window.location.reload();
+        }
         clearCache();
         loadHTML("loading");
+        load_url = window.location.href;
+        user_login_data = localStorage.getItem("esa_user_login_data");
 
-        // Get exam from the url
-        let url = location.href; // Get the full URL
-        let examMatch = url.match(/#\/([^/]+)\//); // Match text between "#/" and next "/"
-        exam = examMatch ? examMatch[1] : "ssc";
-        if (exam) exam = exam.toLowerCase();
-
-        // Get esa local data for that e
-        getESALocalData();
-
-        // Check if user is previously logged in
-        user_login_data = esa_local_data[`user_login_data`];
-
-        if (user_login_data) postSignIn();
-        else loadHTML("signin");
+        /*user_login_data = {
+        display_name: "Mehboob Elahi",
+        email: "mehboob4ias@gmail.com",
+        photo_url: "https://lh3.googleusercontent.com/a/ACg8ocKW5Wsgjwx6AGuJxEon1lvuwCGJ_eoW64nRUneHBVjzadW_T7F9Iw=s96-c",
+        userid: "UarmygN6ei7Kjo1",
+        username: "mehboob4ias",
+    };
+    localStorage.setItem("esa_user_login_data", JSON.stringify(user_login_data));*/
+        if (user_login_data) {
+            user_login_data = JSON.parse(user_login_data);
+        } else {
+            user_login_data = {};
+        }
+        //setTimeout(() => {
+        if (user_login_data.userid) {
+            //loadHTML("home");
+            postSignIn();
+        } else {
+            setTimeout(() => {
+                loadHTML("signin");
+            }, 2000);
+            //document.body.querySelector(".app-loading").classList.add("hide");
+            //document.body.querySelector(".container-inner").classList.remove("hide");
+        }
+        //}, 2000);
     }
     startApp();
 
     async function postSignIn() {
-        exam = exam.toLowerCase();
         loadHTML("loading");
         popupAlert(`Signed in as "${user_login_data.display_name}";Exam: "${exam.toUpperCase()}"`);
         let url = window.location.href;
         let url_items = parseURL(url);
         exam = url_items.length ? url_items[0] : "ssc";
-        esa_local_data[`exam`] = exam;
-        saveESALocalData();
+        localStorage.setItem("esa_exam", exam);
 
         await loadData();
         loadHTML("home");
@@ -6078,25 +4732,22 @@ if (match) {
         const response = await fetch(filename);
 
         const data = await response.json();
-
         let ques_data = data[0].ques ? data[0].ques : [];
         let notes_data = data[0].notes ? data[0].notes : [];
         let mocks_data = data[0].mocks ? data[0].mocks : [];
         let tags_list = data[0].tags_list ? data[0].tags_list : [];
         let handnotes = data[0].handnotes ? data[0].handnotes : [];
         let pdfs = data[0].pdfs ? data[0].pdfs : [];
-        let vocab_data = data[0].vocab ? data[0].vocab : [];
 
         if (exam == "neet") notes_data = [];
 
-        await database.ref(`esa_data/${exam}/roam_data/questions`).set(ques_data);
-        await database.ref(`esa_data/${exam}/roam_data/notes`).set(notes_data);
-        await database.ref(`esa_data/${exam}/roam_data/mocks`).set(mocks_data);
-        await database.ref(`esa_data/${exam}/roam_data/tags`).set(tags_list);
-        await database.ref(`esa_data/${exam}/roam_data/handnotes`).set(handnotes);
-        await database.ref(`esa_data/${exam}/roam_data/pdfs`).set(pdfs);
-        await database.ref(`esa_data/${exam}/roam_data/vocab`).set(vocab_data);
-        //await database.ref(`esa_data/${exam}/roam_data/data_last_update_time`).set(new Date().toISOString());
+        database.ref(`esa_data/${exam}/data/ques_data`).set(ques_data);
+        database.ref(`esa_data/${exam}/data/notes_data`).set(notes_data);
+        database.ref(`esa_data/${exam}/data/mocks_data`).set(mocks_data);
+        database.ref(`esa_data/${exam}/data/tags_list`).set(tags_list);
+        database.ref(`esa_data/${exam}/data/handnotes`).set(handnotes);
+        database.ref(`esa_data/${exam}/data/pdfs`).set(pdfs);
+        database.ref(`esa_data/${exam}/data_last_update_time`).set(new Date().toISOString());
         popupAlert("Data added to firebase");
     }
 
