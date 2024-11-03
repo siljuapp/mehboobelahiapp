@@ -3715,7 +3715,23 @@ if (match) {
                     <div className="icons flex justify-end items-center gap-2">
                         <i class="new-mock bi bi-plus-circle-dotted text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => switchMockTabs("new-mock", event)}></i>
                         <i class="static-mocks bi bi-list-task text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => switchMockTabs("static-mocks", event)}></i>
-                        <i class="mock-history bi bi-clock-history text-xl flex justify-center items-center mr-[5px] cursor-pointer" onClick={(event) => switchMockTabs("mock-history", event)}></i>
+                        <i
+                            class="mock-history bi bi-clock-history text-xl flex justify-center items-center mr-[5px] cursor-pointer"
+                            onClick={(event) => {
+                                switchMockTabs("mock-history", event);
+                                document.querySelector(".tab-container.mock-history .mock-history-list").innerHTML = "";
+                                if (!userdata.mock_tests.length) {
+                                    document.querySelector(".tab-container.mock-history .mock-history-list").textContent = "No Mock Test History";
+                                    return;
+                                }
+                                userdata.mock_tests.forEach((mock) => {
+                                    let div = document.createElement("div");
+                                    div.className = "mock-history-item w-full h-auto my-2";
+                                    document.querySelector(".tab-container.mock-history .mock-history-list").appendChild(div);
+                                    ReactDOM.render(<MockTestHistoryItemHTML mock={mock} />, div);
+                                });
+                            }}
+                        ></i>
                     </div>
                 </div>
             );
@@ -4676,7 +4692,7 @@ if (match) {
 
     function switchMockTabs(tab_name, event) {
         let tab_section = document.querySelector(".page.mock .tab-section");
-        let tab_containers = tab_section.querySelectorAll(".tab-container");
+        let tab_containers = tab_section.querySelectorAll(" .tab-container");
         tab_containers.forEach((container) => {
             container.classList.add("hide");
         });
@@ -4739,6 +4755,7 @@ if (match) {
     }
 
     function MockTestPageHTML() {
+        userdata.mock_tests = userdata.mock_tests ? userdata.mock_tests : [];
         return (
             <div>
                 <div className="tab-section flex flex-col gap-2">
@@ -4759,19 +4776,19 @@ if (match) {
                             className="page-tab tab cursor-pointer mock-history flex-1 flex justify-center items-center text-gray-700  "
                             onClick={(event) => {
                                 switchMockTabs("mock-history", event);
+                                document.querySelector(".tab-container.mock-history .mock-history-list").innerHTML = "";
+                                if (!userdata.mock_tests.length) {
+                                    document.querySelector(".tab-container.mock-history .mock-history-list").textContent = "No Mock Test History";
+                                    return;
+                                }
                                 userdata.mock_tests.forEach((mock) => {
                                     let div = document.createElement("div");
                                     div.className = "mock-history-item w-full";
-                                    document.querySelector(".tab-container .mock-history-list").appendChild(div);
+                                    document.querySelector(".tab-container.mock-history .mock-history-list").appendChild(div);
                                     ReactDOM.render(<MockTestHistoryItemHTML mock={mock} />, div);
                                 });
-                                if (!userdata.mock_tests.length) {
-                                    document.querySelector(".tab-container .mock-history-list").textContent = "No Mock Test History";
-                                }
                             }}
-                        >
-                            Mock History
-                        </div>
+                        ></div>
                     </div>
                     <div className="tabs-container flex flex-col gap-2 py-2 max-h-[calc(100vh-95px)] overflow-y-scroll">
                         <div className="tab-container  new-mock px-2  flex flex-col justify-start items-start gap-2 h-full max-h-[calc(100vh-85px)] overflow-y-scroll">
@@ -4855,52 +4872,93 @@ if (match) {
                                 </div>
                             </div>
                         </div>
-                        <div className="tab-container static-mocks hide flex flex-col  justify-start items-center gap-2 h-full max-h-[calc(100vh-85px)] overflow-y-scroll">
-                            <input
-                                type="text"
-                                className=" w-[90%] p-2 border border-gray-300 rounded-full text-center mx-1 my-2"
-                                placeholder="Search or Filter Static Mocks"
-                                onChange={(event) => {
-                                    let value = event.target.value.trim().toLowerCase();
-                                    let mock_names = document.querySelectorAll(".static-mocks .static-mock-item .mock-name");
-                                    mock_names.forEach((mock_name) => {
-                                        if (mock_name.textContent.toLowerCase().includes(value)) {
-                                            mock_name.closest(".static-mock-item").classList.remove("hide");
-                                        } else {
-                                            mock_name.closest(".static-mock-item").classList.add("hide");
-                                        }
-                                    });
-                                }}
-                            />
-                            <div className="static-mocks-list border-t-2 py-2 w-full">
-                                {static_mocks.map((mock) => (
-                                    <div className="static-mock-item border border-gray-300 rounded-md p-2 m-2" id={mock.id} key={mock.id}>
-                                        <StaticMockTestItemHTML mock={mock} />
-                                    </div>
-                                ))}
+                        <div className="tab-container static-mocks hide flex flex-col  justify-start items-center gap-2 h-[calc(100vh-85px)]">{LoadStaticMockTestContainer()}</div>
+                        <div className="tab-container mock-history  max-h-[calc(100vh-170px)] overflow-y-scroll block h-full w-full">
+                            <h1 className="text-xl font-bold text-gray-500 text-center">Mock Test History</h1>
+                            <div className="hide flex justify-center items-center gap-2 border border-gray-300 rounded-full px-2 m-2 w-[90%]">
+                                <i className="bi bi-search text-gray-400"></i>
+                                <input type="text" className="w-[200px] text-center py-1 px-2  focus:outline-none" placeholder="Search ..." />
                             </div>
-                        </div>
-                        <div className="tab-container mock-history hide flex justify-center items-center flex-wrap  h-full max-h-[calc(100vh-85px)] overflow-y-scroll">
-                            <input
-                                type="text"
-                                className="p-2 w-[90%] border border-gray-300 rounded-full text-center my-2"
-                                placeholder="Search or Filter Mock History"
-                                onChange={(event) => {
-                                    let value = event.target.value.trim().toLowerCase();
-                                    let mock_names = document.querySelectorAll(".mock-history-list .mock-name");
-                                    mock_names.forEach((mock_name) => {
-                                        if (mock_name.textContent.toLowerCase().includes(value)) {
-                                            mock_name.closest(".mock-history-item").classList.remove("hide");
-                                        } else {
-                                            mock_name.closest(".mock-history-item").classList.add("hide");
-                                        }
-                                    });
-                                }}
-                            />
-                            <div className="mock-history-list w-full max-h-[calc(100vh-170px)] overflow-y-scroll flex justify-center items-center flex-wrap py-2 border-t-2"></div>
+                            <div className="mock-history-list w-full border-t-2"></div>
                         </div>
                     </div>
                 </div>
+            </div>
+        );
+    }
+
+    function LoadStaticMockTestContainer() {
+        return (
+            <div className="static-mock-test-container block h-screen w-full">
+                <h1 className="block text-center text-xl font-bold text-gray-500">Static Mock Tests</h1>
+                <div className="block w-full">
+                    <div className="hide flex justify-center items-center gap-2 flex-wrap border border-gray-300 rounded-full p-2 m-2">
+                        <i className="bi bi-search text-gray-400"></i>
+                        <input type="text" className="w-[200px] text-center p-1  focus:outline-none" placeholder="Search ..." />
+                    </div>
+                </div>
+
+                <div className="static-mock-test-items-container block w-full h-[calc(100vh-150px)] overflow-y-scroll border-t-2">
+                    {static_mocks.map((mock) => (
+                        <div key={mock.id} className="static-mock-test-item block h-auto w-full mx-2 my-4">
+                            <StaticMockTestItemHTML mock={mock} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
+    function StaticMockTestItemHTML({ mock }) {
+        let sub_wise_ques = [];
+        subjects[exam].forEach((subject) => {
+            let sub_que_ids = mock.que_ids.filter((id) => que_data.find((que) => que.id == id && que.tags.includes(subject)));
+            sub_wise_ques.push(sub_que_ids.length);
+        });
+
+        let color = ["bg-red-100", "bg-green-100", "bg-blue-100", "bg-yellow-100", "bg-purple-100"];
+        return (
+            <div className="static-mock-item-inner flex flex-col gap-2 border-2 mx-2 my-1 px-2 py-4">
+                <span className="text-xl font-bold text-gray-600 mock-name">{mock.name}</span>
+                <span className=" text-gray-500 py-1">Try "subject wise" or "full" mock test</span>
+
+                <div class=" block subject-div max-w-full overflow-x-auto py-2">
+                    <div class="flex space-x-4 ">
+                        {subjects[exam].map((subject, index) => (
+                            <span
+                                className={`subject inline-flex min-w-[fit-content] items-center whitespace-nowrap border border-gray-300 rounded-md py-1 px-2 text-no-wrap cursor-pointer ${color[index]} ${sub_wise_ques[index] ? "" : "disabled"}`}
+                                key={index}
+                                onClick={() => {
+                                    let que_ids = mock.que_ids.filter((id) => que_data.find((que) => que.id == id && que.tags.includes(subject)));
+
+                                    let obj = {
+                                        id: mock.id,
+                                        name: mock.name,
+                                        que_ids: que_ids,
+                                    };
+                                    startNewMockTest(obj);
+                                }}
+                            >
+                                {capitalFirstLetterOfEachWord(subject) + " (" + sub_wise_ques[index] + ")"}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <span
+                    className="full-mock text-blue-500 border bg-gray-100  border-gray-300 rounded-md p-1 px-2 text-center cursor-pointer"
+                    onClick={() => {
+                        startNewMockTest(mock);
+                    }}
+                >
+                    Full Mock ({mock.que_ids.length})
+                </span>
+                {mock.pdf && mock.pdf != "" && (
+                    <div className="text-md cursor-pointer flex justify-start items-center gap-2 py-1 px-4 border border-gray-500 text-gray-500  rounded-md w-[fit-content] h-[30px]" onClick={() => openPdfFile(mock.pdf, mock.name)}>
+                        <i class="bi bi-filetype-pdf text-xl text-red-500"></i>
+                        <span>Open PDF</span>
+                    </div>
+                )}
             </div>
         );
     }
@@ -4955,50 +5013,6 @@ if (match) {
             });
         }
     }
-    function StaticMockTestItemHTML({ mock }) {
-        return <div>Static Mock Test Item ERROR OCCURED</div>;
-        let sub_wise_ques = [];
-        subjects[exam].forEach((subject) => {
-            let sub_que_ids = mock.que_ids.filter((id) => que_data.find((que) => que.id == id && que.tags.includes(subject)));
-            sub_wise_ques.push(sub_que_ids.length);
-        });
-
-        let color = ["bg-red-100", "bg-green-100", "bg-blue-100", "bg-yellow-100", "bg-purple-100"];
-        return (
-            <div className="static-mock-item-inner flex flex-col gap-2">
-                <span className="text-xl font-bold text-gray-600 mock-name">{mock.name}</span>
-                <span className=" text-gray-500 py-1">You can try subject wise mock test as well</span>
-                <div className="subjects flex justify-start items-center max-w-full overflow-x-scroll gap-2">
-                    {subjects[exam].map((subject, index) => (
-                        <span
-                            className={`inline-block subject text-gray-600 border border-gray-300 rounded-md p-1 text-no-wrap cursor-pointer ${color[index]} ${sub_wise_ques[index] ? "" : "disabled"}`}
-                            key={index}
-                            onClick={() => {
-                                let que_ids = mock.que_ids.filter((id) => que_data.find((que) => que.id == id && que.tags.includes(subject)));
-
-                                let obj = {
-                                    id: mock.id,
-                                    name: mock.name,
-                                    que_ids: que_ids,
-                                };
-                                startNewMockTest(obj);
-                            }}
-                        >
-                            {subject}
-                        </span>
-                    ))}
-                </div>
-                <span
-                    className="full-mock text-blue-500 border bg-gray-200  border-gray-300 rounded-md p-1 px-2 text-center cursor-pointer"
-                    onClick={() => {
-                        startNewMockTest(mock);
-                    }}
-                >
-                    Full Mock
-                </span>
-            </div>
-        );
-    }
 
     function switchCustomiseMockTabs(tab_name, event) {
         let tab_section = event.target.closest(".tab-section");
@@ -5018,7 +5032,7 @@ if (match) {
     function MockTestHistoryItemHTML({ mock }) {
         return (
             <div className="mock-history-item-inner w-auto flex flex-col justify-start items-start gap-2 flex-wrap border border-gray-300 rounded-md mx-3 py-3 px-2 ">
-                <span className="text-xl font-bold text-gray-500 text-center mock-name">{mock.name}</span>
+                <span className="text-xl font-bold text-gray-500  mock-name">{mock.name}</span>
                 <span className="text-md text-gray-400">
                     Date: {mock.date.date} at {mock.date.time}
                 </span>
