@@ -177,6 +177,7 @@ import ReactDOM from "react-dom";
                                         photo_url: user.photoURL,
                                         username: user.email.substring(0, user.email.indexOf("@")),
                                         userid: getUniqueId(),
+                                        joined_at: new Date().toISOString(),
                                     };
                                     checkIsUserExist(user.email);
                                 })
@@ -765,13 +766,42 @@ import ReactDOM from "react-dom";
                     <div className="telegram-link  flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
                         <span className="text-sm text-gray-500">If you have any question or suggestion, you can ask in the telegram channel</span>
                         <a href="https://t.me/+xq5ZadcYXyRmY2Y1" target="_blank" className="flex justify-center items-center gap-2 bg-219CD7 rounded-full px-4 py-2">
-                            <img src="/assets/telegram.png" alt="telegram" className="w-10  " />
+                            <i class="bi bi-telegram text-xl"></i>
                             <span className="text-sm">Join Telegram Channel</span>
                         </a>
                     </div>
 
+                    <div className="flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
+                        <span className="text-sm text-gray-500">If you have not yet downloaded the android app, you can download it from here</span>
+
+                        <a
+                            href="https://www.dropbox.com/scl/fi/3z7xmgawalrw6jftfw4zn/Elahi-2.apk?rlkey=cp3gubu852qbf87f4hd6pqkai&dl=1
+"
+                            target="_blank"
+                            className="flex justify-center items-center gap-2 border border-blue-500  rounded-full px-4 py-2"
+                        >
+                            <i class="bi bi-google-play text-xl"></i>
+                            <span className="text-sm">Download Android App</span>
+                        </a>
+                        <span
+                            className="text-sm text-blue-500 mt-4 cursor-pointer link"
+                            onClick={() => {
+                                let url = `https://www.dropbox.com/scl/fi/3z7xmgawalrw6jftfw4zn/Elahi-2.apk?rlkey=cp3gubu852qbf87f4hd6pqkai&dl=1`;
+                                copyToClipboard(url);
+                                popupAlert("copied the app link");
+                            }}
+                        >
+                            Share app downloadable link with your friends
+                        </span>
+
+                        <div className="flex justify-center items-start gap-2 px-3 mt-2">
+                            <i class="bi bi-exclamation-triangle-fill text-yellow-500 text-xl w-[20px]"></i>
+                            <span className="text-[0.8em] text-gray-500  flex-1">Note: This is an ".apk" file so when you install the app in your android phone, you need to allow installation from unknown sources. You may see a waring or "saying gangerious", no need to worry, and continue installation. </span>
+                        </div>
+                    </div>
+
                     <div className="app-link flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
-                        <span className="text-sm text-gray-500">Share app link with your friends</span>
+                        <span className="text-sm text-gray-500">If you find this app useful, do help me by sharing the app link with your friends</span>
                         <div
                             className="flex justify-center items-center gap-2 px-4 py-2 cursor-pointer link bg-white border border-blue-500 rounded-full"
                             onClick={() => {
@@ -796,8 +826,8 @@ import ReactDOM from "react-dom";
                                 }
                             }}
                         >
-                            <span className="text-sm link ">Copy app link</span>
-                            <i className="fa-regular fa-link"></i>
+                            <i className="bi bi-share text-xl"></i>
+                            <span className="text-sm link ">Share App Link</span>
                         </div>
                     </div>
 
@@ -1099,12 +1129,44 @@ import ReactDOM from "react-dom";
                                 }}
                             ></i>
                         )}
+                        {que.exams && que.exams.length > 0 && (
+                            <span
+                                className="text-sm text-blue-500 cursor-pointer"
+                                onClick={(event) => {
+                                    let div = event.target.closest(".mcq-item").querySelector(".pyqs-div");
+                                    if (div) {
+                                        div.remove();
+                                        return;
+                                    }
+                                    div = document.createElement("div");
+                                    div.className = "pyqs-div";
+                                    event.target.closest(".mcq-item").appendChild(div);
+
+                                    ReactDOM.render(<LoadPyqOverlayHtml exams={que.exams} />, div);
+                                }}
+                            >
+                                PYQ
+                            </span>
+                        )}
                         <i class="bi bi-fullscreen ml-auto font-bold text-[1.2em] cursor-pointer" onClick={(event) => openMCQInFullScreen(que)}></i>
                         {que.userid && que.userid == user_login_data.userid && <i className="bi bi-trash text-[1.2em] text-red-400 cursor-pointer" onClick={(event) => deleteUserMCQ(que, event)}></i>}
                     </div>
 
                     {user_info && <div className={`block shared-user-info  w-100`}>{UserInfoInMCQ({ user_info })}</div>}
                 </div>
+            </div>
+        );
+    }
+
+    function LoadPyqOverlayHtml({ exams }) {
+        return (
+            <div className="pyqs-div-inner flex flex-col justify-start items-start gap-2">
+                <span className="text-sm text-gray-500">The MCQ was asked in:</span>
+                {exams.map((exam, index) => (
+                    <span key={index} className="text-sm text-blue-500 cursor-pointer" onClick={(event) => {}}>
+                        {exam}
+                    </span>
+                ))}
             </div>
         );
     }
@@ -3071,6 +3133,7 @@ if (match) {
                                         verfication_status: 0,
                                         external_link: external_link,
                                         linked_videos: video_obj ? [video_obj] : [],
+                                        created_at: new Date().toISOString(),
                                     };
 
                                     saveCreatedMcq(que_obj);
