@@ -5938,7 +5938,7 @@ async function clearCache() {
     for (let name of cacheNames) {
         await caches.delete(name);
     }
-    location.reload(true);
+    //location.reload(true);
 }
 
 let user_login_data = {};
