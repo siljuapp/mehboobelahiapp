@@ -461,7 +461,8 @@ async function checkIsUserExist(email) {
 
     let previous_login_emails = localStorage.getItem(`previous_login_emails`);
     if (previous_login_emails) previous_login_emails = JSON.parse(previous_login_emails);
-    previous_login_emails.push(email);
+    if (!previous_login_emails) previous_login_emails = [];
+    if (!previous_login_emails.includes(email)) previous_login_emails.push(email);
     localStorage.setItem(`previous_login_emails`, JSON.stringify(previous_login_emails));
 
     postSignIn();
