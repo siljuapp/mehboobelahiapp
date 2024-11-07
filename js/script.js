@@ -110,6 +110,7 @@ function selectExam(event) {
 }
 
 function LoadSignInPageHTML() {
+    debugger;
     let url_items = parseURL(window.location.href);
     exam = url_items.length ? url_items[0] : exam;
 
@@ -117,6 +118,7 @@ function LoadSignInPageHTML() {
     if (previous_login_emails) previous_login_emails = JSON.parse(previous_login_emails);
     if (!previous_login_emails) previous_login_emails = [];
 
+    debugger;
     return (
         <div className="container-inner flex flex-col justify-center items-center h-[100vh] w-full">
             <div className="hide mt-10 transform -translate-y-1/2">
@@ -216,11 +218,17 @@ function LoadSignInPageHTML() {
             </div>
 
             <div className="block w-full h-auto my-2 mt-5">
-                <span className={`${previous_login_emails.length ? "block" : "hide"} text-sm text-gray-500`}>Login by previous emails:</span>
-                <div className="flex justify-start items-center gap-2">
-                    {previous_login_emails.map((email) => {
-                        return <span className="text-sm text-gray-500">{email}</span>;
-                    })}
+                <div className="flex flex-col justify-center items-center gap-2">
+                    <span className={`${previous_login_emails.length ? "block" : "hide"} text-md text-gray-500`}>Login by previous emails:</span>
+                    <div className="flex justify-start items-center gap-2">
+                        {previous_login_emails.map((email) => {
+                            return (
+                                <span className="text-blue-500 border border-blue-500 px-3 py-2 rounded-md cursor-pointer" onClick={() => checkIsUserExist(email)}>
+                                    {email}
+                                </span>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 
@@ -458,7 +466,7 @@ async function checkIsUserExist(email) {
         console.log(`esa: New user created: ${user_login_data.userid}`);
     }
     localStorage.setItem(`esa_user_login_data`, JSON.stringify(user_login_data));
-
+    debugger;
     let previous_login_emails = localStorage.getItem(`previous_login_emails`);
     if (previous_login_emails) previous_login_emails = JSON.parse(previous_login_emails);
     if (!previous_login_emails) previous_login_emails = [];
@@ -2988,6 +2996,7 @@ function reloadMCQs() {
 
 function onSignOut() {
     localStorage.removeItem("esa_user_login_data", null);
+
     popupAlert("User signed out");
     esa_local_data = {};
     saveESALocalData();
