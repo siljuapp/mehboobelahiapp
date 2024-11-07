@@ -747,7 +747,7 @@ import ReactDOM from "react-dom";
 
                     <div className="me-footer flex flex-col justify-center items-center gap-2 w-full py-2 mt-4">
                         <span className=" text-sm text-gray-500 ">Build with ❤️ by Mehboob Elahi</span>
-                        <div className=" social-media flex justify-center items-center gap-4 opacity-70">
+                        <div className=" hide social-media flex justify-center items-center gap-4 opacity-70">
                             <a href="https://facebook.com/mehboobelahi05" target="_blank">
                                 <i className="fa-brands fa-facebook px-2 py-1 bg-gray-200 rounded-md"></i>
                             </a>
