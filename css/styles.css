@@ -322,7 +322,7 @@
 }
 
 .mobile * {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .handnotes-embed-section iframe {
@@ -389,10 +389,19 @@
     font-family: "Special Elite", sans-serif;
 }
 
+bi-pyq::before {
+    content: "PYQ";
+}
+
 .que-div_ * {
     font-family: 'Special Elite', monospace;
 }
 
 .user-page .shared-user-info {
     display: none;
+}
+
+.exams span.active {
+    background-color: #0068d1;
+    color: white;
 }
