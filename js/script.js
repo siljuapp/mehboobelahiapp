@@ -949,55 +949,56 @@ function LoadMCQListHTML() {
 const { jsPDF } = window.jspdf;
 
 function GetMCQHTML({ que, index, type, is_show_icons, is_show_tags, selected_option_id, search_text }) {
-    //r
-    if (!que || !que.question) {
-        //popupAlert("MCQ not found", 3, "red");
-        return;
-    }
-    que = que.id ? que : getQuestionById(que);
-    if (!que) {
-        //popupAlert("MCQ not found", 3, "red");
-        return;
-    }
-
-    let user_info = null;
-    que.comments_count = que.comments_count ? que.comments_count : 0;
-
-    if (que.userid)
-        if (!que) {
-            popupAlert("MCQ not found", 3, "red");
+    try {
+        //r
+        if (!que || !que.question) {
+            //popupAlert("MCQ not found", 3, "red");
             return;
         }
-    userdata.bookmarked_questions = userdata.bookmarked_questions ? userdata.bookmarked_questions : [];
+        que = que.id ? que : getQuestionById(que);
+        if (!que) {
+            //popupAlert("MCQ not found", 3, "red");
+            return;
+        }
 
-    let is_bookmarked = userdata.bookmarked_questions.includes(que.id);
-    document.querySelector(".show-more-mcqs").classList.remove("hide");
+        let user_info = null;
+        que.comments_count = que.comments_count ? que.comments_count : 0;
 
-    // When mcq is a shared mcq
+        if (que.userid)
+            if (!que) {
+                popupAlert("MCQ not found", 3, "red");
+                return;
+            }
+        userdata.bookmarked_questions = userdata.bookmarked_questions ? userdata.bookmarked_questions : [];
 
-    let is_followed;
-    if (que.userid) {
-        //get user info
+        let is_bookmarked = userdata.bookmarked_questions.includes(que.id);
+        document.querySelector(".show-more-mcqs").classList.remove("hide");
 
-        user_info = users_login_info[que.userid]; //getUserInfoById(que.userid); //all_users_info.find((user_info) => user_info.userid === que.userid);
+        // When mcq is a shared mcq
 
-        //check if user is followed
-        userdata.followings = userdata.followings ? userdata.followings : [];
-        is_followed = userdata.followings.find((id) => id == user_info.userid);
-    }
+        let is_followed;
+        if (que.userid) {
+            //get user info
 
-    return (
-        <div className="mcq-div block" key={index}>
-            <div className="mcq-item  que-div border-b-2 border-gray-300 py-2 px-3" id={que.id}>
-                <div className="question py-2 text-md flex justify-start items-baseline gap-2">
-                    <span className="text-md font-bold que-num w-[30px] hide"> {index ? `Q${index}.` : "Q."} </span>
-                    <div className="text-[1.2em] font-bold flex-1 flex flex-wrap" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
-                </div>
-                <div className="options flex flex-col gap-2">
-                    {que.options.map((option, index) => (
-                        <div
-                            id={`${option.id}`}
-                            className={`flex justify-start  items-start gap-2  cursor-pointer option border bg-gray-100 rounded-md p-2  
+            user_info = users_login_info[que.userid]; //getUserInfoById(que.userid); //all_users_info.find((user_info) => user_info.userid === que.userid);
+
+            //check if user is followed
+            userdata.followings = userdata.followings ? userdata.followings : [];
+            is_followed = userdata.followings.find((id) => id == user_info.userid);
+        }
+
+        return (
+            <div className="mcq-div block" key={index}>
+                <div className="mcq-item  que-div border-b-2 border-gray-300 py-2 px-3" id={que.id}>
+                    <div className="question py-2 text-md flex justify-start items-baseline gap-2">
+                        <span className="text-md font-bold que-num w-[30px] hide"> {index ? `Q${index}.` : "Q."} </span>
+                        <div className="text-[1.2em] font-bold flex-1 flex flex-wrap" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
+                    </div>
+                    <div className="options flex flex-col gap-2">
+                        {que.options.map((option, index) => (
+                            <div
+                                id={`${option.id}`}
+                                className={`flex justify-start  items-start gap-2  cursor-pointer option border bg-gray-100 rounded-md p-2  
                         ${option.text.indexOf("#ans") !== -1 ? "answer" : ""}  
                         ${selected_option_id == option.id ? "selected" : ""} 
                         ${selected_option_id == option.id && option.text.indexOf("#ans") !== -1 ? "correct" : ""}    
@@ -1005,84 +1006,95 @@ function GetMCQHTML({ que, index, type, is_show_icons, is_show_tags, selected_op
                         ${que.correct_option_index == index ? "answer " : ""}
                         ${selected_option_id != undefined && selected_option_id != option.id && option.text.indexOf("#ans") !== -1 ? "correct " : ""}  
                         ${selected_option_id ? "disabled" : ""} `}
-                            key={index}
-                            onClick={(event) => checkAnswer(event, que, type)}
-                        >
-                            <span className="text-sm option-index text-gray-400 ">{index + 1}.</span>
-                            <span className="text-sm option-text">{option.text.replace("#ans", "")}</span>
-                            <span className="text-sm percentage-attempted ml-auto"></span>
-                        </div>
-                    ))}
-                </div>
-                <div class={`block ${is_show_tags ? "" : "hide"} tags items-center whitespace-nowrap py-2 w-full border-t-2 mt-4`}>
-                    {que.tags.map((tag, index) => {
-                        if (["mock", "practice", "random", "random-mcq"].includes(tag)) return;
-                        return (
-                            <span key={index} className="mx-1 text-[0.9em]  border border-blue-500 rounded-md  text-blue-500 px-2 py-1 text-sm cursor-pointer" onClick={(event) => filterMcqsByTag(tag, event)}>
-                                {tag}
-                            </span>
-                        );
-                    })}
-                </div>
-                <div className={` hide tags flex justify-start items-start gap-3 py-3 border-t-2 mt-2  link ${is_show_tags ? "" : "hide"} `}>
-                    <div class="block max-w-full overflow-x-auto py-2">
-                        <div class="flex space-x-4 text-blue-500 text-sm"></div>
+                                key={index}
+                                onClick={(event) => {
+                                    if (option.text.indexOf("#ans") !== -1 || que.correct_option_index === index) {
+                                        // Pass click coordinates to blastCrackers
+                                        const { clientX: x, clientY: y } = event;
+                                        blastCrackers(x, y);
+                                    }
+                                    checkAnswer(event, que, type);
+                                }}
+                            >
+                                <span className="text-sm option-index text-gray-400 ">{index + 1}.</span>
+                                <span className="text-sm option-text">{option.text.replace("#ans", "")}</span>
+                                <span className="text-sm percentage-attempted ml-auto"></span>
+                            </div>
+                        ))}
                     </div>
+                    <div class={`block ${is_show_tags ? "" : "hide"} tags items-center whitespace-nowrap py-2 w-full border-t-2 mt-4`}>
+                        {que.tags.map((tag, index) => {
+                            if (["mock", "practice", "random", "random-mcq"].includes(tag)) return;
+                            return (
+                                <span key={index} className="mx-1 text-[0.9em]  border border-blue-500 rounded-md  text-blue-500 px-2 py-1 text-sm cursor-pointer" onClick={(event) => filterMcqsByTag(tag, event)}>
+                                    {tag}
+                                </span>
+                            );
+                        })}
+                    </div>
+                    <div className={` hide tags flex justify-start items-start gap-3 py-3 border-t-2 mt-2  link ${is_show_tags ? "" : "hide"} `}>
+                        <div class="block max-w-full overflow-x-auto py-2">
+                            <div class="flex space-x-4 text-blue-500 text-sm"></div>
+                        </div>
+                    </div>
+
+                    <div className={` icons flex justify-center items-center gap-4 py-2 border-t-0 mt-1  link ${is_show_icons ? "" : "hide"} `}>
+                        <i class="bi bi-heart hide text-[1.2em] cursor-pointer"></i>
+                        <i className={`bi ${userdata.bookmarked_questions.includes(que.id) ? "bi-bookmark-fill bookmarked" : "bi-bookmark"}  text-[1.2em] cursor-pointer`} onClick={(event) => bookmarkMcq(que, event)}></i>
+                        <i className="bi bi-share text-[1.2em] cursor-pointer" onClick={(event) => shareMCQ(que, event)}></i>
+                        <i className="bi bi-flag text-[1.2em] cursor-pointer"></i>
+                        {type != "full-screen" && (
+                            <i className="hide bi bi-chat-text comment-icon  text-[1.2em] cursor-pointer" onClick={(event) => openMCQInFullScreen(que)}>
+                                <span className="comment-count pl-[3px]"></span>
+                            </i>
+                        )}
+                        <i className="hide bi bi-file-text text-[1.2em] cursor-pointer" onClick={(event) => showMCQExplanation(que, event)}></i>
+                        <i className="hide bi bi-bullseye text-[1.2em] linked-block-icon cursor-pointer" onClick={(event) => openNotesPage(que.linked_blocks[0].page_id, que.linked_blocks[0].block_id, null)}></i>
+                        {que.linked_videos && que.linked_videos.length > 0 && <i className="hide bi bi-youtube video-icon cursor-pointer  text-xl text-red-500" onClick={(event) => openMCQYoutubeVideo(que.linked_videos[0].video_id, que.linked_videos[0].time_in_sec, event)}></i>}
+                        {que.external_link != "" && (
+                            <i
+                                className="hide bi bi-box-arrow-up-right external-link-icon text-[1.2em] text-blue-500 cursor-pointer"
+                                onClick={(event) => {
+                                    let a = document.createElement("a");
+                                    a.href = que.external_link;
+                                    a.target = "_blank";
+                                    a.click();
+                                }}
+                            ></i>
+                        )}
+                        {que.exams && que.exams.length > 0 && (
+                            <span
+                                className="text-sm text-blue-500 cursor-pointer"
+                                onClick={(event) => {
+                                    let div = event.target.closest(".mcq-item").querySelector(".pyqs-div");
+                                    if (div) {
+                                        div.remove();
+                                        return;
+                                    }
+                                    div = document.createElement("div");
+                                    div.className = "pyqs-div";
+                                    event.target.closest(".mcq-item").appendChild(div);
+
+                                    ReactDOM.render(<LoadPyqOverlayHtml exams={que.exams} />, div);
+                                }}
+                            >
+                                PYQ
+                            </span>
+                        )}
+                        <span className="ml-auto hide-span"></span>
+                        <i class="hide hide-ele bi bi-fullscreen ml-auto font-bold text-[1.2em] cursor-pointer" onClick={(event) => openMCQInFullScreen(que)}></i>
+                        {que.userid && que.userid == user_login_data.userid && <i className="bi bi-trash text-[1.2em] text-red-400 cursor-pointer" onClick={(event) => deleteUserMCQ(que, event)}></i>}
+                    </div>
+
+                    {user_info && <div className={`block shared-user-info  w-100`}>{UserInfoInMCQ({ user_info })}</div>}
+                    {type == "full-screen" && <div className="mcq-comments-section w-full h-full block mt-2 pt-6 border-t-2">{getMCQCommentSection(que)}</div>}
                 </div>
-
-                <div className={` icons flex justify-center items-center gap-4 py-2 border-t-0 mt-1  link ${is_show_icons ? "" : "hide"} `}>
-                    <i class="bi bi-heart hide text-[1.2em] cursor-pointer"></i>
-                    <i className={`bi ${userdata.bookmarked_questions.includes(que.id) ? "bi-bookmark-fill bookmarked" : "bi-bookmark"}  text-[1.2em] cursor-pointer`} onClick={(event) => bookmarkMcq(que, event)}></i>
-                    <i className="bi bi-share text-[1.2em] cursor-pointer" onClick={(event) => shareMCQ(que, event)}></i>
-                    <i className="bi bi-flag text-[1.2em] cursor-pointer"></i>
-                    {type != "full-screen" && (
-                        <i className="hide bi bi-chat-text comment-icon  text-[1.2em] cursor-pointer" onClick={(event) => openMCQInFullScreen(que)}>
-                            <span className="comment-count pl-[3px]"></span>
-                        </i>
-                    )}
-                    <i className="hide bi bi-file-text text-[1.2em] cursor-pointer" onClick={(event) => showMCQExplanation(que, event)}></i>
-                    <i className="hide bi bi-bullseye text-[1.2em] linked-block-icon cursor-pointer" onClick={(event) => openNotesPage(que.linked_blocks[0].page_id, que.linked_blocks[0].block_id, null)}></i>
-                    {que.linked_videos && que.linked_videos.length > 0 && <i className="hide bi bi-youtube video-icon cursor-pointer  text-xl text-red-500" onClick={(event) => openMCQYoutubeVideo(que.linked_videos[0].video_id, que.linked_videos[0].time_in_sec, event)}></i>}
-                    {que.external_link != "" && (
-                        <i
-                            className="hide bi bi-box-arrow-up-right external-link-icon text-[1.2em] text-blue-500 cursor-pointer"
-                            onClick={(event) => {
-                                let a = document.createElement("a");
-                                a.href = que.external_link;
-                                a.target = "_blank";
-                                a.click();
-                            }}
-                        ></i>
-                    )}
-                    {que.exams && que.exams.length > 0 && (
-                        <span
-                            className="text-sm text-blue-500 cursor-pointer"
-                            onClick={(event) => {
-                                let div = event.target.closest(".mcq-item").querySelector(".pyqs-div");
-                                if (div) {
-                                    div.remove();
-                                    return;
-                                }
-                                div = document.createElement("div");
-                                div.className = "pyqs-div";
-                                event.target.closest(".mcq-item").appendChild(div);
-
-                                ReactDOM.render(<LoadPyqOverlayHtml exams={que.exams} />, div);
-                            }}
-                        >
-                            PYQ
-                        </span>
-                    )}
-                    <span className="ml-auto hide-span"></span>
-                    <i class="hide hide-ele bi bi-fullscreen ml-auto font-bold text-[1.2em] cursor-pointer" onClick={(event) => openMCQInFullScreen(que)}></i>
-                    {que.userid && que.userid == user_login_data.userid && <i className="bi bi-trash text-[1.2em] text-red-400 cursor-pointer" onClick={(event) => deleteUserMCQ(que, event)}></i>}
-                </div>
-
-                {user_info && <div className={`block shared-user-info  w-100`}>{UserInfoInMCQ({ user_info })}</div>}
-                {type == "full-screen" && <div className="mcq-comments-section w-full h-full block mt-2 pt-6 border-t-2">{getMCQCommentSection(que)}</div>}
             </div>
-        </div>
-    );
+        );
+    } catch (error) {
+        console.error(que ? que.id : "no que", error);
+        return <div></div>;
+    }
 }
 
 function GetMCQCommentCount(que_id) {
@@ -3633,6 +3645,9 @@ async function checkAnswer(event, que, type) {
         }
         option.classList.add("disabled");
     });
+
+    debugger;
+    if (option_ele.classList.contains("selected") && option_ele.classList.contains("answer")) blastCrackers();
 
     let id = que.id;
     let user_ref = database.ref(`${exam}/questionInfo/${id}`);
@@ -6543,5 +6558,149 @@ async function uploadNewMCQsToFirebase() {
 
     popupAlert("Data added to firebase");
 }
+const canvas = document.getElementById("crackerCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Ensure this code is in a place where it can access the `canvas`
+
+function blastCrackers22(x, y) {
+    const canvas = document.getElementById("crackerCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const colors = ["#FF5733", "#FFC300", "#DAF7A6", "#FF33FF", "#33FF57"];
+
+    const createParticles = (x, y) => {
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                size: Math.random() * 15 + 5, // Larger size for particles
+                speedX: (Math.random() - 0.5) * 8,
+                speedY: (Math.random() - 0.5) * 8,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                life: Math.random() * 30 + 10,
+            });
+        }
+    };
+
+    createParticles(x, y);
+
+    const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((particle, index) => {
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fillStyle = particle.color;
+            ctx.fill();
+
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            particle.size *= 0.5; // Slow down the reduction in size
+            particle.life -= 1;
+
+            if (particle.life <= 0) particles.splice(index, 1);
+        });
+
+        if (particles.length > 0) requestAnimationFrame(animate);
+    };
+
+    animate();
+}
+
+function blastCrackers(x, y) {
+    const canvas = document.getElementById("crackerCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const colors = ["#FF5733", "#FFC300", "#DAF7A6", "#FF33FF", "#33FF57"];
+
+    const createParticles = (x, y) => {
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                size: Math.random() * 5 + 1,
+                speedX: (Math.random() - 0.5) * 6,
+                speedY: (Math.random() - 0.5) * 6,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                life: Math.random() * 30 + 10,
+            });
+        }
+    };
+
+    createParticles(x, y);
+
+    const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((particle, index) => {
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fillStyle = particle.color;
+            ctx.fill();
+
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            particle.size *= 0.95;
+            particle.life -= 1;
+
+            if (particle.life <= 0) particles.splice(index, 1);
+        });
+
+        if (particles.length > 0) requestAnimationFrame(animate);
+    };
+
+    animate();
+}
+
+function blastCrackers__(event) {
+    const particles = [];
+    const colors = ["#FF5733", "#FFC300", "#DAF7A6", "#FF33FF", "#33FF57"];
+
+    const createParticles = (x, y) => {
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                size: Math.random() * 5 + 1,
+                speedX: (Math.random() - 0.5) * 6,
+                speedY: (Math.random() - 0.5) * 6,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                life: Math.random() * 30 + 10,
+            });
+        }
+    };
+
+    createParticles(event.clientX, event.clientY);
+
+    const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((particle, index) => {
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fillStyle = particle.color;
+            ctx.fill();
+
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            particle.size *= 0.95;
+            particle.life -= 1;
+
+            if (particle.life <= 0) particles.splice(index, 1);
+        });
+
+        if (particles.length > 0) requestAnimationFrame(animate);
+    };
+
+    animate();
+}
+
+//document.addEventListener("click", blastCrackers);
 
 //})();
