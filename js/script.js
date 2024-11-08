@@ -931,19 +931,26 @@ import ReactDOM from "react-dom";
 
     let mcq_list_index = 0;
     function LoadMCQListHTML() {
-        let fil_ques = filtered_ques.length > 30 ? filtered_ques.slice(0, 30) : filtered_ques;
-        setTimeout(() => {
-            if (fil_ques.length == filtered_ques.length) {
-                document.querySelector(".show-more-mcqs").classList.add("hide");
-            }
-        }, 1000);
-        return (
-            <div className="mcq-list-inner block">
-                {fil_ques.map((que, index) => (
-                    <GetMCQHTML que={que} index={index} type="random" is_show_icons={true} is_show_tags={true} />
-                ))}
-            </div>
-        );
+        try {
+            let fil_ques = filtered_ques.length > 30 ? filtered_ques.slice(0, 30) : filtered_ques;
+            setTimeout(() => {
+                if (fil_ques.length == filtered_ques.length) {
+                    document.querySelector(".show-more-mcqs").classList.add("hide");
+                }
+            }, 1000);
+            return (
+                <div className="mcq-list-inner block">
+                    {fil_ques.map((que, index) => (
+                        <div key={index} className="question-div">
+                            <GetMCQHTML que={que} index={index} type="random" is_show_icons={true} is_show_tags={true} />
+                        </div>
+                    ))}
+                </div>
+            );
+        } catch (error) {
+            console.error(error);
+            return <div></div>;
+        }
     }
 
     const { jsPDF } = window.jspdf;
@@ -1011,7 +1018,9 @@ import ReactDOM from "react-dom";
                                         if (option.text.indexOf("#ans") !== -1 || que.correct_option_index === index) {
                                             // Pass click coordinates to blastCrackers
                                             const { clientX: x, clientY: y } = event;
-                                            blastCrackers(x, y);
+                                            setTimeout(() => {
+                                                blastCrackers(x, y);
+                                            }, 500);
                                         }
                                         checkAnswer(event, que, type);
                                     }}
@@ -3676,8 +3685,10 @@ if (match) {
 
         let comments = await getMCQCommentsObject(que);
         let comment_icon = event.target.closest(".mcq-div").querySelector(".comment-icon");
-        comment_icon.classList.remove("hide");
-        comment_icon.querySelector(".comment-count").textContent = comments.length;
+        if (comment_icon) {
+            comment_icon.classList.remove("hide");
+            comment_icon.querySelector(".comment-count").textContent = comments.length;
+        }
 
         option_ele.classList.add("selected");
 
@@ -4353,6 +4364,7 @@ if (match) {
     shared_mcqs = new Proxy(shared_mcqs, handler);
     let mcqs_firebase = [];
     let all_mcqs_ids = [];
+    let empty_question_mcqs = [];
     async function getDataFromFirebase() {
         var is_online = navigator.onLine;
         if (!is_online) {
@@ -4382,10 +4394,12 @@ if (match) {
         vocab_data = data.vocab ? data.vocab : [];
 
         let mcqs_data = await getDataFromFirebaseUsingRef(database.ref(`esa_data/${exam}/mcqs`));
-        que_data = [];
-        Object.values(mcqs_data).forEach((mcq) => {
-            que_data.push(mcq);
-        });
+        que_data = mcqs_data ? mcqs_data : [];
+        /*Object.values(mcqs_data).forEach((mcq) => {
+        que_data.push(mcq);
+    });*/
+        empty_question_mcqs = que_data.filter((q) => q.question.trim() == "");
+        que_data = que_data.filter((q) => q.question.trim() != "");
 
         let shared_mcqs_data = await getDataFromFirebaseUsingRef(database.ref(`esa_data/${exam}/shared_mcqs`));
         shared_mcqs = [];
@@ -4529,11 +4543,20 @@ if (match) {
         //Load all tags in the all-tags tab
         all_tags = sortItems(all_tags);
         all_tags.forEach((tag) => {
-            let span = document.createElement("span");
-            span.className = "tag flex justify-center items-center text-sm text-blue-500 border-2 border-blue-500 rounded-md px-2 py-1 cursor-pointer";
-            span.textContent = capitalFirstLetterOfEachWord(tag);
-            span.onclick = (event) => filterMcqsByTag(tag, event);
-            div.querySelector(".filter-mcq-overlay .tab-container.all-tags").appendChild(span);
+            let count = que_data.filter((q) => q.tags.includes(tag)).length;
+            let tag_div = document.createElement("div");
+            tag_div.className = "tag flex justify-center items-center text-sm text-blue-500 border-2 border-blue-500 rounded-md px-2 py-1 cursor-pointer";
+            tag_div.textContent = capitalFirstLetterOfEachWord(tag);
+            tag_div.innerHTML = `<div class="tag-item flex justify-center items-center w-[fit-content] gap-2">
+                            <span class="name">${tag}</span>
+                            <span class="count">${count}</span>
+                        </div>`;
+            tag_div.onclick = (event) => {
+                let div = event.target.closest(".tag");
+                let tag = div.querySelector(".name").textContent.trim();
+                filterMcqsByTag(tag, event);
+            };
+            div.querySelector(".filter-mcq-overlay .tab-container.all-tags").appendChild(tag_div);
         });
     }
     function addSubjectWiseMqcTagItem(tag_item, target_div, level) {
@@ -6022,6 +6045,7 @@ if (match) {
         popupAlert(`App level data updated successfully`);
     }
     //start app
+    let has_updates = false;
     async function startApp() {
         loadHTML("loading");
         let last_time_code_update_id = localStorage.getItem(`esa_last_time_code_update_id`);
@@ -6029,7 +6053,8 @@ if (match) {
         let data = await getDataFromFirebaseUsingRef(ref);
         if (data !== last_time_code_update_id) {
             localStorage.setItem(`esa_last_time_code_update_id`, data);
-            clearCache();
+            //clearCache();
+            has_updates = true;
         }
 
         //Get last
@@ -6054,7 +6079,7 @@ if (match) {
         exam = exam.toLowerCase();
         localStorage.setItem(`esa_exam_name`, exam);
 
-        loadHTML("loading");
+        //loadHTML("loading");
         popupAlert(`Signed in as "${user_login_data.display_name}";Exam: "${exam.toUpperCase()}"`);
         let url = window.location.href;
 
@@ -6586,6 +6611,12 @@ if (match) {
         let filename = `../data/new_data_ssc.json`;
         const response = await fetch(filename);
         const data = await response.json();
+
+        data.forEach((q) => {
+            if (q.question.trim() == "") {
+                console.log(`question without text: ${q.id}`);
+            }
+        });
         let ids = data.map((q) => q.id);
         let ref = database.ref(`esa_data/${exam}/mcqs`);
         let mcq_data = await getDataFromFirebaseUsingRef(ref);
