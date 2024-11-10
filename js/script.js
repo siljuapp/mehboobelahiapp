@@ -133,6 +133,22 @@ function LoadSignInPageHTML() {
                 <span className="text-md text-gray-500">Learn, Share, and Succeed Together</span>
                 <span className="text-gray-500 text-center ">First ever digital educational product from Ladakh</span>
             </div>
+
+            <div className="block test-fraction-div">
+                <div class="text-center text-lg">
+                    <span>Which of these fractions </span>
+                    <span class="inline-block align-middle mx-1">
+                        <span class="block">12</span>
+                        <span class="block border-t border-gray-600">13</span>
+                    </span>
+                    <span> and </span>
+                    <span class="inline-block align-middle mx-1">
+                        <span class="block">15</span>
+                        <span class="block border-t border-gray-600">14</span>
+                    </span>
+                    <span> is greater? And also find the difference between them. What is the difference between them? </span>
+                </div>
+            </div>
             <div className="exam block w-full h-auto">
                 <div className="flex flex-col justify-center items-center gap-2 my-2 mt-7">
                     <h1 className="text-xl  text-gray-600">Select Exam:</h1>
@@ -1026,7 +1042,7 @@ function GetMCQHTML({ que, index, type, is_show_icons, is_show_tags, selected_op
                                 }}
                             >
                                 <span className="text-sm option-index text-gray-400 ">{index + 1}.</span>
-                                <span className="text-sm option-text">{option.text.replace("#ans", "")}</span>
+                                <span className="text-sm option-text" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(option.text.replace("#ans", "")) }}></span>
                                 <span className="text-sm percentage-attempted ml-auto"></span>
                             </div>
                         ))}
@@ -4365,6 +4381,8 @@ shared_mcqs = new Proxy(shared_mcqs, handler);
 let mcqs_firebase = [];
 let all_mcqs_ids = [];
 let empty_question_mcqs = [];
+let test_mcqs = [];
+let testing = false;
 async function getDataFromFirebase() {
     var is_online = navigator.onLine;
     if (!is_online) {
@@ -4412,6 +4430,10 @@ async function getDataFromFirebase() {
 
     que_data = shared_mcqs.concat(que_data);
     esa_ques = que_data;
+
+    test_mcqs = await getDataFromFirebaseUsingRef(database.ref(`esa_data/${exam}/test_mcqs`));
+    test_mcqs = test_mcqs ? test_mcqs : [];
+    //que_data = que_data.concat(test_mcqs);
 
     shared_mcqs.forEach((mcq) => {
         if (mcq.userid === user_login_data.userid) {
@@ -4505,9 +4527,28 @@ function getHTMLFormattedText(text, search_text) {
     text = text.replace(/\{video:([^:]+):(\d+)\}/g, '<i class="bi bi-play-btn video cursor-pointer " id="$1" time="$2"></i>');
 
     // Convert \n to <br>
+    text = text.replaceAll("me_new_line", "<div class='w-full'></div>");
     text = text.replace(/\n/g, "<br>");
 
+    text = text.replace(/(\d+)_fraction_(\d+)/g, (match, a, b) => convertFractions(a, b));
+    text = text.replace(/(\d+)_power_(\d+)/g, (match, a, b) => convertPower(a, b));
     return text;
+}
+
+function convertPower(a, b) {
+    return `<span class="inline-block mx-2">
+                    <span>${a}</span>
+                    <sup>${b}</sup>
+                </span>`;
+}
+
+function convertFractions(a, b) {
+    return `
+    <span class="inline-block mx-2">
+      <span class="block">${a}</span>
+      <span class="block border-t border-gray-600">${b}</span>
+    </span>
+  `;
 }
 
 function openPdf({ link }) {
@@ -6629,6 +6670,32 @@ async function uploadNewMCQsToFirebase() {
     await ref.set(mcq_data);
 
     popupAlert("Data added to firebase");
+}
+
+async function uploadTestMCQsToFirebase() {
+    let exam = "ssc";
+    let filename = `../data/test_mcq.json`;
+    const response = await fetch(filename);
+    const data = await response.json();
+
+    data.forEach((q) => {
+        if (q.question.trim() == "") {
+            console.log(`question without text: ${q.id}`);
+        }
+    });
+    let ids = data.map((q) => q.id);
+    let ref = database.ref(`esa_data/${exam}/test_mcqs`);
+    await ref.set(data);
+    popupAlert("Test MCQs data added to firebase");
+
+    //let test_mcq_data = await getDataFromFirebaseUsingRef(ref);
+    //test_mcq_data = test_mcq_data ? test_mcq_data : [];
+
+    //let arr = mcq_data.filter((q) => ids.includes(q.id));
+    // Remove these entries from mcq_data
+    //mcq_data = mcq_data.filter((q) => !ids.includes(q.id));
+
+    //mcq_data = mcq_data.concat(data);
 }
 
 async function updateMCQ(id) {
