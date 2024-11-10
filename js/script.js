@@ -134,21 +134,6 @@ function LoadSignInPageHTML() {
                 <span className="text-gray-500 text-center ">First ever digital educational product from Ladakh</span>
             </div>
 
-            <div className="block test-fraction-div">
-                <div class="text-center text-lg">
-                    <span>Which of these fractions </span>
-                    <span class="inline-block align-middle mx-1">
-                        <span class="block">12</span>
-                        <span class="block border-t border-gray-600">13</span>
-                    </span>
-                    <span> and </span>
-                    <span class="inline-block align-middle mx-1">
-                        <span class="block">15</span>
-                        <span class="block border-t border-gray-600">14</span>
-                    </span>
-                    <span> is greater? And also find the difference between them. What is the difference between them? </span>
-                </div>
-            </div>
             <div className="exam block w-full h-auto">
                 <div className="flex flex-col justify-center items-center gap-2 my-2 mt-7">
                     <h1 className="text-xl  text-gray-600">Select Exam:</h1>
