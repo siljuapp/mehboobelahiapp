@@ -54,21 +54,8 @@ import ReactDOM from "react-dom";
 
     function LoadingAnimation() {
         return (
-            <div className="flex flex-col justify-center items-center h-screen">
-                <div id="loading-animation" className="flex justify-center items-center h-screen">
-                    <div className="relative w-24 h-24">
-                        <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-500 rounded-full animate-spin"></div>
-                        <div className="absolute top-0 left-0 w-full h-full border-4 border-transparent border-t-purple-500 rounded-full animate-spin" style={{ animationDirection: "reverse", animationDuration: "1s" }}></div>
-
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center shadow-lg">
-                                <span className="text-3xl font-bold text-gray-100 transform -rotate-12" style={{ fontFamily: "Arial, sans-serif" }}>
-                                    E
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div className="loading-div flex flex-col justify-center items-center h-screen">
+                <span>Loading...</span>
             </div>
         );
     }
@@ -82,6 +69,13 @@ import ReactDOM from "react-dom";
                 span.classList.remove("active");
             });
         event.target.classList.add("active");
+
+        let url = window.location.href;
+        let ind = url.indexOf("#");
+        if (ind != -1) {
+            url = url.substring(0, ind - 1);
+        }
+        window.location.href = url + `/#/${exam.toLocaleLowerCase()}`;
     }
 
     function LoadSignInPageHTML() {
@@ -191,7 +185,7 @@ import ReactDOM from "react-dom";
                     </button>
                 </div>
 
-                <div className="block w-full h-auto my-2 mt-5">
+                <div className="hide block w-full h-auto my-2 mt-5">
                     <div className="flex flex-col justify-center items-center gap-2">
                         <span className={`${previous_login_emails.length ? "block" : "hide"} text-md text-gray-500`}>Login by previous emails:</span>
                         <div className="flex justify-start items-center gap-2">
@@ -418,17 +412,10 @@ import ReactDOM from "react-dom";
         ReactDOM.render(<LoadUserPageHTML />, container);
     }
     async function checkIsUserExist(email) {
-        //await getAllUsersInfo();
-        exam = exam.toLowerCase();
-        let data_ref = database.ref(`esa_data/${exam}/users_login_info`);
-        let all_users_info = await getDataFromFirebaseUsingRef(data_ref);
-
-        all_users_info = all_users_info ? all_users_info : [];
-
         let user_info = null;
-        for (const userId in all_users_info) {
-            if (all_users_info[userId].email === email) {
-                user_info = all_users_info[userId];
+        for (let i = 0; i < all_users_login_info.length; i++) {
+            if (all_users_login_info[i].email === email) {
+                user_info = all_users_login_info[i];
                 break;
             }
         }
@@ -440,14 +427,18 @@ import ReactDOM from "react-dom";
             await database.ref(`esa_data/${exam}/users_login_info/${user_login_data.userid}`).set(user_login_data);
             console.log(`esa: New user created: ${user_login_data.userid}`);
         }
+
         localStorage.setItem(`esa_user_login_data`, JSON.stringify(user_login_data));
 
         let previous_login_emails = localStorage.getItem(`previous_login_emails`);
         if (previous_login_emails) previous_login_emails = JSON.parse(previous_login_emails);
         if (!previous_login_emails) previous_login_emails = [];
-        if (!previous_login_emails.includes(email)) previous_login_emails.push(email);
+        if (!previous_login_emails.includes(email)) previous_login_emails.push(`${email}::${exam}`);
         localStorage.setItem(`previous_login_emails`, JSON.stringify(previous_login_emails));
 
+        loadHTML("home");
+        loadHomePage();
+        await loadAllDataAtOnce();
         postSignIn();
     }
 
@@ -455,6 +446,57 @@ import ReactDOM from "react-dom";
         console.log("Saving data with exam:", exam); // Debugging line
         localStorage.setItem(`esa_local_data_${exam}`, JSON.stringify(esa_local_data));
         console.log("esa: esa_local_data saved");
+    }
+
+    function setExam() {
+        load_url = window.location.href;
+
+        let data = localStorage.getItem(`esa_exam_name`);
+        exam = data ? data : "ssc";
+
+        //Get exam from url
+        let url = window.location.href;
+        let url_items = parseURL(url);
+        if (url_items.length && url_items[0]) exam = url_items[0];
+        localStorage.setItem(`esa_exam_name`, exam);
+    }
+
+    async function shouldEraseLocalData() {
+        let new_data_structure = localStorage.getItem(`esa_new_data_structure_v4`);
+        if (!new_data_structure) {
+            //popupAlert(`esa: New data structure is not set; Setting it to new_data_structure_2024_11_13_00`);
+            new_data_structure = "new_data_structure_2024_11_13_00";
+
+            let email_data = null;
+            let previous_login_emails = localStorage.getItem(`previous_login_emails`);
+            if (previous_login_emails) previous_login_emails = JSON.parse(previous_login_emails);
+            if (previous_login_emails && previous_login_emails.length == 1) email_data = previous_login_emails[0];
+
+            localStorage.clear();
+            localStorage.setItem(`esa_new_data_structure_v4`, new_data_structure);
+
+            if (email_data) {
+                let arr = email_data.split("::");
+                let email_id = arr[0];
+                let exam_name = arr[1];
+
+                if (exam_name === exam) {
+                    exam = exam.toLowerCase();
+                    let ref = database.ref(`esa_data/${exam}/users_login_info`);
+                    let data1 = await getDataFromFirebaseUsingRef(ref);
+                    data1 = data1 ? data1 : [];
+
+                    all_users_login_info = [];
+                    Object.values(data1).forEach((info) => {
+                        all_users_login_info.push(info);
+                    });
+                    popupAlert(`Signed in with ${email}`);
+                    checkIsUserExist(email);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     function getESALocalData() {
@@ -505,6 +547,29 @@ import ReactDOM from "react-dom";
     }
 
     function LoadLoginUserProfileHeader() {
+        return (
+            <div className="block w-full">
+                <div className="flex justify-start items-start gap-2">
+                    <img src={user_login_data.photo_url} alt="user" className="w-10 h-10 rounded-full" />
+                    <div className="flex flex-col justify-start items-start">
+                        <span className="text-gray-500">{user_login_data.display_name}</span>
+                        <span className="text-gray-500">@{user_login_data.username}</span>
+                    </div>
+                    <span
+                        className="sign-out-btn cursor-pointer link ml-auto mr-[10px]"
+                        onClick={() => {
+                            onSignOut();
+                        }}
+                    >
+                        Sign Out
+                    </span>
+                </div>
+            </div>
+        );
+        setTimeout(() => {
+            loadUserPage();
+        }, 1000);
+
         let div = document.querySelector(".user-info-div.name-dp");
 
         // Get latest Followers data of the login user
@@ -979,8 +1044,8 @@ import ReactDOM from "react-dom";
                 <div className="mcq-div block" key={index}>
                     <div className="mcq-item  que-div border-b-2 border-gray-300 py-2 px-3" id={que.id}>
                         <div className="question py-2 text-md flex justify-start items-baseline gap-2">
-                            <span className="text-md font-bold que-num w-[30px] hide"> {index ? `Q${index}.` : "Q."} </span>
-                            <div className="text-[1.2em] font-bold flex-1 flex flex-wrap" dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
+                            <span className={`text-md ${exam !== "upsc" ? "font-bold" : "font-medium"} que-num w-[30px] hide`}> {index ? `Q${index}.` : "Q."} </span>
+                            <div className={`text-[1.2em] ${exam !== "upsc" ? "font-bold" : "font-medium"} flex-1 flex flex-wrap`} dangerouslySetInnerHTML={{ __html: getHTMLFormattedText(que.question) }}></div>
                         </div>
                         <div className="options flex flex-col gap-2">
                             {que.options.map((option, index) => (
@@ -3883,6 +3948,11 @@ if (match) {
             let ele = document.querySelector(".mock-overlay.hide");
             if (ele) openOverlay("mock-overlay");
         }
+
+        if (tabName == "user") {
+            let div = document.querySelector(".page.user .user-info-div");
+            if (!div) loadUserPage();
+        }
     }
 
     function loadTabsTopSection(tabName) {
@@ -4039,7 +4109,6 @@ if (match) {
         }
         window.location.href = url + `/#/${exam.toLocaleLowerCase()}/${tabName}`;
         if (tabName == "notes") {
-            debugger;
             let id = document.querySelector(".main-notes-page .page-title").id;
             if (id && id != undefined && id != "") {
                 let url = window.location.href;
@@ -4273,14 +4342,21 @@ if (match) {
         //url = url ? url : window.location.href;
         url = load_url ? load_url : url;
         let url_items = parseURL(url);
-
+        if (url_items[0] !== exam) {
+            let url = window.location.href;
+            url = url.substring(0, url.lastIndexOf("/"));
+            window.location.href = url + `/#/${exam.toLowerCase()}`;
+            openTab("home");
+            popupAlert(`You opened link of ${url_items[0]}; But signed in for ${exam}`, 5, "bg-blue-500");
+            return;
+        }
         if (url_items.length) {
             exam = url_items[0];
             localStorage.setItem("esa_exam", exam);
             let page = url_items[1];
             page = page == "question" ? "mcq" : page;
             openTab(page);
-            debugger;
+
             if (page == "mcq") {
                 let que_id = url_items[2];
                 if (que_id) {
@@ -4381,10 +4457,12 @@ if (match) {
 
     let all_users_login_info = null;
     async function getAllUsersLoginInfo() {
+        if (all_users_login_info.length) return all_users_login_info;
+
         let ref = database.ref(`esa_data/${exam}/users_login_info`);
         let data = await getDataFromFirebaseUsingRef(ref);
+        data = data ? data : [];
 
-        //data = data ? data : [];
         all_users_login_info = [];
         Object.values(data).forEach((info) => {
             all_users_login_info.push(info);
@@ -4432,8 +4510,7 @@ if (match) {
         users_login_info = await getDataFromFirebaseUsingRef(data_ref);
 
         users_login_info = users_login_info ? users_login_info : [];
-
-        console.log(`esa: all_users_info fetched for ${exam} = ${users_login_info}`);
+        console.log(`esa: all_users_login_info fetched for ${exam} = ${users_login_info}`);
     }
 
     async function lastDataLoaded() {}
@@ -5993,8 +6070,9 @@ if (match) {
         let data_ref = database.ref(`esa_data/${exam}/users_data/${user_login_data.userid}`);
         let data = await getDataFromFirebaseUsingRef(data_ref);
         userdata = data ? data : {};
+
         console.log(`esa: Userdata fetched successfully from firebase`);
-        return;
+        return userdata;
 
         let local_storage_id = localStorage.getItem(`esa_userdata_${exam}_last_update_time`);
         is_online = navigator.onLine;
@@ -6180,43 +6258,121 @@ if (match) {
     //start app
     let has_updates = false;
     async function startApp() {
-        load_url = window.location.href;
-        let new_data_structure = localStorage.getItem(`esa_new_data_structure_00`);
-        if (!new_data_structure) {
-            //popupAlert(`esa: New data structure is not set; Setting it to new_data_structure_2024_11_13_00`);
-            new_data_structure = "new_data_structure_2024_11_13_00";
-            localStorage.clear();
-            localStorage.setItem(`esa_new_data_structure_00`, new_data_structure);
-            location.reload(true);
-        }
-        loadHTML("loading");
+        setExam();
 
-        let last_time_code_update_id = localStorage.getItem(`esa_last_time_code_update_id`);
-        let ref = database.ref(`esa_data/app_data/last_time_code_update_id`);
-        let data = await getDataFromFirebaseUsingRef(ref);
-        if (data !== last_time_code_update_id) {
-            localStorage.setItem(`esa_last_time_code_update_id`, data);
-            clearCache();
-            has_updates = true;
-        }
+        let should_continue = await shouldEraseLocalData();
+        if (!should_continue) return;
 
-        //Get last
-        data = localStorage.getItem(`esa_exam_name`);
-        exam = data ? data : "ssc";
-
-        //Get exam from url
-        let url = window.location.href;
-        let url_items = parseURL(url);
-        if (url_items.length && url_items[0]) exam = url_items[0];
-
-        // get user_login_data from last saved data;
         user_login_data = localStorage.getItem(`esa_user_login_data`);
         if (user_login_data) user_login_data = JSON.parse(user_login_data);
+        if (user_login_data && user_login_data.userid) {
+            loadHTML("home");
+            loadHomePage();
+        } else loadHTML("signin");
+        //loadHTML("loading");
 
-        if (user_login_data && user_login_data.userid) postSignIn();
-        else loadHTML("signin");
+        if (user_login_data && user_login_data.userid) {
+            //loadHTML("home");
+            //loadHomePage();
+            let [cache_check, data_load] = await Promise.all([checkCacheAndUpdates(), loadAllDataAtOnce()]);
+            postSignIn();
+            return;
+        }
+        loadHTML("signin");
+        exam = exam.toLowerCase();
+        let ref = database.ref(`esa_data/${exam}/users_login_info`);
+        let data1 = await getDataFromFirebaseUsingRef(ref);
+        data1 = data1 ? data1 : [];
+
+        all_users_login_info = [];
+        Object.values(data1).forEach((info) => {
+            all_users_login_info.push(info);
+        });
+
+        /*let last_time_code_update_id = localStorage.getItem(`esa_last_time_code_update_id`);
+    let ref = database.ref(`esa_data/app_data/last_time_code_update_id`);
+    let data = await getDataFromFirebaseUsingRef(ref);
+    if (data !== last_time_code_update_id) {
+        localStorage.setItem(`esa_last_time_code_update_id`, data);
+        clearCache();
+        has_updates = true;
+    }*/
     }
     startApp();
+
+    async function checkCacheAndUpdates() {
+        const lastUpdateId = localStorage.getItem(`last_time_code_update_id`);
+        const ref = database.ref(`esa_data/app_data/last_time_code_update_id`);
+
+        try {
+            const data = await getDataFromFirebaseUsingRef(ref);
+            if (data !== lastUpdateId) {
+                localStorage.setItem(`last_time_code_update_id`, data);
+                await clearCache();
+                has_updates = true;
+            }
+        } catch (err) {
+            console.error("Cache check failed:", err);
+            // Continue app loading even if cache check fails
+        }
+    }
+
+    async function loadAllDataAtOnce() {
+        exam = exam.toLowerCase();
+        userdata = localStorage.getItem(`esa_${exam}_${user_login_data.userid}_userdata`);
+        if (userdata) userdata = JSON.parse(userdata);
+
+        let app_data = localStorage.getItem(`esa_data_${exam}`);
+        if (app_data) app_data = JSON.parse(app_data);
+
+        if (!userdata || !app_data) {
+            let [userdata, all_users_login_info, roam_data, mcqs, shared_mcqs] = await Promise.all([getUserData(), getAllUsersLoginInfo(), getRoamData(), getMCQsData(), getSharedMCQsData()]);
+            localStorage.setItem(`esa_${exam}_${user_login_data.userid}_userdata`, JSON.stringify(userdata));
+
+            app_data = {
+                all_users_login_info: all_users_login_info ? all_users_login_info : [],
+                roam_data: roam_data ? roam_data : {},
+                mcqs: mcqs ? mcqs : [],
+                shared_mcqs: shared_mcqs ? shared_mcqs : [],
+            };
+            localStorage.setItem(`esa_data_${exam}`, JSON.stringify(app_data));
+        }
+
+        // get all users info
+        all_users_login_info = app_data.all_users_login_info ? app_data.all_users_login_info : [];
+
+        // get roam data
+        let data = app_data.roam_data ? app_data.roam_data : {};
+        que_data = data.questions ? data.questions : [];
+        notes_data = data.notes ? data.notes : [];
+        tags_list = data.tags ? data.tags : [];
+        static_mocks = data.mocks ? data.mocks : [];
+        handnotes_data = data.handnotes ? data.handnotes : [];
+        pdf_data = data.pdfs ? data.pdfs : [];
+        vocab_data = data.vocab ? data.vocab : [];
+
+        // get all mcqs
+        let mcqs_data = app_data.mcqs ? app_data.mcqs : [];
+        que_data = mcqs_data;
+        empty_question_mcqs = que_data.filter((q) => q.question.trim() == "");
+        que_data = que_data.filter((q) => q.question.trim() != "");
+
+        // get all shared mcqs
+        let shared_mcqs_data = app_data.shared_mcqs ? app_data.shared_mcqs : [];
+        shared_mcqs = [];
+        Object.values(shared_mcqs_data).forEach((mcq) => {
+            shared_mcqs.push(mcq);
+        });
+
+        //Get users mcqs
+        shared_mcqs.forEach((mcq) => {
+            if (mcq.userid === user_login_data.userid) {
+                if (mcq.options[0].id) {
+                    user_mcqs.push(mcq.id);
+                }
+            }
+        });
+    }
 
     async function postSignIn() {
         exam = exam.toLowerCase();
@@ -6225,13 +6381,51 @@ if (match) {
         let url = window.location.href;
         let url_items = parseURL(url);
 
-        loadHTML("home");
-        loadHomePage();
+        //loadHTML("home");
+        //loadHomePage();
         openTab("home");
-        await loadData();
-
+        //await loadData();
         initialLoading();
         openPageBasedOnURL(url);
+        await loadLatestDataFromFirebase();
+    }
+
+    async function loadLatestDataFromFirebase() {
+        let [all_users_login_info, roam_data, mcqs, shared_mcqs] = await Promise.all([getAllUsersLoginInfo(), getRoamData(), getMCQsData(), getSharedMCQsData()]);
+
+        app_data = {
+            all_users_login_info: all_users_login_info,
+            roam_data: roam_data,
+            mcqs: mcqs,
+            shared_mcqs: shared_mcqs,
+        };
+        localStorage.setItem(`esa_data_${exam}`, JSON.stringify(app_data));
+
+        que_data = app_data.mcqs ? app_data.mcqs : [];
+        shared_mcqs = app_data.shared_mcqs ? app_data.shared_mcqs : [];
+        all_users_login_info = app_data.all_users_login_info ? app_data.all_users_login_info : [];
+
+        user_mcqs = [];
+        shared_mcqs.forEach((mcq) => {
+            if (mcq.userid === user_login_data.userid) {
+                if (mcq.options[0].id) {
+                    user_mcqs.push(mcq.id);
+                }
+            }
+        });
+    }
+
+    function updateAppLoading(message) {
+        return;
+        let loading_div = document.querySelector(".loading-div");
+        let div = document.createElement("div");
+        div.innerHTML = `
+                <div class="flex justify-start items-center gap-2">
+                    <i class="text-xl bi bi-check2-square text-green-500 mx-2"></i>
+                    <span class="text-xl text-gray-500">${message}</span>
+                </div>
+            `;
+        loading_div.appendChild(div);
     }
 
     function getCurrentDateAndTime() {
