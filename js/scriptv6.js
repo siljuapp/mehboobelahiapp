@@ -4041,7 +4041,11 @@ if (match) {
         if (tabName == "notes") {
             debugger;
             let id = document.querySelector(".main-notes-page .page-title").id;
-            if (id && id != undefined && id != "") window.location.href = window.location.href + `/${id}`;
+            if (id && id != undefined && id != "") {
+                let url = window.location.href;
+                url = url.substring(0, url.lastIndexOf("/"));
+                window.location.href = url + `/${id}`;
+            }
         }
     }
 
