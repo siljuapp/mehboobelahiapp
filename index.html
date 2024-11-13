@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
         <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="stylesheet" href="/css/styles.css" />
+        <link rel="stylesheet" href="/css/stylesv6.css" />
         <link rel="manifest" href="/data/manifest.json" />
         <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
@@ -30,8 +30,13 @@
     <script>
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker
-                .register("/service-worker.js")
+                .register("/service-worker.js", { immediate: true }) // Add immediate option
                 .then(function (registration) {
+                    // Only reload if there's a new service worker
+                    if (registration.active && registration.waiting) {
+                        console.log("New service worker available");
+                        // Optional: Ask user before reload
+                    }
                     console.log("Service Worker registered with scope:", registration.scope);
                 })
                 .catch(function (error) {
@@ -48,6 +53,6 @@
         <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
 
-        <script type="text/babel" src="/js/script.js"></script>
+        <script type="text/babel" src="/js/scriptv6.js"></script>
     </body>
 </html>
