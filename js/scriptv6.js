@@ -6186,6 +6186,7 @@ if (match) {
             location.reload(true);
         }
         loadHTML("loading");
+
         let last_time_code_update_id = localStorage.getItem(`esa_last_time_code_update_id`);
         let ref = database.ref(`esa_data/app_data/last_time_code_update_id`);
         let data = await getDataFromFirebaseUsingRef(ref);
