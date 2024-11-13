@@ -4039,8 +4039,9 @@ if (match) {
         }
         window.location.href = url + `/#/${exam.toLocaleLowerCase()}/${tabName}`;
         if (tabName == "notes") {
-            let ele = document.querySelector(".main-notes-page .page-title");
-            if (ele) window.location.href = window.location.href + `/${ele.id}`;
+            debugger;
+            let id = document.querySelector(".main-notes-page .page-title").id;
+            if (id && id != undefined && id != "") window.location.href = window.location.href + `/${id}`;
         }
     }
 
@@ -6178,7 +6179,7 @@ if (match) {
         load_url = window.location.href;
         let new_data_structure = localStorage.getItem(`esa_new_data_structure_00`);
         if (!new_data_structure) {
-            popupAlert(`esa: New data structure is not set; Setting it to new_data_structure_2024_11_13_00`);
+            //popupAlert(`esa: New data structure is not set; Setting it to new_data_structure_2024_11_13_00`);
             new_data_structure = "new_data_structure_2024_11_13_00";
             localStorage.clear();
             localStorage.setItem(`esa_new_data_structure_00`, new_data_structure);
