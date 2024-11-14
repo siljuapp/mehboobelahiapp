@@ -1,7 +1,7 @@
 {
   "name": "Elahi",
   "short_name": "Elahi",
-  "theme_color": "#ffffff",
+  "theme_color": "#000000",
   "background_color": "#ffffff",
   "display": "standalone",
   "start_url": "/",
