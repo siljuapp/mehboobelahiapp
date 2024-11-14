@@ -33,3 +33,8 @@ async function updateAllMcqIds() {
     let data_ref = database.ref(`esa_data/${exam}/all_mcq_ids`);
     data_ref.set(all_mcq_ids);
 }
+
+async function test() {
+    let ref = database.ref(`esa_data/${exam}/users_login_info`);
+    let data = await getDataFromFirebaseUsingRef(ref);
+}

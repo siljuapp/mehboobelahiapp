@@ -729,18 +729,25 @@ import ReactDOM from "react-dom";
                         </a>
                     </div>
 
+                    <div className="prompt-install-app flex flex-col justify-center items-center gap-2 py-3 px-4  my-3">
+                        <button className="bg-gray-200 w-[fit-content] px-7 text-gray-700 px-4 py-2  rounded-md" onClick={() => promptInstall()}>
+                            Install App
+                        </button>
+                    </div>
+                    <div className="hide flex justify-center items-center gap-2 py-3 px-4  my-3">
+                        <a href="https://www.dropbox.com/scl/fi/3z7xmgawalrw6jftfw4zn/Elahi-2.apk?rlkey=cp3gubu852qbf87f4hd6pqkai&dl=1" target="_blank" className="flex justify-center items-center gap-2 border border-blue-500  rounded-full px-4 py-2">
+                            <i class="bi bi-google-play text-xl"></i>
+                            <span className="text-sm">Install Android App</span>
+                        </a>
+                    </div>
+
                     <div className="flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
                         <span className="text-xl text-gray-500"> 👇👇 Must Read 👇👇</span>
                         <span className="text-sm text-gray-500">If you are running the elahi app on the mobile web browser, then I suggest you to install the android app for better experince.</span>
-                        <a
-                            href="https://www.dropbox.com/scl/fi/3z7xmgawalrw6jftfw4zn/Elahi-2.apk?rlkey=cp3gubu852qbf87f4hd6pqkai&dl=1
-"
-                            target="_blank"
-                            className="flex justify-center items-center gap-2 border border-blue-500  rounded-full px-4 py-2"
-                        >
+                        <div className="flex justify-center items-center gap-2 border border-blue-500  rounded-full px-4 py-2">
                             <i class="bi bi-google-play text-xl"></i>
-                            <span className="text-sm">Download Android App</span>
-                        </a>
+                            <span className="text-sm">Install Android App</span>
+                        </div>
                         <div className="flex flex-col justify-center items-start gap-2 px-3 mt-2">
                             <div className="flex justify-start items-center gap-2">
                                 <i class="bi bi-exclamation-triangle-fill text-yellow-500 text-xl w-[20px]"></i>
@@ -7146,4 +7153,22 @@ if (match) {
     }
 
     //document.addEventListener("click", blastCrackers);
+
+    function promptInstall() {
+        if (deferredPrompt) {
+            // Show the install prompt
+            deferredPrompt.prompt();
+
+            // Wait for the user's response
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === "accepted") {
+                    console.log("User accepted the A2HS prompt");
+                } else {
+                    console.log("User dismissed the A2HS prompt");
+                }
+                // Clear the deferred prompt variable
+                deferredPrompt = null;
+            });
+        }
+    }
 })();
