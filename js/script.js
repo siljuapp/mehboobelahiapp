@@ -713,7 +713,7 @@ function LoadHomePageHTML() {
                     </a>
                 </div>
 
-                <div className="prompt-install-app flex flex-col justify-center items-center gap-2 py-3 px-4  my-3">
+                <div className="hide prompt-install-app flex flex-col justify-center items-center gap-2 py-3 px-4  my-3">
                     <button className="bg-gray-200 w-[fit-content] px-7 text-gray-700  py-2  rounded-md" onClick={() => promptInstall()}>
                         Install App
                     </button>
@@ -725,7 +725,7 @@ function LoadHomePageHTML() {
                     </a>
                 </div>
 
-                <div className="flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
+                <div className="hide flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
                     <span className="text-xl text-gray-500"> 👇👇 Must Read 👇👇</span>
                     <span className="text-sm text-gray-500">If you are running the elahi app on the mobile web browser, then I suggest you to install the android app for better experince.</span>
                     <div className="flex justify-center items-center gap-2 border border-blue-500  rounded-full px-4 py-2">
@@ -741,7 +741,7 @@ function LoadHomePageHTML() {
                     </div>
                 </div>
 
-                <div className="app-link flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
+                <div className="hide app-link flex flex-col justify-center items-center gap-2  py-3 px-4  my-3">
                     <span className="text-sm text-gray-500">If you find this app useful, then do help me by sharing the app link with your friends</span>
 
                     <div
@@ -6249,6 +6249,7 @@ async function updateAppLevelData() {
 //start app
 let has_updates = false;
 async function startApp() {
+    clearCache();
     setExam();
     let should_continue = await shouldEraseLocalData();
     if (!should_continue) return;
