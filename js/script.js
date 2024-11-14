@@ -185,12 +185,6 @@ import ReactDOM from "react-dom";
                     </button>
                 </div>
 
-                <div className="prompt-install-app flex flex-col justify-center items-center gap-2 py-3 px-4  my-3">
-                    <button className="bg-gray-200 w-[fit-content] px-7 text-gray-700 px-4 py-2  rounded-md" onClick={() => promptInstall()}>
-                        Install App
-                    </button>
-                </div>
-
                 <div className="hide block w-full h-auto my-2 mt-5">
                     <div className="flex flex-col justify-center items-center gap-2">
                         <span className={`${previous_login_emails.length ? "block" : "hide"} text-md text-gray-500`}>Login by previous emails:</span>
