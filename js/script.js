@@ -81,7 +81,7 @@ function LoadSignInPageHTML() {
                 <span className="text-gray-500 text-center ">First ever digital educational product from Ladakh</span>
             </div>
 
-            <div className=" bg-green-500 prompt-install-app flex flex-col justify-center items-center gap-2 py-3 px-4  my-3">
+            <div className=" hide bg-green-500 prompt-install-app flex flex-col justify-center items-center gap-2 py-3 px-4  my-3">
                 <button className="bg-gray-200 w-[fit-content] px-7 text-gray-700  py-2  rounded-md" onClick={() => promptInstall()}>
                     Install App
                 </button>
