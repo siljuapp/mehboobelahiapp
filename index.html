@@ -27,41 +27,7 @@
             }
         </style>
     </head>
-    <script>
-        let deferredPrompt;
 
-        // Listen for the beforeinstallprompt event
-        window.addEventListener("beforeinstallprompt", (event) => {
-            // Prevent the mini-infobar from appearing on mobile
-            event.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = event;
-            // Update your UI to notify the user they can install the PWA
-            showInstallPromotion(); // Implement this function to show a custom button
-        });
-
-        // Function to show a custom install button (optional)
-        function showInstallPromotion() {
-            const installButton = document.getElementById("installButton");
-            installButton.style.display = "block"; // Make the button visible
-            installButton.addEventListener("click", promptInstall);
-        }
-
-        // Function to show the install prompt when the user clicks the button
-        function promptInstall() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt(); // Show the install prompt
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === "accepted") {
-                        console.log("User accepted the A2HS prompt");
-                    } else {
-                        console.log("User dismissed the A2HS prompt");
-                    }
-                    deferredPrompt = null; // Clear the deferred prompt
-                });
-            }
-        }
-    </script>
     <script>
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker
