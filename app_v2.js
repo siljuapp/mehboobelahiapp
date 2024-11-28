@@ -39,9 +39,9 @@ async function loadApp() {
 
     // check for new app version
     let app_version = localStorage.getItem("esa_app_version");
-    if (!app_version || app_version != "elahi_new_app_v1.1") {
+    if (!app_version || app_version != "elahi_new_app_v1.2") {
         localStorage.clear();
-        localStorage.setItem("esa_app_version", "elahi_new_app_v1.1");
+        localStorage.setItem("esa_app_version", "elahi_new_app_v1.2");
     }
 
     // Set the exam based on local storage or URL parameter
@@ -79,6 +79,9 @@ async function loadApp() {
     }
     // After the app loads, get upldate the local app data from firebase
     await getUpdatedAppDataFromFirebase();
+    let ele = document.querySelector(".main-content .page.mcq .sub-pages .sub-page.all-mcqs .mcq-div");
+
+    if (!ele) loadMCQsPage();
 }
 
 loadApp();
