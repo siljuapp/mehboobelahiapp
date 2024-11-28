@@ -15,7 +15,7 @@ const auth = firebase.auth();
 var base_data_ref = `elahi_study_app/${exam}`;
 
 // General variables
-var exam = "";
+var exam = "ssc";
 var is_online = navigator.onLine;
 var is_mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 var subjects = {
@@ -45,7 +45,7 @@ async function loadApp() {
     }
 
     // Set the exam based on local storage or URL parameter
-    setExam();
+    exam = "ssc";
     document.querySelector(".home-page-inner .top-bar .exam-name").textContent = exam.toUpperCase();
     //popupAlert("App loaded for " + exam.toUpperCase(), 3, "green");
 
