@@ -45,7 +45,7 @@ async function loadApp() {
     }
 
     // Set the exam based on local storage or URL parameter
-    setExam();
+    exam = "ssc";
     document.querySelector(".home-page-inner .top-bar .exam-name").textContent = exam.toUpperCase();
     //popupAlert("App loaded for " + exam.toUpperCase(), 3, "green");
 
