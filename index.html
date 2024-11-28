@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Elahi</title>
+        <link rel="stylesheet" href="app.css" />
+        <link rel="stylesheet" href="tailwind.css" />
+        <link rel="manifest" href="/manifest.json" />
+
+        <!-- PWA for IOS -->
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Elahi" />
+
+        <link rel="apple-touch-icon" href="/assets/apple-touch-icon -192x192.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/assets/apple-touch-icon-152x152.png" />
+        <meta name="apple-mobile-web-app-startup-image" href="/assets/apple-touch-icon-192x192.png" />
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+        <link rel="icon" href="/assets/favicon.ico" />
+        <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <script src="https://www.youtube.com/iframe_api"></script>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+    </head>
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker
+                .register("/service-worker.js")
+                .then(() => console.log("Service Worker Registered"))
+                .catch((error) => console.error("Service Worker Error", error));
+        }
+    </script>
+
+    <body>
+        <div class="app-container h-screen bg-white">
+            <div class="min-h-[calc(100vh-70px)] overflow-y-auto block w-full main-content fixed top-[50px] left-0">
+                <div class="pages flex justify-center items-center">
+                    <div class="block home page h-full w-full">
+                        <div class="home-page-inner block h-full w-full">
+                            <div class="h-[50px] w-full bg-gray-100 top-bar fixed top-0 left-0 border-b-2 border-gray-200">
+                                <div class="home flex justify-between items-center px-3 h-full w-full">
+                                    <span class="title text-xl font-semibold w-full cursor-pointer">Home</span>
+                                    <div class="icons flex justify-end items-center gap-2 w-full">
+                                        <i class="bi bi-arrow-clockwise text-xl cursor-pointer pressing-effect" onclick="reloadAppUrl(event)"></i>
+                                        <div class="exam-name-container flex justify-center items-center gap-2 h-full bg-violet-800 text-white rounded-md px-2 py-1 w-fit">
+                                            <span class="text-sm">Exam:</span>
+                                            <div class="flex justify-center items-center gap-2 cursor-pointer" onclick="showExamNamesPopup(event)">
+                                                <span class="exam-name text-sm">SSC</span>
+                                                <i class="hide bi bi-chevron-down text-sm"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="block h-full max-h-[calc(100vh-120px)] overflow-y-scroll w-full mb-10">
+                                <div class="block h-full w-full">
+                                    <div class="flex flex-col justify-center items-center gap-2 w-full px-1">
+                                        <h1 class="text-[2.5em] font-bold text-gray-800">ELAHI</h1>
+                                        <span class="text-[1.4em] text-gray-500">A Social Study App</span><span class="text-md text-gray-500">Learn, Share, and Succeed Together</span><span class="text-gray-500 text-center">First ever digital educational product from Ladakh</span>
+                                    </div>
+                                </div>
+
+                                <div class="block h-full w-full px-4 mt-7">
+                                    <div class="flex flex-col justify-center items-center w-full">
+                                        <span class="text-md text-gray-700 font-semibold">Install Mobile App</span>
+                                        <span class="text-sm text-gray-500">To install as mobile app add the current page to home screen from Chrome browser (for android) and from Safari browser (for IOS)</span>
+                                    </div>
+                                </div>
+
+                                <div class="block h-full w-full mt-1[70px] px-4">
+                                    <div class="flex flex-col justify-center items-center gap-4 w-full mt-10 px-4">
+                                        <div class="flex justify-center items-center gap-2 w-full px-1">
+                                            <img src="/assets/feedback_icon.png" width="35px" alt="Feedback and Suggestions" />
+                                            <span class="text-gray-800 text-2xl font-bold">Feedback</span>
+                                        </div>
+                                        <span class="text-gray-800">If you have any feedback or suggestion related to this app, feel to ask me on the below given channels</span>
+                                        <div class="flex justify-center items-center flex-col gap-2 w-full px-1">
+                                            <a href="https://t.me/+xq5ZadcYXyRmY2Y1" target="_blank" class="flex justify-center items-center gap-2 bg-[#3290EC] text-white rounded-md px-2 py-1">
+                                                <div class="flex justify-center items-center gap-2 w-full rounded-full">
+                                                    <i class="bi bi-telegram text-2xl text-white"></i>
+                                                    <span class="text-white">Find on telegram</span>
+                                                </div>
+                                            </a>
+                                            <a href="https://chat.whatsapp.com/IcowioFwtwZ3xwY00hHd4P" target="_blank" class="flex justify-center items-center gap-2 bg-green-500 rounded-md px-2 py-1">
+                                                <div class="flex justify-center items-center gap-2 w-full">
+                                                    <i class="bi bi-whatsapp text-2xl text-white"></i>
+                                                    <span class="text-white">Find on whatsapp</span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hide block h-full w-full mt-10 px-4">
+                                    <div class="flex flex-col justify-center items-center gap-2 w-full px-1">
+                                        <div class="flex justify-center items-center gap-2 w-full px-1">
+                                            <span class="text-gray-800 text-2xl font-bold">Spread the Word</span>
+                                            <i class="bi bi-megaphone text-xl rotate-45-anti-clockwise"></i>
+                                        </div>
+                                        <span class="text-gray-800">If you find this app useful for your prepration then support my work by sharing the links of he below exams with your friends, siblings and peers</span>
+                                        <div class="exam-links flex justify-center items-center gap-4 w-full px-1">
+                                            <div class="exam-link ssc flex justify-center items-center gap-2 border border-blue-500 rounded-md px-2 py-1 cursor-pointer" onclick="copyExamLink ('ssc', event)">
+                                                <i class="bi bi-link text-sm link"></i>
+                                                <span class="link text-sm"> SSC </span>
+                                            </div>
+                                            <div class="exam-link upsc flex justify-center items-center gap-2 border border-blue-500 rounded-md px-2 py-1 cursor-pointer" onclick="copyExamLink ('upsc', event)">
+                                                <i class="bi bi-link text-sm link"></i>
+                                                <span class="link text-sm">UPSC </span>
+                                            </div>
+                                            <div class="exam-link neet flex justify-center items-center gap-2 border border-blue-500 rounded-md px-2 py-1 cursor-pointer" onclick="copyExamLink ('neet', event)">
+                                                <i class="bi bi-link text-sm link"></i>
+                                                <span class="link text-sm">NEET </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="block h-full w-full mt-[70px] px-4">
+                                    <div class="flex flex-col justify-center items-center gap-4 w-full px-1">
+                                        <div class="flex justify-center items-center gap-2 w-full px-1">
+                                            <img src="/assets/todo_icon.png" width="35px" alt="ToDo List" />
+                                            <span class="text-gray-800 text-2xl font-bold">To Do List</span>
+                                        </div>
+                                        <div class="flex flex-col justify-start items-center gap-2 w-full px-1">
+                                            <div class="item flex justify-start items-start gap-2 w-full px-1">
+                                                <i class="bi bi-check2-square text-xl text-green-500 font-bold w-[25px]"></i>
+                                                <span class="text-gray-600 text-md font-semibold">For UPSC and NEET exam</span>
+                                            </div>
+                                            <div class="item flex justify-start items-start gap-2 w-full px-1">
+                                                <i class="bi bi-check2-square text-xl text-green-500 font-bold w-[25px]"></i>
+                                                <span class="text-gray-600 text-md font-semibold">Adding your own notes and linking them to MCQs</span>
+                                            </div>
+                                            <div class="item flex justify-start items-start gap-2 w-full px-1">
+                                                <i class="bi bi-check2-square text-xl text-green-500 font-bold w-[25px]"></i>
+                                                <span class="text-gray-600 text-md font-semibold">Further customization of mock tests</span>
+                                            </div>
+                                            <div class="item flex justify-start items-start gap-2 w-full px-1">
+                                                <i class="bi bi-check2-square text-xl text-green-500 font-bold w-[25px]"></i>
+                                                <span class="text-gray-600 text-md font-semibold">Setting daily targets</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="block border-t-2 mt-7 h-full w-full pb-[150px]">
+                                    <div class="me-footer flex flex-col justify-center items-center gap-2 w-full py-2 mt-7">
+                                        <span class="text-sm text-gray-500">Build with ❤️ by Mehboob Elahi</span>
+                                        <div class="social-media flex justify-center items-center gap-4 mt-2">
+                                            <a href="https://facebook.com/mehboobelahi05" target="_blank">
+                                                <i class="bi bi-facebook px-2 py-1 bg-gray-200 rounded-md"></i>
+                                            </a>
+                                            <a href="https://instagram.com/mehboobelahi05" target="_blank">
+                                                <i class="bi bi-instagram px-2 py-1 bg-gray-200 rounded-md"></i>
+                                            </a>
+                                            <a href="https://youtube.com/@mehboobelahi05/featured" target="_blank">
+                                                <i class="bi bi-youtube px-2 py-1 bg-gray-200 rounded-md"></i>
+                                            </a>
+                                            <a href="https://twitter.com/mehboobelahi05" target="_blank">
+                                                <i class="bi bi-twitter px-2 py-1 bg-gray-200 rounded-md"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide block mcq page h-full w-full">
+                        <div class="h-full w-full block">
+                            <div class="h-[50px] w-full bg-gray-100 top-bar fixed top-0 left-0 border-b-2 border-gray-200">
+                                <div class="mcq flex justify-between items-center px-3 h-full w-full">
+                                    <span class="title text-xl font-semibold cursor-pointer" onclick="openSubPage('mcq', 'all-mcqs', event)"> MCQs </span>
+                                    <div class="icons flex justify-end items-center gap-2">
+                                        <div class="today-practised-mcqs-count flex justify-center items-center gap-2"></div>
+                                        <i class="bi bi-search text-xl cursor-pointer" onclick="loadSearchMCQsByTextSection(event); openSubPage('mcq', 'search-mcqs', event);"></i>
+                                        <i class="bi bi-funnel text-xl cursor-pointer" onclick="loadFilterMCQsSection(event); openSubPage('mcq', 'filter-mcqs', event);"></i>
+                                        <i class="bi bi-bookmark-check text-xl cursor-pointer" onclick="loadBookmarkedMCQs(event); openSubPage('mcq', 'bookmarked-mcqs', event);"></i>
+                                        <i class="hide bi bi-calendar-date text-xl cursor-pointer" onclick="openSubPage('mcq', 'daily-practiced-mcqs', event);"></i>
+                                        <i class="bi bi-shuffle text-xl cursor-pointer" onclick="sortArrayRandomly(filtered_mcqs); displayFilteredMCQs(); openSubPage('mcq', 'all-mcqs', event);"></i>
+                                        <i class="hide bi bi-plus-circle text-xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sub-pages h-full w-full">
+                                <div class="sub-page all-mcqs h-full w-full"></div>
+                                <div class="sub-page search-mcqs h-full w-full"></div>
+                                <div class="sub-page filter-mcqs h-full w-full"></div>
+                                <div class="sub-page bookmarked-mcqs h-full w-full"></div>
+                                <div class="sub-page daily-practiced-mcqs h-full w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide block mocks page h-full w-full">Mocks</div>
+                </div>
+            </div>
+            <div class="bottom-tabs h-[70px] w-full bottom-bar fixed bottom-0 left-0 border-t-2 border-gray-200 bg-white font-bold">
+                <div class="tabs flex justify-center items-center gap-4 py-2">
+                    <div class="tab cursor-pointer flex flex-col items-center px-3" onclick="openTab('home')">
+                        <i class="bi bi-house-door text-xl"></i>
+                        <span>Home</span>
+                    </div>
+                    <div class="tab cursor-pointer flex flex-col items-center px-3" onclick="openTab('mcq')">
+                        <i class="bi bi-list-ol text-xl"></i>
+                        <span>MCQs</span>
+                    </div>
+                    <div class="hide tab cursor-pointer flex flex-col items-center px-3" onclick="openTab('notes')">
+                        <i class="bi bi-file-earmark-text text-xl"></i>
+                        <span>Notes</span>
+                    </div>
+                    <div class="tab cursor-pointer flex flex-col items-center px-3" onclick="openTab('mocks')">
+                        <i class="bi bi-journal-check text-xl"></i>
+                        <span>Mocks</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <canvas id="crackerCanvas" class="hide"></canvas>
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script type="text/babel" src="app_v2.js"></script>
+        <script type="text/babel" src="local_data.js"></script>
+    </body>
+</html>
