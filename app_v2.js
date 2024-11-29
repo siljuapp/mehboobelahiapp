@@ -44,6 +44,9 @@ async function loadApp() {
         localStorage.setItem("esa_app_version", "elahi_new_app_v1.2");
     }
 
+    app_version = "V1.1";
+    document.querySelector(".app-version").textContent = app_version;
+
     // Set the exam based on local storage or URL parameter
     exam = "ssc";
     document.querySelector(".home-page-inner .top-bar .exam-name").textContent = exam.toUpperCase();
