@@ -36,6 +36,9 @@ let temp_userdata = {};
 async function loadApp() {
     // save the page load url to check for shared items
     load_url = window.location.href;
+    if (load_url.indexOf("/mcq/") !== -1) {
+        popupAlert("It seems you have a shared MCQ link, please wait while we load the question", 10);
+    }
 
     // check for new app version
     let app_version = localStorage.getItem("esa_app_version");
@@ -44,7 +47,7 @@ async function loadApp() {
         localStorage.setItem("esa_app_version", "elahi_new_app_v1.2");
     }
 
-    app_version = "V1.1";
+    app_version = "V1.3";
     document.querySelector(".app-version").textContent = app_version;
 
     // Set the exam based on local storage or URL parameter
@@ -59,11 +62,6 @@ async function loadApp() {
     app_data = temp_app_data;
     userdata = temp_userdata;
     que_data = app_data.mcqs ? app_data.mcqs : [];
-
-    // This is required to show shared mcq if any
-    let overlays_div = document.createElement("div");
-    overlays_div.className = "me-overlays";
-    document.body.appendChild(overlays_div);
 
     // If a shared mcq is there show that first and load other things in background
     if (load_url.indexOf("/mcq/") != -1) {
@@ -86,8 +84,7 @@ async function loadApp() {
 
     // This will run when the user opens the app for the first time from a shared link
     if (!ele) {
-        window.location.href = load_url;
-        window.location.reload();
+        loadMCQsPage();
     }
 }
 
@@ -153,11 +150,15 @@ function shareExamLink(exam_name, event) {
 }
 
 function loadMCQsPage() {
-    filtered_mcqs = [];
-    if (userdata.applied_filters) {
+    if (que_data.length === 0) {
+        console.log("que_data is empty");
+        return;
+    }
+    filtered_mcqs = que_data.slice(0, 50);
+    if (userdata.applied_filters && Object.keys(userdata.applied_filters).length > 0) {
         applyFilterInMCQs(userdata.applied_filters);
         return; // return since the all-mcqs sub-page is already opened by applyFilterInMCQs()
-    } else filtered_mcqs = que_data.slice(0, 50);
+    }
     displayFilteredMCQs();
 }
 
@@ -1054,13 +1055,24 @@ function GetMCQHTML({ que, index, type, is_show_icons, is_show_tags, selected_op
 }
 
 function openMCQInFullScreen(que) {
-    que = que.id ? que : getQuestionById(que);
+    try {
+        que = que.id ? que : getQuestionById(que);
+    } catch (error) {
+        console.log(`esa: error in openMCQInFullScreen: ${error}`);
+        return;
+    }
     if (!que) return;
     let div = document.createElement("div");
     div.className = "mcq-fullscreen-overlay me-overlay bg-white";
-    document.querySelector(".me-overlays").appendChild(div);
-
+    let overlays_div = document.querySelector(".me-overlays");
+    if (!overlays_div) {
+        overlays_div = document.createElement("div");
+        overlays_div.className = "me-overlays";
+        document.body.appendChild(overlays_div);
+    }
+    overlays_div.appendChild(div);
     ReactDOM.render(<LoadMCQFullScreenHtml que={que} />, div);
+    removePopupAlert();
 }
 
 function LoadMCQFullScreenHtml({ que }) {
@@ -1349,11 +1361,18 @@ async function loadData() {
 
     temp_app_data = app_data;
     temp_userdata = userdata;
-    if (app_data.mcqs) {
+    if (app_data && app_data.mcqs) {
         return;
     } else {
         await getUpdatedAppDataFromFirebase();
+
         loadMCQsPage();
+        if (load_url.indexOf("/mcq/") != -1) {
+            let id = load_url.substring(load_url.lastIndexOf("/") + 1);
+            if (id !== "") {
+                openMCQInFullScreen(getQuestionById(id));
+            }
+        }
     }
 }
 
@@ -1533,6 +1552,11 @@ function popupAlert(message, time_in_sec, color) {
             div.remove();
         }, 3000);
     }
+}
+
+function removePopupAlert() {
+    let ele = document.querySelector(".me-popup-alert-top");
+    if (ele) ele.remove();
 }
 
 function PopupAlertHTMLMessage({ message, color, time_in_sec }) {
