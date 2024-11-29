@@ -81,7 +81,15 @@ async function loadApp() {
     await getUpdatedAppDataFromFirebase();
     let ele = document.querySelector(".main-content .page.mcq .sub-pages .sub-page.all-mcqs .mcq-div");
 
-    if (!ele) loadMCQsPage();
+    if (!ele) {
+        if (load_url.indexOf("/mcq/") != -1) {
+            let id = load_url.substring(load_url.lastIndexOf("/") + 1);
+            if (id !== "") {
+                openMCQInFullScreen(getQuestionById(id));
+            }
+        }
+        loadMCQsPage();
+    }
 }
 
 loadApp();
