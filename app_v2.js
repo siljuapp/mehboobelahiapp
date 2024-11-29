@@ -81,14 +81,10 @@ async function loadApp() {
     await getUpdatedAppDataFromFirebase();
     let ele = document.querySelector(".main-content .page.mcq .sub-pages .sub-page.all-mcqs .mcq-div");
 
+    // This will run when the user opens the app for the first time from a shared link
     if (!ele) {
-        if (load_url.indexOf("/mcq/") != -1) {
-            let id = load_url.substring(load_url.lastIndexOf("/") + 1);
-            if (id !== "") {
-                openMCQInFullScreen(getQuestionById(id));
-            }
-        }
-        loadMCQsPage();
+        window.location.href = load_url;
+        window.location.reload();
     }
 }
 
