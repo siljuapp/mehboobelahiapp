@@ -47,7 +47,7 @@ async function loadApp() {
         localStorage.setItem("esa_app_version", "elahi_new_app_v1.2");
     }
 
-    app_version = "V1.3";
+    app_version = "V1.4";
     document.querySelector(".app-version").textContent = app_version;
 
     // Set the exam based on local storage or URL parameter
@@ -62,6 +62,11 @@ async function loadApp() {
     app_data = temp_app_data;
     userdata = temp_userdata;
     que_data = app_data.mcqs ? app_data.mcqs : [];
+
+    // add me-overlays
+    let overlays = document.createElement("div");
+    overlays.className = "me-overlays";
+    document.body.appendChild(overlays);
 
     // If a shared mcq is there show that first and load other things in background
     if (load_url.indexOf("/mcq/") != -1) {
@@ -2020,7 +2025,13 @@ function startNewMockTest(mock_obj) {
 
     let mock_overlay = document.createElement("div");
     mock_overlay.className = "me-overlay mock-overlay";
-    document.querySelector(".me-overlays").appendChild(mock_overlay);
+    let overlays = document.querySelector(".me-overlays");
+    if (!overlays) {
+        overlays = document.createElement("div");
+        overlays.className = "me-overlays";
+        document.body.appendChild(overlays);
+    }
+    overlays.appendChild(mock_overlay);
     ReactDOM.render(<MockTestOverlayHTML mock_obj={mock_obj} />, mock_overlay);
 
     setTimeout(() => {
