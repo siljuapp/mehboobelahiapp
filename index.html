@@ -166,7 +166,7 @@
                                     </div>
                                     <div class="app-version-container flex justify-center items-center gap-2 w-full px-1">
                                         <span class="text-sm text-gray-500">App Version:</span>
-                                        <span class="text-sm text-gray-500 app-version">v1.1</span>
+                                        <span class="text-sm text-gray-500 app-version">v1.5</span>
                                     </div>
                                 </div>
                             </div>
@@ -194,6 +194,23 @@
                                 <div class="sub-page filter-mcqs h-full w-full"></div>
                                 <div class="sub-page bookmarked-mcqs h-full w-full"></div>
                                 <div class="sub-page daily-practiced-mcqs h-full w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide block notes page h-full w-full">
+                        <div class="h-full w-full block"></div>
+                        <div class="h-[50px] w-full bg-gray-100 top-bar fixed top-0 left-0 border-b-2 border-gray-200">
+                            <div class="notes flex justify-between items-center px-3 h-full w-full">
+                                <span class="title text-xl font-semibold cursor-pointer" onclick="openSubPage('notes', 'main-article', event)"> Notes </span>
+                                <div class="icons flex justify-end items-center gap-2">
+                                    <i class="bi bi-search text-xl cursor-pointer" onclick="loadSearchNotesSection(event)"></i>
+                                    <i class="bi bi-funnel text-xl cursor-pointer" onclick="loadChaptersNameList(event)"></i>
+                                </div>
+                            </div>
+                            <div class="sub-pages h-full w-full">
+                                <div class="sub-page main-article hide h-full w-full">MAIN ARTICLE</div>
+                                <div class="sub-page search-notes hide h-full w-full">SEARCH NOTES</div>
+                                <div class="sub-page filter-chapters hide h-full w-full">FILTER CHAPTERS</div>
                             </div>
                         </div>
                     </div>
@@ -227,6 +244,6 @@
         <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <script type="text/babel" src="app_v2.js"></script>
+        <script type="text/babel" src="app.js"></script>
     </body>
 </html>
