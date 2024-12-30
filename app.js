@@ -102,7 +102,9 @@ async function loadApp() {
     if (/\/mcq\/filter-mcqs\/.+/.test(load_url)) {
         let tags_string = load_url.substring(load_url.lastIndexOf("/") + 1);
         let tags = tags_string.split("__");
+        tags = tags.map((tag) => tag.replace("_", " "));
         let operator = tags.pop().toLowerCase();
+        debugger;
         let applied_filters = { tags: tags, operator: operator };
         applyFilterInMCQs(applied_filters);
         return; // return since the all-mcqs sub-pag
